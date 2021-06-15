@@ -1,0 +1,19 @@
+-Resources-
+jersey docs: https://eclipse-ee4j.github.io/jersey.github.io/documentation/latest3x/index.html
+jersey docs for REST methods: https://eclipse-ee4j.github.io/jersey.github.io/documentation/latest3x/jaxrs-resources.html
+collection of jersey examples: https://github.com/eclipse-ee4j/jersey/tree/3.x/examples
+simple example of jersey and json encoding: https://howtodoinjava.com/jersey/jax-rs-jersey-moxy-json-example/
+
+-Tools-
+IDE: Eclipse
+REST framework: Jersey
+
+-Basics-
+REST API methods are tagged with @attributes before the name of the class or method to specify certain details about them.
+These include @GET/@POST/@PUT/@DELETE to specify the kind of method, @Path to specify the url for that method, and
+@Produces/@Consumes to specify the type of data they produce and consume over the wire.
+
+Note that @Path's are relative to Path's above them, in that a methods path is relative to the path of it's class
+and a class's path is relative to the path of the application.
+
+I found the jersey docs for REST methods (linked above) really helpful for working on these.
