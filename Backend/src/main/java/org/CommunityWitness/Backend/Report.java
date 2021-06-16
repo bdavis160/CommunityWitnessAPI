@@ -25,7 +25,8 @@ public class Report {
 	 */
 	public Report(int id) throws SQLException {
 		this.id = id;
-		Connection conn = DriverManager.getConnection("jdbc:postgresql://commdbserver.ddns.net/cw_primary", "postgres", "cwdefpass");
+
+		Connection conn = databaseConnection();
 		String myQuery = String.format("SELECT resolved, description, time, location, witnessID " +
 				"FROM report " +
 				"WHERE id='%s';", id);
@@ -49,7 +50,6 @@ public class Report {
 		Properties props = new Properties();
 		props.setProperty("user", "postgres");
 		props.setProperty("password", "cwdefpass");
-		props.setProperty("ssl", "true");
 		Connection conn = DriverManager.getConnection(url, props);
 		return conn;
 	}
