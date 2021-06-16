@@ -8,14 +8,11 @@ import java.util.Date;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ReportTest {
-    private static Report report;
+    private static Report report = new Report();
 
-    static {
-        try {
-            report = new Report(0);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
+    @Test
+    void singleIdCostructor() throws SQLException {
+        Report report2 = new Report(0);
     }
 
     @Test
