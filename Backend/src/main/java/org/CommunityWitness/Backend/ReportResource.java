@@ -1,5 +1,6 @@
 package org.CommunityWitness.Backend;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class ReportResource {
 	 */
 	@GET
 	@Path("/{reportId}")
-	public Report getReport(@PathParam("reportId") int reportId) {
+	public Report getReport(@PathParam("reportId") int reportId) throws SQLException {
 		return new Report(reportId);
 	}
 	
@@ -69,7 +70,7 @@ public class ReportResource {
 	@POST
 	@Path("/{reportId}/updateStatus")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void updateReportStatus(@PathParam("reportId") int reportId, boolean status) {
+	public void updateReportStatus(@PathParam("reportId") int reportId, boolean status) throws SQLException {
 		Report toUpdate = new Report(reportId);
 		toUpdate.setResolved(status);
 	}
