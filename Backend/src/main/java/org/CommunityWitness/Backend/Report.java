@@ -26,20 +26,20 @@ public class Report {
 	public Report(int id) throws SQLException {
 		this.id = id;
 		Connection conn = DriverManager.getConnection("jdbc:postgresql://commdbserver.ddns.net/cw_primary", "postgres", "cwdefpass");
-		//Connection conn = databaseConnection();
 		String myQuery = String.format("SELECT resolved, description, time, location, witnessID " +
 				"FROM report " +
 				"WHERE id='%s';", id);
 		Statement st = conn.createStatement();
 		ResultSet rs = st.executeQuery(myQuery);
+
 		while (rs.next()) {
-			//System.out.println(rs.getString(1));
 			this.resolved = rs.getBoolean(1);
 			this.description = rs.getString(2);
 			this.time = rs.getTime(3);
 			this.location = rs.getString(4);
 			this.witnessID = rs.getInt(5);
 		}
+
 		rs.close();
 		st.close();
 	}
