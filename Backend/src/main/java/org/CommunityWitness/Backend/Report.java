@@ -1,6 +1,8 @@
 package org.CommunityWitness.Backend;
 
+import java.sql.*;
 import java.util.Date;
+import java.util.Properties;
 
 // TODO: determine if comments and evidence should also be pulled into the report class, 
 // or at least have methods in the class to grab them
@@ -21,11 +23,37 @@ public class Report {
 	 * Constructor that looks up a report in the database then fills that data into the object.
 	 * @param id - the id of the report to lookup in the database.
 	 */
-	public Report(int id) {
+	public Report(int id) throws SQLException {
 		this.id = id;
-		// TODO: retrieve information from database to fill out object 
+
+		Connection conn = databaseConnection();
+		String myQuery = String.format("SELECT resolved, description, time, location, witnessID " +
+				"FROM report " +
+				"WHERE id='%s';", id);
+		Statement st = conn.createStatement();
+		ResultSet rs = st.executeQuery(myQuery);
+
+		while (rs.next()) {
+			this.resolved = rs.getBoolean(1);
+			this.description = rs.getString(2);
+			this.time = rs.getTime(3);
+			this.location = rs.getString(4);
+			this.witnessID = rs.getInt(5);
+		}
+
+		rs.close();
+		st.close();
 	}
-	
+
+	private Connection databaseConnection() throws SQLException {
+		String url = "jdbc:postgresql://commdbserver.ddns.net/cw_primary";
+		Properties props = new Properties();
+		props.setProperty("user", "postgres");
+		props.setProperty("password", "cwdefpass");
+		Connection conn = DriverManager.getConnection(url, props);
+		return conn;
+	}
+
 	public int getId() {
 		return id;
 	}
@@ -66,9 +94,7 @@ public class Report {
 		this.location = location;
 	}
 
-	public int getWitnessID() {
-		return witnessID;
-	}
+	public int getWitnessID() { return witnessID; }
 
 	public void setWitnessID(int witnessID) {
 		this.witnessID = witnessID;
