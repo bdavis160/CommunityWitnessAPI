@@ -3,6 +3,8 @@ jersey docs: https://eclipse-ee4j.github.io/jersey.github.io/documentation/lates
 jersey docs for REST methods: https://eclipse-ee4j.github.io/jersey.github.io/documentation/latest3x/jaxrs-resources.html
 collection of jersey examples: https://github.com/eclipse-ee4j/jersey/tree/3.x/examples
 simple example of jersey and json encoding: https://howtodoinjava.com/jersey/jax-rs-jersey-moxy-json-example/
+RESTful API design best practices: https://www.developer.com/web-services/best-practices-restful-api/
+Microsoft doc on RESTful API design: https://docs.microsoft.com/en-us/azure/architecture/best-practices/api-design
 
 -Tools-
 IDE: Eclipse
