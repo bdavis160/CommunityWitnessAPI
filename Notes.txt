@@ -2,9 +2,13 @@
 jersey docs: https://eclipse-ee4j.github.io/jersey.github.io/documentation/latest3x/index.html
 jersey docs for REST methods: https://eclipse-ee4j.github.io/jersey.github.io/documentation/latest3x/jaxrs-resources.html
 collection of jersey examples: https://github.com/eclipse-ee4j/jersey/tree/3.x/examples
+Jakarta REST specification, which is the API interface jersey implements: https://jakarta.ee/specifications/restful-ws/3.0/jakarta-restful-ws-spec-3.0.html
+Jakarta REST tutorial: https://eclipse-ee4j.github.io/jakartaee-tutorial/
+Jakarta API Docs: https://eclipse-ee4j.github.io/jaxrs-api/apidocs/3.0.0/index-all.html#
 simple example of jersey and json encoding: https://howtodoinjava.com/jersey/jax-rs-jersey-moxy-json-example/
 RESTful API design best practices: https://www.developer.com/web-services/best-practices-restful-api/
 Microsoft doc on RESTful API design: https://docs.microsoft.com/en-us/azure/architecture/best-practices/api-design
+HTTP status codes: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
 
 -Tools-
 IDE: Eclipse

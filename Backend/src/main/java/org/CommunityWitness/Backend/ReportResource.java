@@ -12,7 +12,10 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 
 // TODO: implement user authentication for all of these calls
 // TODO: add error handling for things like non-existent database entries
@@ -57,13 +60,20 @@ public class ReportResource {
 	 */
 	@GET
 	@Path("/{reportId}")
-	public Report getReport(@PathParam("reportId") int reportId) throws SQLException {
-		return new Report(reportId);
+	public Report getReport(@PathParam("reportId") int reportId) throws WebApplicationException {
+		Report requestedReport;
+		
+		try {
+			requestedReport = new Report(reportId);
+		} catch (SQLException exception) {
+			throw new WebApplicationException(Response.Status.NOT_FOUND);
+		}
+		
+		return requestedReport;
 	}
 	
 	/**
 	 * Updates a reports status to what the client specifies.
-	 * TODO: determine a better return type for this, probably some sort of http response code.
 	 * 
 	 * @param reportId - the id of the report to update
 	 * @param status - the new status of the report
@@ -71,14 +81,23 @@ public class ReportResource {
 	@POST
 	@Path("/{reportId}/status")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void updateReportStatus(@PathParam("reportId") int reportId, boolean status) throws SQLException {
-		Report toUpdate = new Report(reportId);
-		toUpdate.setResolved(status);
-		// TODO: write back to database, although maybe that should be implemented in the Report class
+	public Status updateReportStatus(@PathParam("reportId") int reportId, boolean status) {
+		Report toUpdate;
+		
+		try {
+			toUpdate = new Report(reportId);
+			toUpdate.setResolved(status);
+			// TODO: write back to database, although maybe that should be implemented in the Report class
+		} catch (SQLException exception) {
+			return Response.Status.NOT_FOUND;
+		}
+		
+		return Response.Status.OK;
 	}
 	
 	/**
 	 * Returns a list of all the comments on the report with the given id.
+	 * 
 	 * @param reportId - the id of the report to retrieve comments on
 	 * @return a list of comments
 	 * @throws SQLException
@@ -95,7 +114,6 @@ public class ReportResource {
 	
 	/**
 	 * Adds an investigators comment to a report.
-	 * TODO: again determine a better return type.
 	 * 
 	 * @param reportId - the id of the report to comment on
 	 * @param comment - the text of the comment sent by the client
@@ -103,8 +121,9 @@ public class ReportResource {
 	@PUT
 	@Path("/{reportId}/comments")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void addCommentToReport(@PathParam("reportId") int reportId, String comment) {
+	public Status addCommentToReport(@PathParam("reportId") int reportId, String comment) {
 		//Report toCommentOn = new Report(reportId);
-		// TODO: write comment about report to database
+		// TODO: write comment about report to database, if that fails return a failure status
+		return Response.Status.OK;
 	}
 }
