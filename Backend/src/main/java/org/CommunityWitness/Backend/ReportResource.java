@@ -78,6 +78,22 @@ public class ReportResource {
 	}
 	
 	/**
+	 * Returns a list of all the comments on the report with the given id.
+	 * @param reportId - the id of the report to retrieve comments on
+	 * @return a list of comments
+	 * @throws SQLException
+	 */
+	@GET
+	@Path("/{reportId}/comments")
+	public List<ReportComment> getReportComments(@PathParam("reportId") int reportId) throws SQLException {
+		Report report = new Report(reportId);
+		
+		List<ReportComment> comments = report.getComments();
+		
+		return comments;
+	}
+	
+	/**
 	 * Adds an investigators comment to a report.
 	 * TODO: again determine a better return type.
 	 * 

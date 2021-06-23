@@ -1,7 +1,9 @@
 package org.CommunityWitness.Backend;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
 // TODO: determine if comments and evidence should also be pulled into the report class, 
@@ -12,7 +14,7 @@ public class Report {
 	String description;
 	Date time;
 	String location;
-	int witnessID;
+	int witnessId;
 	
 	/**
 	 * 0-parameter constructor so that Jersey can generate objects for converting to and from JSON
@@ -27,22 +29,22 @@ public class Report {
 		this.id = id;
 
 		Connection conn = databaseConnection();
-		String myQuery = String.format("SELECT resolved, description, time, location, witnessID " +
+		String query = String.format("SELECT resolved, description, time, location, witnessID " +
 				"FROM report " +
 				"WHERE id='%s';", id);
-		Statement st = conn.createStatement();
-		ResultSet rs = st.executeQuery(myQuery);
+		Statement queryStatement = conn.createStatement();
+		ResultSet queryResults = queryStatement.executeQuery(query);
 
-		while (rs.next()) {
-			this.resolved = rs.getBoolean(1);
-			this.description = rs.getString(2);
-			this.time = rs.getTime(3);
-			this.location = rs.getString(4);
-			this.witnessID = rs.getInt(5);
+		while (queryResults.next()) {
+			this.resolved = queryResults.getBoolean(1);
+			this.description = queryResults.getString(2);
+			this.time = queryResults.getTime(3);
+			this.location = queryResults.getString(4);
+			this.witnessId = queryResults.getInt(5);
 		}
 
-		rs.close();
-		st.close();
+		queryResults.close();
+		queryStatement.close();
 	}
 
 	private Connection databaseConnection() throws SQLException {
@@ -52,6 +54,28 @@ public class Report {
 		props.setProperty("password", "cwdefpass");
 		Connection conn = DriverManager.getConnection(url, props);
 		return conn;
+	}
+	
+	/**
+	 * Retrieves all of the comments on this report from the database and puts them in a list.
+	 * @return a list containing all of the comments on this report
+	 * @throws SQLException
+	 */
+	public List<ReportComment> getComments() throws SQLException{
+		ArrayList<ReportComment> comments = new ArrayList<ReportComment>();
+		
+		Connection conn = databaseConnection();
+		String query = String.format("SELECT ID FROM ReportComments WHERE ReportID='%s';", id);
+		Statement queryStatement = conn.createStatement();
+		ResultSet queryResults = queryStatement.executeQuery(query);
+		
+		while (queryResults.next()) {
+			int currentCommentId = queryResults.getInt(1);
+			ReportComment currentComment = new ReportComment(currentCommentId);
+			comments.add(currentComment);
+		}
+		
+		return comments;
 	}
 
 	public int getId() {
@@ -94,10 +118,10 @@ public class Report {
 		this.location = location;
 	}
 
-	public int getWitnessID() { return witnessID; }
+	public int getWitnessID() { return witnessId; }
 
 	public void setWitnessID(int witnessID) {
-		this.witnessID = witnessID;
+		this.witnessId = witnessID;
 	}
 
 }
