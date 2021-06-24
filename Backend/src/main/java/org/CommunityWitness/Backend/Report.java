@@ -28,7 +28,8 @@ public class Report {
 	public Report(int id) throws SQLException {
 		this.id = id;
 
-		Connection conn = databaseConnection();
+		SQLConnection myConnection = new SQLConnection();
+		Connection conn = myConnection.databaseConnection();
 		String query = String.format("SELECT resolved, description, time, location, witnessID " +
 				"FROM report " +
 				"WHERE id='%s';", id);
@@ -46,15 +47,6 @@ public class Report {
 		queryResults.close();
 		queryStatement.close();
 	}
-
-	private Connection databaseConnection() throws SQLException {
-		String url = "jdbc:postgresql://commdbserver.ddns.net/cw_primary";
-		Properties props = new Properties();
-		props.setProperty("user", "postgres");
-		props.setProperty("password", "cwdefpass");
-		Connection conn = DriverManager.getConnection(url, props);
-		return conn;
-	}
 	
 	/**
 	 * Retrieves all of the comments on this report from the database and puts them in a list.
@@ -64,7 +56,8 @@ public class Report {
 	public List<ReportComment> getComments() throws SQLException{
 		ArrayList<ReportComment> comments = new ArrayList<ReportComment>();
 		
-		Connection conn = databaseConnection();
+		SQLConnection myConnection = new SQLConnection();
+		Connection conn = myConnection.databaseConnection();
 		String query = String.format("SELECT ID FROM ReportComments WHERE ReportID='%s';", id);
 		Statement queryStatement = conn.createStatement();
 		ResultSet queryResults = queryStatement.executeQuery(query);
