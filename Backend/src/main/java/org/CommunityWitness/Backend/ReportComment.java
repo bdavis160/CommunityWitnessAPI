@@ -21,23 +21,23 @@ public class ReportComment {
 	public ReportComment(int id) throws SQLException {
 		this.id = id;
 		
-		// TODO: make databaseConnection() globally accessible so that the code below can be used
-//		Connection conn = databaseConnection();
-//		String query = String.format("SELECT ID, ReportID, InvestigatorID, Contents " +
-//				"FROM ReportComments " +
-//				"WHERE ID='%s';", id);
-//		Statement queryStatement = conn.createStatement();
-//		ResultSet queryResults = queryStatement.executeQuery(query);
-//
-//		while (queryResults.next()) {
-//			this.id = queryResults.getInt(1);
-//			this.reportId = queryResults.getInt(2);
-//			this.investigatorId = queryResults.getInt(3);
-//			this.contents = queryResults.getString(4);
-//		}
-//
-//		queryResults.close();
-//		queryStatement.close();
+		SQLConnection myConnection = new SQLConnection();
+		Connection conn = myConnection.databaseConnection();
+		String query = String.format("SELECT ID, ReportID, InvestigatorID, Contents " +
+				"FROM ReportComments " +
+				"WHERE ID='%s';", id);
+		Statement queryStatement = conn.createStatement();
+		ResultSet queryResults = queryStatement.executeQuery(query);
+
+		while (queryResults.next()) {
+			this.id = queryResults.getInt(1);
+			this.reportId = queryResults.getInt(2);
+			this.investigatorId = queryResults.getInt(3);
+			this.contents = queryResults.getString(4);
+		}
+
+		queryResults.close();
+		queryStatement.close();
 	}
 	
 	public int getId() {

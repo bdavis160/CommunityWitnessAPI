@@ -24,24 +24,24 @@ public class Evidence {
 	public Evidence(int id) throws SQLException {
 		this.id = id;
 		
-		// TODO: make databaseConnection() globally accessible so that the code below can be used
-//		Connection conn = databaseConnection();
-//		String query = String.format("SELECT Title, Type, Timestamp, Link, reportID " +
-//				"FROM Evidence " +
-//				"WHERE ID='%s';", id);
-//		Statement queryStatement = conn.createStatement();
-//		ResultSet queryResults = queryStatement.executeQuery(query);
-//
-//		while (queryResults.next()) {
-//			this.title = queryResults.getString(1);
-//			this.type = queryResults.getString(2);
-//			this.timestamp = queryResults.getDate(3);
-//			this.link = queryResults.getString(4);
-//			this.reportId = queryResults.getInt(5);
-//		}
-//
-//		queryResults.close();
-//		queryStatement.close();
+		SQLConnection myConnection = new SQLConnection();
+		Connection conn = myConnection.databaseConnection();
+		String query = String.format("SELECT Title, Type, Timestamp, Link, reportID " +
+				"FROM Evidence " +
+				"WHERE ID='%s';", id);
+		Statement queryStatement = conn.createStatement();
+		ResultSet queryResults = queryStatement.executeQuery(query);
+
+		while (queryResults.next()) {
+			this.title = queryResults.getString(1);
+			this.type = queryResults.getString(2);
+			this.timestamp = queryResults.getDate(3);
+			this.link = queryResults.getString(4);
+			this.reportId = queryResults.getInt(5);
+		}
+
+		queryResults.close();
+		queryStatement.close();
 	}
 	
 	public int getId() {

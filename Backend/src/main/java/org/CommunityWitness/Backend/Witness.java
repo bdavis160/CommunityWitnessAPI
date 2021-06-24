@@ -21,22 +21,22 @@ public class Witness {
 	public Witness(int id) throws SQLException {
 		this.id = id;
 		
-		// TODO: make databaseConnection() globally accessible so that the code below can be used
-//		Connection conn = databaseConnection();
-//		String myQuery = String.format("SELECT Name, Rating, Location " +
-//				"FROM Witness " +
-//				"WHERE ID='%s';", id);
-//		Statement st = conn.createStatement();
-//		ResultSet rs = st.executeQuery(myQuery);
-//
-//		while (rs.next()) {
-//			this.name = rs.getString(1);
-//			this.rating = rs.getDouble(2);
-//			this.location = rs.getString(3);
-//		}
-//
-//		rs.close();
-//		st.close();
+		SQLConnection myConnection = new SQLConnection();
+		Connection conn = myConnection.databaseConnection();
+		String myQuery = String.format("SELECT Name, Rating, Location " +
+				"FROM Witness " +
+				"WHERE ID='%s';", id);
+		Statement st = conn.createStatement();
+		ResultSet rs = st.executeQuery(myQuery);
+
+		while (rs.next()) {
+			this.name = rs.getString(1);
+			this.rating = rs.getDouble(2);
+			this.location = rs.getString(3);
+		}
+
+		rs.close();
+		st.close();
 	}
 	
 	public int getId() {

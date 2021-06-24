@@ -22,23 +22,23 @@ public class Investigator {
 	public Investigator(int id) throws SQLException {
 		this.id = id;
 		
-		// TODO: make databaseConnection() globally accessible so that the code below can be used
-//		Connection conn = databaseConnection();
-//		String query = String.format("SELECT Name, Organization, OrganizationType, Rating " +
-//				"FROM Investigator " +
-//				"WHERE ID='%s';", id);
-//		Statement queryStatement = conn.createStatement();
-//		ResultSet queryResults = queryStatement.executeQuery(query);
-//
-//		while (queryResults.next()) {
-//			this.name = queryResults.getString(1);
-//			this.organization = queryResults.getString(2);
-//			this.organizationType = queryResults.getString(3);
-//			this.rating = queryResults.getDouble(4);
-//		}
-//
-//		queryResults.close();
-//		queryStatement.close();
+		SQLConnection myConnection = new SQLConnection();
+		Connection conn = myConnection.databaseConnection();
+		String query = String.format("SELECT Name, Organization, OrganizationType, Rating " +
+				"FROM Investigator " +
+				"WHERE ID='%s';", id);
+		Statement queryStatement = conn.createStatement();
+		ResultSet queryResults = queryStatement.executeQuery(query);
+
+		while (queryResults.next()) {
+			this.name = queryResults.getString(1);
+			this.organization = queryResults.getString(2);
+			this.organizationType = queryResults.getString(3);
+			this.rating = queryResults.getDouble(4);
+		}
+
+		queryResults.close();
+		queryStatement.close();
 	}
 	
 	public int getId() {
