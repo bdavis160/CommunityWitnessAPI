@@ -70,8 +70,8 @@ public class Witness {
 	 * @param source - a Witness object containing the updated data
 	 */
 	public void updateFrom(Witness source) {
-		name = source.getName();
-		location = source.getLocation();
+		this.name = source.getName();
+		this.location = source.getLocation();
 	}
 	
 	// Basic getters and setters
