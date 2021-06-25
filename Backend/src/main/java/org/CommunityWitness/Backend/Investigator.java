@@ -1,6 +1,8 @@
 package org.CommunityWitness.Backend;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Investigator {
 	int id;
@@ -16,7 +18,6 @@ public class Investigator {
 	
 	/**
 	 * Constructor that looks up a witness in the database then fills that data into the object.
-	 * 
 	 * @param id - the id of the witness to lookup in the database.
 	 */
 	public Investigator(int id) throws SQLException {
@@ -41,6 +42,42 @@ public class Investigator {
 		queryStatement.close();
 	}
 	
+	/**
+	 * Returns a list of the ids of reports being investigated by this investigator
+	 * @return a list of report id numbers
+	 * @throws SQLException
+	 */
+	public List<Integer> getReports() throws SQLException {
+		ArrayList<Integer> reportIds = new ArrayList<Integer>();
+		
+		SQLConnection myConnection = new SQLConnection();
+		Connection conn = myConnection.databaseConnection();
+		String query = String.format("SELECT ReportID FROM ReportInvestigations WHERE InvestigatorID='%s'", id);
+		Statement queryStatement = conn.createStatement();
+		ResultSet queryResults = queryStatement.executeQuery(query);
+		
+		while (queryResults.next()) {
+			reportIds.add(queryResults.getInt(1));
+		}
+		
+		queryResults.close();
+		queryStatement.close();
+		
+		return reportIds;
+	}
+	
+	/**
+	 * Updates the information about an investigator that investigators are allowed to change using
+	 * data from an Investigator object.
+	 * @param source - an Investigator object containing the updated data
+	 */
+	public void updateFrom(Investigator source) {
+		this.name = source.getName();
+		this.organization = source.getOrganization();
+		this.organizationType = source.getOrganizationType();
+	}
+	
+	// Basic getters and setters
 	public int getId() {
 		return id;
 	}

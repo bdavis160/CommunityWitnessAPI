@@ -15,7 +15,6 @@ public class ReportComment {
 	
 	/**
 	 * Constructor that looks up a witness in the database then fills that data into the object.
-	 * 
 	 * @param id - the id of the witness to lookup in the database.
 	 */
 	public ReportComment(int id) throws SQLException {
@@ -40,6 +39,7 @@ public class ReportComment {
 		queryStatement.close();
 	}
 	
+	// Basic getters and setters
 	public int getId() {
 		return id;
 	}
