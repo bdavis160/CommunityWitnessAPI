@@ -18,7 +18,6 @@ public class Evidence {
 	
 	/**
 	 * Constructor that looks up a witness in the database then fills that data into the object.
-	 * 
 	 * @param id - the id of the witness to lookup in the database.
 	 */
 	public Evidence(int id) throws SQLException {
@@ -44,6 +43,7 @@ public class Evidence {
 		queryStatement.close();
 	}
 	
+	// Basic getters and setters
 	public int getId() {
 		return id;
 	}

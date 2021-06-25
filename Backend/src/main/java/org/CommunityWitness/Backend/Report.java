@@ -71,6 +71,7 @@ public class Report {
 		return comments;
 	}
 
+	// Basic getters and setters
 	public int getId() {
 		return id;
 	}
