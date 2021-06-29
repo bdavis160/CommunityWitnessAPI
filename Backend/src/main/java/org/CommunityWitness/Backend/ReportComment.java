@@ -28,11 +28,13 @@ public class ReportComment {
 		Statement queryStatement = conn.createStatement();
 		ResultSet queryResults = queryStatement.executeQuery(query);
 
-		while (queryResults.next()) {
+		if (queryResults.next()) {
 			this.id = queryResults.getInt(1);
 			this.reportId = queryResults.getInt(2);
 			this.investigatorId = queryResults.getInt(3);
 			this.contents = queryResults.getString(4);
+		} else {
+			throw new RuntimeException("Comment with the supplied ID does not exist in database");
 		}
 
 		queryResults.close();

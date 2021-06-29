@@ -31,12 +31,15 @@ public class Investigator {
 		Statement queryStatement = conn.createStatement();
 		ResultSet queryResults = queryStatement.executeQuery(query);
 
-		while (queryResults.next()) {
+		if (queryResults.next()) {
 			this.name = queryResults.getString(1);
 			this.organization = queryResults.getString(2);
 			this.organizationType = queryResults.getString(3);
 			this.rating = queryResults.getDouble(4);
+		} else {
+			throw new RuntimeException("Investigator with the supplied ID does not exist in database");
 		}
+
 
 		queryResults.close();
 		queryStatement.close();
@@ -45,10 +48,9 @@ public class Investigator {
 	/**
 	 * Returns a list of the ids of reports being investigated by this investigator
 	 * @return a list of report id numbers
-	 * @throws SQLException
 	 */
 	public List<Integer> getReports() throws SQLException {
-		ArrayList<Integer> reportIds = new ArrayList<Integer>();
+		ArrayList<Integer> reportIds = new ArrayList<>();
 		
 		SQLConnection myConnection = new SQLConnection();
 		Connection conn = myConnection.databaseConnection();

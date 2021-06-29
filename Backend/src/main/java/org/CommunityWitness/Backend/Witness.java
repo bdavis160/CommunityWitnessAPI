@@ -30,10 +30,12 @@ public class Witness {
 		Statement st = conn.createStatement();
 		ResultSet rs = st.executeQuery(myQuery);
 
-		while (rs.next()) {
+		if (rs.next()) {
 			this.name = rs.getString(1);
 			this.rating = rs.getDouble(2);
 			this.location = rs.getString(3);
+		} else {
+			throw new RuntimeException("Witness with the supplied ID does not exist in database");
 		}
 
 		rs.close();
@@ -43,10 +45,9 @@ public class Witness {
 	/**
 	 * Returns a list of the ids of reports filed by this witness
 	 * @return a list of report id numbers
-	 * @throws SQLException
 	 */
 	public List<Integer> getReports() throws SQLException {
-		ArrayList<Integer> reportIds = new ArrayList<Integer>();
+		ArrayList<Integer> reportIds = new ArrayList<>();
 		
 		SQLConnection myConnection = new SQLConnection();
 		Connection conn = myConnection.databaseConnection();
