@@ -31,12 +31,14 @@ public class Evidence {
 		Statement queryStatement = conn.createStatement();
 		ResultSet queryResults = queryStatement.executeQuery(query);
 
-		while (queryResults.next()) {
+		if (queryResults.next()) {
 			this.title = queryResults.getString(1);
 			this.type = queryResults.getString(2);
 			this.timestamp = queryResults.getDate(3);
 			this.link = queryResults.getString(4);
 			this.reportId = queryResults.getInt(5);
+		} else {
+			throw new RuntimeException("Evidence with the supplied ID does not exist in database");
 		}
 
 		queryResults.close();
