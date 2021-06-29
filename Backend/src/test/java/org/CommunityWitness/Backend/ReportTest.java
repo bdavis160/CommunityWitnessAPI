@@ -11,8 +11,14 @@ class ReportTest {
     private static Report report = new Report();
 
     @Test
-    void singleIdCostructor() throws SQLException {
+    void singleIdConstructor() throws SQLException {
         Report report2 = new Report(0);
+        System.out.println(report2.id);
+        System.out.println(report2.resolved);
+        System.out.println(report2.description);
+        System.out.println(report2.time);
+        System.out.println(report2.location);
+        System.out.println(report2.witnessId);
     }
 
     @Test
