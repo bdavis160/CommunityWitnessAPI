@@ -22,7 +22,7 @@ public class InvestigatorResource {
 	/**
 	 * Creates a new investigator with data sent by the client.
 	 * TODO: decide if this should be changed into a request somehow, 
-	 * 		perhaps with a seperate requests table in the database to store them in.
+	 * 		perhaps with a separate requests table in the database to store them in.
 	 * @param name - the name of the investigator
 	 * @param organization - the organization the investigator works for
 	 * @param organizationType - the type of organization the investigator works for

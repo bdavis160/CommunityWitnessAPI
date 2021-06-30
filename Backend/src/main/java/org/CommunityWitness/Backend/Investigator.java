@@ -46,8 +46,9 @@ public class Investigator {
 	}
 	
 	/**
-	 * Returns a list of the ids of reports being investigated by this investigator
+	 * Returns a list of the ids of reports being investigated by this investigator.
 	 * @return a list of report id numbers
+	 * @throws SQLException if no data is found
 	 */
 	public List<Integer> getReports() throws SQLException {
 		ArrayList<Integer> reportIds = new ArrayList<>();
