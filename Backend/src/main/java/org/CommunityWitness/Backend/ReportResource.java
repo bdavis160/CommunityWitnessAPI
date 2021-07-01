@@ -25,7 +25,6 @@ import jakarta.ws.rs.core.Response.Status;
 public class ReportResource {
 	/**
 	 * Returns a list of reports matching the restrictions in the query parameters, or just all the reports if no parameters are specified.
-	 * 
 	 * @param location - the location of the report(s)
 	 * @param time - the time range for when the report(s) were submitted
 	 * @return a list of reports matching the query
@@ -39,7 +38,6 @@ public class ReportResource {
 
 	/**
 	 * Creates a new report from data sent from a client.
-	 * 
 	 * @param description - a description of what took place
 	 * @param time - the time that the report took place
 	 * @param location - where the report took place
@@ -57,7 +55,6 @@ public class ReportResource {
 	
 	/**
 	 * Returns a report from the database to a client.
-	 * 
 	 * @param reportId - the id of the report to send, which will be encoded in the request URL. 
 	 * For example doing a GET on "ourApiUrl.com/reports/123" would send the report with id 123.
 	 * @return the report with the given id.
@@ -77,10 +74,63 @@ public class ReportResource {
 	}
 	
 	/**
+	 * Returns a list of all the ids of the evidence associated with the report with the given id.
+	 * @param reportId - the id of the report to retrieve evidence of
+	 * @return a list of ids of evidence associated with the report
+	 * @throws WebApplicationException if the report isn't found
+	 */
+	@GET
+	@Path("/{reportId}/evidence")
+	public List<Integer> getEvidence(@PathParam("reportId") int reportId) throws WebApplicationException {
+		List<Integer> evidenceIds;
+		
+		try {
+			Report requestedReport = new Report(reportId);
+			evidenceIds = requestedReport.getEvidence();
+		} catch (SQLException exception) {
+			throw new WebApplicationException(Response.Status.NOT_FOUND);
+		}
+		
+		return evidenceIds;
+	}
+	
+	/**
+	 * Creates new evidence associated with the given report id from the data sent.
+	 * TODO: figure out how to send any files associated with the evidence
+	 * @param reportId - the id of the report the evidence is associated with
+	 * @param title - the title of the evidence
+	 * @param type - the type of the evidence (video, picture, audio, etc)
+	 * @param timestamp - the time the evidence occurred
+	 * @return the id of the newly created evidence
+	 * @throws WebApplicationException if the report isn't found
+	 */
+	@POST
+	@Path("/{reportId}/evidence")
+	public int appendEvidence(@PathParam("reportId") int reportId, String title, String type, Date timestamp) throws WebApplicationException {
+		// check if the report exists
+		try {
+			Report requestedReport = new Report(reportId);
+		} catch (SQLException exception) {
+			throw new WebApplicationException(Response.Status.NOT_FOUND);
+		}
+		
+		Evidence newEvidence = new Evidence();
+		
+		newEvidence.setTitle(title);
+		newEvidence.setType(type);
+		newEvidence.setTimestamp(timestamp);
+		newEvidence.setReportId(reportId);
+		
+		// TODO: write new evidence back to database and fill in its id
+		
+		return newEvidence.getId();
+	}
+	
+	/**
 	 * Updates a reports status to what the client specifies.
-	 * 
 	 * @param reportId - the id of the report to update
 	 * @param status - the new status of the report
+	 * @return An OK status on success, otherwise a NOT_FOUND status when the report isn't found
 	 */
 	@POST
 	@Path("/{reportId}/status")
@@ -99,25 +149,28 @@ public class ReportResource {
 	}
 	
 	/**
-	 * Returns a list of all the comments on the report with the given id.
-	 * 
+	 * Returns a list of all the ids of the comments on the report with the given id.
 	 * @param reportId - the id of the report to retrieve comments on
-	 * @return a list of comments
+	 * @return a list of comment ids
 	 * @throws SQLException
 	 */
 	@GET
 	@Path("/{reportId}/comments")
-	public List<ReportComment> getReportComments(@PathParam("reportId") int reportId) throws SQLException {
-		Report report = new Report(reportId);
+	public List<Integer> getReportComments(@PathParam("reportId") int reportId) throws WebApplicationException {
+		List<Integer> commentIds;
 		
-		List<ReportComment> comments = report.getComments();
+		try {
+			Report requestedReport = new Report(reportId);
+			commentIds = requestedReport.getComments();
+		} catch (SQLException exception) {
+			throw new WebApplicationException(Response.Status.NOT_FOUND);
+		}
 		
-		return comments;
+		return commentIds;
 	}
 	
 	/**
 	 * Adds an investigators comment to a report.
-	 * 
 	 * @param reportId - the id of the report to comment on
 	 * @param comment - the text of the comment sent by the client
 	 */

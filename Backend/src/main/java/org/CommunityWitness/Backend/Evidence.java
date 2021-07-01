@@ -85,4 +85,12 @@ public class Evidence {
 	public void setLink(String link) {
 		this.link = link;
 	}
+
+	public int getReportId() {
+		return reportId;
+	}
+
+	public void setReportId(int reportId) {
+		this.reportId = reportId;
+	}
 }

@@ -23,7 +23,6 @@ public class Report {
 
     /**
      * Constructor that looks up a report in the database then fills that data into the object.
-     *
      * @param id - the id of the report to lookup in the database.
      */
     public Report(int id) throws SQLException {
@@ -52,12 +51,12 @@ public class Report {
     }
 
     /**
-     * Retrieves all of the comments on this report from the database and puts them in a list.
-     *
-     * @return a list containing all of the comments on this report
+     * Returns a list of the ids of the comments on this report from the database.
+     * @return a list containing the ids of the comments on this report
+     * @throws SQLException if no data is found
      */
-    public List<ReportComment> getComments() throws SQLException {
-        ArrayList<ReportComment> comments = new ArrayList<>();
+    public List<Integer> getComments() throws SQLException {
+        ArrayList<Integer> commentIds = new ArrayList<>();
 
         SQLConnection myConnection = new SQLConnection();
         Connection conn = myConnection.databaseConnection();
@@ -66,12 +65,31 @@ public class Report {
         ResultSet queryResults = queryStatement.executeQuery(query);
 
         while (queryResults.next()) {
-            int currentCommentId = queryResults.getInt(1);
-            ReportComment currentComment = new ReportComment(currentCommentId);
-            comments.add(currentComment);
+            commentIds.add(queryResults.getInt(1));
         }
 
-        return comments;
+        return commentIds;
+    }
+    
+    /**
+     * Returns a list of the ids of the evidence associated with this report.
+     * @return a list of evidence id numbers
+     * @throws SQLException if no data is found
+     */
+    public List<Integer> getEvidence() throws SQLException {
+    	ArrayList<Integer> evidenceIds = new ArrayList<>();
+    	
+    	SQLConnection myConnection = new SQLConnection();
+        Connection conn = myConnection.databaseConnection();
+        String query = String.format("SELECT ID FROM Evidence WHERE ReportID='%s';", id);
+        Statement queryStatement = conn.createStatement();
+        ResultSet queryResults = queryStatement.executeQuery(query);
+
+        while (queryResults.next()) {
+            evidenceIds.add(queryResults.getInt(1));
+        }
+
+        return evidenceIds;
     }
 
     // Basic getters and setters
