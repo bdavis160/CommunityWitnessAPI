@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -29,7 +30,8 @@ public class InvestigatorResource {
 	 * @return the id of the newly created investigator
 	 */
 	@POST
-	public int createInvestigator(String name, String organization, String organizationType) {
+	public int createInvestigator(@FormParam("name") String name, @FormParam("organization") String organization,
+			@FormParam("organizationType") String organizationType) {
 		Investigator newInvestigator = new Investigator();
 		newInvestigator.setName(name);
 		newInvestigator.setOrganization(organization);
@@ -67,7 +69,7 @@ public class InvestigatorResource {
 	 */
 	@POST
 	@Path("/{investigatorId}")
-	public Status updateInvestigator(@PathParam("investigatorId") int investigatorId, Investigator updatedData) {
+	public Status updateInvestigator(@PathParam("investigatorId") int investigatorId, @FormParam("updatedData") Investigator updatedData) {
 		try {
 			Investigator requestedInvestigator = new Investigator(investigatorId);
 			requestedInvestigator.updateFrom(updatedData);
