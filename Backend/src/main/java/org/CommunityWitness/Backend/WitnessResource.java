@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -26,7 +27,7 @@ public class WitnessResource {
 	 * @return the id of the newly created witness
 	 */
 	@POST
-	public int createWitness(String name, String location) {
+	public int createWitness(@FormParam("name") String name, @FormParam("location") String location) {
 		Witness newWitness = new Witness();
 		newWitness.setName(name);
 		newWitness.setLocation(location);
@@ -63,7 +64,7 @@ public class WitnessResource {
 	 */
 	@POST
 	@Path("/{witnessId}")
-	public Status updateWitness(@PathParam("witnessId") int witnessId, Witness updatedData) {
+	public Status updateWitness(@PathParam("witnessId") int witnessId, @FormParam("updatedData") Witness updatedData) {
 		try {
 			Witness requestedWitness = new Witness(witnessId);
 			requestedWitness.updateFrom(updatedData);

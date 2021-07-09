@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -44,7 +45,7 @@ public class ReportResource {
 	 * @return the id of the newly created report.
 	 */
 	@POST
-	public int createReport(String description, Date time, String location) {
+	public int createReport(@FormParam("description") String description, @FormParam("time") Date time, @FormParam("location") String location) {
 		Report newReport = new Report();
 		newReport.setDescription(description);
 		newReport.setTime(time);
@@ -106,7 +107,8 @@ public class ReportResource {
 	 */
 	@POST
 	@Path("/{reportId}/evidence")
-	public int appendEvidence(@PathParam("reportId") int reportId, String title, String type, Date timestamp) throws WebApplicationException {
+	public int appendEvidence(@PathParam("reportId") int reportId, @FormParam("title") String title, 
+			@FormParam("type") String type, @FormParam("timestamp") Date timestamp) throws WebApplicationException {
 		// check if the report exists
 		try {
 			Report requestedReport = new Report(reportId);
@@ -134,7 +136,7 @@ public class ReportResource {
 	 */
 	@POST
 	@Path("/{reportId}/status")
-	public Status updateReportStatus(@PathParam("reportId") int reportId, boolean status) {
+	public Status updateReportStatus(@PathParam("reportId") int reportId, @FormParam("status") boolean status) {
 		Report toUpdate;
 		
 		try {
@@ -176,7 +178,7 @@ public class ReportResource {
 	 */
 	@PUT
 	@Path("/{reportId}/comments")
-	public Status addCommentToReport(@PathParam("reportId") int reportId, String comment) {
+	public Status addCommentToReport(@PathParam("reportId") int reportId, @FormParam("comment") String comment) {
 		//Report toCommentOn = new Report(reportId);
 		// TODO: write comment about report to database, if that fails return a failure status
 		return Response.Status.OK;
