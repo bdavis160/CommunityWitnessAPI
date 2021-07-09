@@ -39,7 +39,7 @@ public class Report {
         if (queryResults.next()) {
             this.resolved = queryResults.getBoolean(1);
             this.description = queryResults.getString(2);
-            this.time = queryResults.getTime(3);
+            this.time = new Date(queryResults.getTimestamp(3).getTime());
             this.location = queryResults.getString(4);
             this.witnessId = queryResults.getInt(5);
         } else {
@@ -70,16 +70,16 @@ public class Report {
 
         return commentIds;
     }
-    
+
     /**
      * Returns a list of the ids of the evidence associated with this report.
      * @return a list of evidence id numbers
      * @throws SQLException if no data is found
      */
     public List<Integer> getEvidence() throws SQLException {
-    	ArrayList<Integer> evidenceIds = new ArrayList<>();
-    	
-    	SQLConnection myConnection = new SQLConnection();
+        ArrayList<Integer> evidenceIds = new ArrayList<>();
+
+        SQLConnection myConnection = new SQLConnection();
         Connection conn = myConnection.databaseConnection();
         String query = String.format("SELECT ID FROM Evidence WHERE ReportID='%s';", id);
         Statement queryStatement = conn.createStatement();
@@ -91,6 +91,44 @@ public class Report {
 
         return evidenceIds;
     }
+
+    /**
+     * Writes the current Report object out to the database
+     * Updates the report with the current ID if one exists
+     * @throws SQLException if unable to write
+     */
+
+    public void writeToDb() throws SQLException {
+        SQLConnection myConnection = new SQLConnection();
+        Connection conn = myConnection.databaseConnection();
+
+        String query = String.format("INSERT INTO report " +
+                        "VALUES ('%s', '%s', '%s', '%s', '%s', '%s') " +
+                        "ON CONFLICT(id) DO UPDATE " +
+                        "SET " +
+                        "resolved='%s', " +
+                        "description='%s', " +
+                        "time='%s', " +
+                        "location='%s', " +
+                        "witnessid='%s';",
+                this.id,
+                this.resolved,
+                this.description,
+                this.time,
+                this.location,
+                this.witnessId,
+
+                this.resolved,
+                this.description,
+                this.time,
+                this.location,
+                this.witnessId
+        );
+        Statement queryStatement = conn.createStatement();
+        queryStatement.executeUpdate(query);
+        queryStatement.close();
+    }
+
 
     // Basic getters and setters
     public int getId() {
