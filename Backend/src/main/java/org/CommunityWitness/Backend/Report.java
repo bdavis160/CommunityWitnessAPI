@@ -44,7 +44,7 @@ public class Report {
             this.location = queryResults.getString(4);
             this.witnessId = queryResults.getInt(5);
         } else {
-            throw new RuntimeException("Report with the supplied ID does not exist in database" );
+            throw new RuntimeException("Report with the supplied ID does not exist in database");
         }
 
         queryResults.close();
