@@ -53,7 +53,6 @@ public class Report {
 
     /**
      * Returns a list of the ids of the comments on this report from the database.
-     *
      * @return a list containing the ids of the comments on this report
      * @throws SQLException if no data is found
      */
