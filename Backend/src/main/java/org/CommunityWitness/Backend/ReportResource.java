@@ -183,4 +183,5 @@ public class ReportResource {
 		// TODO: write comment about report to database, if that fails return a failure status
 		return Response.Status.OK;
 	}
+
 }
