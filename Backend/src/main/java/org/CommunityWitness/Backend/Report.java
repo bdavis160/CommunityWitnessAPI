@@ -182,6 +182,7 @@ public class Report {
         return id;
     }
 
+    // this is for jersey. do not use this method manually.
     public void setId(int id) {
         this.id = id;
     }
