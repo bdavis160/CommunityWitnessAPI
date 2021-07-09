@@ -23,7 +23,6 @@ public class Report {
 
     /**
      * Constructor that looks up a report in the database then fills that data into the object.
-     *
      * @param id - the id of the report to lookup in the database.
      */
     public Report(int id) throws SQLException {
@@ -74,7 +73,6 @@ public class Report {
 
     /**
      * Returns a list of the ids of the evidence associated with this report.
-     *
      * @return a list of evidence id numbers
      * @throws SQLException if no data is found
      */
@@ -97,7 +95,6 @@ public class Report {
     /**
      * Writes the current Report object out to the database
      * Updates the report with the current ID if one exists
-     *
      * @throws SQLException if unable to write
      */
 
