@@ -58,10 +58,11 @@
             <version>RELEASE</version>
             <scope>test</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
         <dependency>
-            <groupId>postgresql</groupId>
+            <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>9.0-801.jdbc4</version>
+            <version>42.2.5</version>
         </dependency>
     </dependencies>
     <properties>
