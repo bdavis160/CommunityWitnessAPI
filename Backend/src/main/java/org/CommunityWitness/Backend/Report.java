@@ -23,6 +23,7 @@ public class Report {
 
     /**
      * Constructor that looks up a report in the database then fills that data into the object.
+     *
      * @param id - the id of the report to lookup in the database.
      */
     public Report(int id) throws SQLException {
@@ -51,7 +52,26 @@ public class Report {
     }
 
     /**
+     * Constructor that creates a new entry that will be added to the database.
+     *
+     * @param resolved    - whether or not the case is resolved
+     * @param description - user-entered description of the case
+     * @param time        - time of occurrence
+     * @param location    - location of occurrence
+     * @param witnessId   - id of reporting witness
+     */
+    public Report(boolean resolved, String description, Date time, String location, int witnessId) {
+        this.id = -1;
+        this.resolved = resolved;
+        this.description = description;
+        this.time = time;
+        this.location = location;
+        this.witnessId = witnessId;
+    }
+
+    /**
      * Returns a list of the ids of the comments on this report from the database.
+     *
      * @return a list containing the ids of the comments on this report
      * @throws SQLException if no data is found
      */
@@ -73,6 +93,7 @@ public class Report {
 
     /**
      * Returns a list of the ids of the evidence associated with this report.
+     *
      * @return a list of evidence id numbers
      * @throws SQLException if no data is found
      */
@@ -95,46 +116,73 @@ public class Report {
     /**
      * Writes the current Report object out to the database
      * Updates the report with the current ID if one exists
+     * Returns the id of the object (newly generated if inserting a new report)
+     *
      * @throws SQLException if unable to write
      */
 
-    public void writeToDb() throws SQLException {
+    public int writeToDb() throws SQLException {
         SQLConnection myConnection = new SQLConnection();
         Connection conn = myConnection.databaseConnection();
 
-        String query = String.format("INSERT INTO report " +
-                        "VALUES ('%s', '%s', '%s', '%s', '%s', '%s') " +
-                        "ON CONFLICT(id) DO UPDATE " +
-                        "SET " +
-                        "resolved='%s', " +
-                        "description='%s', " +
-                        "time='%s', " +
-                        "location='%s', " +
-                        "witnessid='%s';",
-                this.id,
-                this.resolved,
-                this.description,
-                this.time,
-                this.location,
-                this.witnessId,
+        // if the report is brand new (has not been written to the db yet), it will have an id of -1
+        // once the report gets written, it is given an id by the db which will be pulled back into the object
+        if (this.id == -1) {
+            String query = String.format("INSERT INTO report (resolved, description, time, location, witnessid) " +
+                            "VALUES ('%s', '%s', '%s', '%s', '%s');",
+                    this.resolved,
+                    this.description,
+                    this.time,
+                    this.location,
+                    this.witnessId
+            );
 
-                this.resolved,
-                this.description,
-                this.time,
-                this.location,
-                this.witnessId
-        );
-        Statement queryStatement = conn.createStatement();
-        queryStatement.executeUpdate(query);
-        queryStatement.close();
+            PreparedStatement queryStatement = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            int rows = queryStatement.executeUpdate();
+            if (rows == 0) {
+                throw new SQLException("Report insertion failed");
+            }
+
+            try (ResultSet ids = queryStatement.getGeneratedKeys()) {
+                if (ids.next()) {
+                    this.id = ids.getInt(1);
+                } else {
+                    throw new SQLException("ID retrieval failed");
+                }
+            }
+
+            queryStatement.close();
+            //otherwise, we know that this report already has a place in the database and just needs updated
+        } else {
+            Statement queryStatement = conn.createStatement();
+            String query = String.format("UPDATE report " +
+                            "SET " +
+                            "resolved='%s', " +
+                            "description='%s', " +
+                            "time='%s', " +
+                            "location='%s', " +
+                            "witnessid='%s' " +
+                            "WHERE id='%s';",
+                    this.resolved,
+                    this.description,
+                    this.time,
+                    this.location,
+                    this.witnessId,
+                    this.id
+            );
+
+            queryStatement.executeUpdate(query);
+            queryStatement.close();
+        }
+        return this.id;
     }
-
 
     // Basic getters and setters
     public int getId() {
         return id;
     }
 
+    // this is for jersey. do not use this method manually.
     public void setId(int id) {
         this.id = id;
     }

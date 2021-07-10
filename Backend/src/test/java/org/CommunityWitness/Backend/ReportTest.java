@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ReportTest {
     private static Report report = new Report();
@@ -15,28 +16,22 @@ class ReportTest {
     @Test
     void singleIdConstructor() throws SQLException {
         Report report2 = new Report(0);
-        /* commenting out, used for debugging
-        System.out.println(report2.id);
-        System.out.println(report2.resolved);
-        System.out.println(report2.description);
-        System.out.println(report2.time);
-        System.out.println(report2.location);
-        System.out.println(report2.witnessId);
-        */
+        assertNotNull(report2.description);
+        assertNotNull(report2.time);
+        assertNotNull(report2.location);
     }
 
     @Test
-    void testWriteToDatabase() throws SQLException {
-        int testIdInRange = 0;
-        int testIdOutOfRange = 1000;
+    void testChangeAndWriteToDatabase() throws SQLException {
+        int testId = 0;
         boolean testResolved = false;
-        String testDescription = "bar";
+        String testDescription = "foo";
         Date testTime = new Date();
-        String testLocation = "Goodbye";
-        int testWitnessId = 5;
+        String testLocation = "bar";
+        int testWitnessId = 0;
 
         //test write functionality if report already exists
-        Report report3 = new Report(testIdInRange);
+        Report report3 = new Report(testId);
 
         //store the data so we can write it back
         // TODO: Make this not dumb. We should mock the db and modify that instead of messing with the real one
@@ -55,7 +50,7 @@ class ReportTest {
         report3.writeToDb();
 
         //pull the record and check that everything was updated
-        Report report4 = new Report(testIdInRange);
+        Report report4 = new Report(testId);
         assertEquals(testResolved, report4.resolved);
         assertEquals(testDescription, report4.description);
         assertEquals(testTime.toString(), report4.time.toString());
@@ -73,10 +68,18 @@ class ReportTest {
     }
 
     @Test
-    void setId() {
-        int testId = 10;
-        report.setId(testId);
-        assertEquals(testId, report.getId());
+    void testWriteNewReportToDatabase() throws SQLException {
+        boolean testResolved = false;
+        String testDescription = "foo";
+        Date testTime = new Date();
+        String testLocation = "bar";
+        int testWitnessId = 0;
+
+        Report report = new Report(testResolved, testDescription, testTime, testLocation, testWitnessId);
+        report.writeToDb();
+
+        // in the spirit of "nothing gets deleted", this test data is sticking around for the time being as well.
+        // Don't really feel like writing a delete method if we aren't planning on using that in production code.
     }
 
     @Test
