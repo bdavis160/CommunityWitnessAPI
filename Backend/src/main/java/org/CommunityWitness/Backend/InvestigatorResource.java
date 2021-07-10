@@ -69,7 +69,7 @@ public class InvestigatorResource {
 	 */
 	@POST
 	@Path("/{investigatorId}")
-	public Status updateInvestigator(@PathParam("investigatorId") int investigatorId, @FormParam("updatedData") Investigator updatedData) {
+	public Status updateInvestigator(@PathParam("investigatorId") int investigatorId, Investigator updatedData) {
 		try {
 			Investigator requestedInvestigator = new Investigator(investigatorId);
 			requestedInvestigator.updateFrom(updatedData);
