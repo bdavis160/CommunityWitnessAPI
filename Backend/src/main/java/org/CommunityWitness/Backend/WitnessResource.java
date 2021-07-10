@@ -64,7 +64,7 @@ public class WitnessResource {
 	 */
 	@POST
 	@Path("/{witnessId}")
-	public Status updateWitness(@PathParam("witnessId") int witnessId, @FormParam("updatedData") Witness updatedData) {
+	public Status updateWitness(@PathParam("witnessId") int witnessId, Witness updatedData) {
 		try {
 			Witness requestedWitness = new Witness(witnessId);
 			requestedWitness.updateFrom(updatedData);
