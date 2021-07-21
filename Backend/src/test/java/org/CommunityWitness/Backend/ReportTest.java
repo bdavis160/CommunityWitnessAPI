@@ -3,8 +3,6 @@ package org.CommunityWitness.Backend;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -21,6 +19,14 @@ class ReportTest {
         assertNotNull(report2.location);
     }
 
+    /* TODO: the following two tests should be removed if we move to continuous integration.
+    Having tests that modify the production database is a bad idea. The next step would be mocking
+    the database, but it's generally pointless to mock infrastructure solely for the purpose of tests.
+    Leaving them here for now as we work on things, but really what they're testing is SQL syntax
+    and functionality of imported methods. Once these things are understood, the need to continually
+    test them becomes obsolete IMO.
+     */
+
     @Test
     void testChangeAndWriteToDatabase() throws SQLException {
         int testId = 0;
@@ -34,7 +40,6 @@ class ReportTest {
         Report report3 = new Report(testId);
 
         //store the data so we can write it back
-        // TODO: Make this not dumb. We should mock the db and modify that instead of messing with the real one
         boolean realResolved = report3.resolved;
         String realDescription = report3.description;
         Date realTime = report3.time;
