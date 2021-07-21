@@ -1,0 +1,12 @@
+[Unit]
+Description=The Community Witness Backend REST API
+Requires=postgresql.service
+After=postgresql.service network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/java -jar /usr/local/bin/Backend.jar
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
