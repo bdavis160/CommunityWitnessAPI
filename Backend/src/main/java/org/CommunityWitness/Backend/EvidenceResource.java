@@ -5,6 +5,7 @@ import java.util.Date;
 
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -16,6 +17,26 @@ import jakarta.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class EvidenceResource {
+	/**
+	 * Creates new evidence with the data contained in the sent object.
+	 * TODO: figure out how to consume files associated with the evidence
+	 * @param newEvidence - an object containing the information about the evidence
+	 * @return the actual id of the newly created evidence
+	 * @throws WebApplicationException if the report the evidence is associated with doesn't exist
+	 */
+	@POST
+	public int createEvidence(Evidence newEvidence) throws WebApplicationException {
+		// check if the report exists
+		try {
+			Report requestedReport = new Report(newEvidence.getReportId());
+		} catch (SQLException exception) {
+			throw new WebApplicationException(Response.Status.NOT_FOUND);
+		}
+		
+		// TODO: write new evidence back to database and fill in its id
+		return newEvidence.getId();
+	}
+	
 	/**
 	 * Returns the evidence with the given id.
 	 * @param evidenceId - the id of the evidence

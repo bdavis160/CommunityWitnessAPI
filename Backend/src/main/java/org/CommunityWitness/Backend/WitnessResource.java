@@ -1,7 +1,6 @@
 package org.CommunityWitness.Backend;
 
 import java.sql.SQLException;
-import java.util.List;
 
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.FormParam;
@@ -75,26 +74,4 @@ public class WitnessResource {
 		
 		return Response.Status.OK;
 	}
-
-	/**
-	 * Returns a list of the ids of reports filed by the witness with the given id.
-	 * @param witnessId - the id of the witness whose reports should be located
-	 * @return a list of ids of reports filed by the given witness
-	 * @throws WebApplicationException if the witness isn't in the database
-	 */
-	@GET
-	@Path("/witnessId}/reports")
-	public List<Integer> getWitnessReports(@PathParam("witnessId") int witnessId) throws WebApplicationException {
-		List<Integer> reportIds;
-
-		try {
-			Witness requestedWitness = new Witness(witnessId);
-			reportIds = requestedWitness.getReports();
-		} catch (SQLException exception) {
-			throw new WebApplicationException(Response.Status.NOT_FOUND);
-		}
-
-		return reportIds;
-	}
-
 }

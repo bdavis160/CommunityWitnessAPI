@@ -50,19 +50,19 @@ public class ReportComment {
 		this.id = id;
 	}
 	
-	public int getReportID() {
+	public int getReportId() {
 		return reportId;
 	}
 	
-	public void setReportID(int reportID) {
+	public void setReportId(int reportID) {
 		this.reportId = reportID;
 	}
 	
-	public int getInvestigatorID() {
+	public int getInvestigatorId() {
 		return investigatorId;
 	}
 	
-	public void setInvestigatorID(int investigatorID) {
+	public void setInvestigatorId(int investigatorID) {
 		this.investigatorId = investigatorID;
 	}
 	
