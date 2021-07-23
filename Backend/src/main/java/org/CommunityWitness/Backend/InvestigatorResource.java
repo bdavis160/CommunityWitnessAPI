@@ -1,7 +1,6 @@
 package org.CommunityWitness.Backend;
 
 import java.sql.SQLException;
-import java.util.List;
 
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.FormParam;
@@ -13,7 +12,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response.Status;
 
 // TODO: implement user authentication for all of these calls
 @Path("/investigators")
@@ -60,6 +58,7 @@ public class InvestigatorResource {
 		
 		return requestedInvestigator;
 	}
+	
 	/**
 	 * Updates the changeable parts of an investigators data with data sent by the client.
 	 * This takes a whole Investigator object so that making more forms changeable is simple.
@@ -69,40 +68,15 @@ public class InvestigatorResource {
 	 */
 	@POST
 	@Path("/{investigatorId}")
-	public Status updateInvestigator(@PathParam("investigatorId") int investigatorId, Investigator updatedData) {
+	public Response updateInvestigator(@PathParam("investigatorId") int investigatorId, Investigator updatedData) {
 		try {
 			Investigator requestedInvestigator = new Investigator(investigatorId);
 			requestedInvestigator.updateFrom(updatedData);
 			// TODO: write back update to database
 		} catch (SQLException exception) {
-			return Response.Status.NOT_FOUND;
+			return Response.status(Response.Status.NOT_FOUND).build();
 		}
 		
-		return Response.Status.OK;
+		return Response.ok().build();
 	}
-	
-	
-	
-	/**
-	 * Returns a list of the ids of reports that are being investigated by the relevant investigator.
-	 * @param investigatorId - the id of the relevant investigator
-	 * @return a list of ids of reports that are under investigation by the relevant investigator
-	 * @throws WebApplicationException if the investigator isn't found in the database
-	 */
-	@GET
-	@Path("/{investigatorId}/reports")
-	public List<Integer> getInvestigatingReports(@PathParam("investigatorId") int investigatorId) throws WebApplicationException {
-		List<Integer> reportIds;
-		
-		try {
-			Investigator requestedInvestigator = new Investigator(investigatorId);
-			reportIds = requestedInvestigator.getReports();
-		} catch (SQLException exception) {
-			throw new WebApplicationException(Response.Status.NOT_FOUND);
-		}
-		
-		return reportIds;
-	}
-	
-	
 }
