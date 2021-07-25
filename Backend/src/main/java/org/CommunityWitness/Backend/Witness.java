@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Witness {
-	int id;
-	String name;
-	double rating;
-	String location;
+	private int id;
+	private String name;
+	private double rating;
+	private String location;
 	
 	/**
 	 * 0-parameter constructor so that Jersey can generate objects for converting to and from JSON
@@ -71,8 +71,12 @@ public class Witness {
 	 * @param source - a Witness object containing the updated data
 	 */
 	public void updateFrom(Witness source) {
-		this.name = source.getName();
-		this.location = source.getLocation();
+		try {
+			this.name = source.getName();
+			this.location = source.getLocation();
+		} catch(NullPointerException e) {
+			System.out.println("Source witness object does not exist");
+		}
 	}
 	
 	// Basic getters and setters
