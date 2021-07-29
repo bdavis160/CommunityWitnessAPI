@@ -52,7 +52,7 @@
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>libs/</classpathPrefix>
 							<mainClass>
-								org.CommunityWitness.Backend.Main
+								org.CommunityWitness.Backend.Server
 							</mainClass>
 						</manifest>
 					</archive>
