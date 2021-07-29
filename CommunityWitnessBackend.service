@@ -6,7 +6,8 @@ After=postgresql.service network.target
 [Service]
 Type=simple
 Environment=MAX_HEAP_SIZE=1G
-ExecStart=/usr/bin/java -server -Xmx${MAX_HEAP_SIZE} -jar /usr/local/lib/CommunityWitnessBackend/Backend.jar
+Environment=BASE_URI=http://0.0.0.0
+ExecStart=/usr/bin/java -server -Xmx${MAX_HEAP_SIZE} -jar /usr/local/lib/CommunityWitnessBackend/Backend.jar ${BASE_URI}
 Restart=on-failure
 
 [Install]

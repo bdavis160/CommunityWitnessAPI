@@ -4,18 +4,45 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.commons.validator.routines.UrlValidator;
 import org.glassfish.grizzly.http.server.HttpServer;
-import org.glassfish.grizzly.threadpool.ThreadPoolConfig;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
 public class Server {
-	// URL that the HTTP server listens on, TODO: decide if this should be run locally and proxied
-	public static final String BASE_URI = "http://0.0.0.0:8080/";
-
+	// The kinds of URI's ("schemes") that are accepted
+	public static final String[] ALLOWED_URI_SCHEMES = {"http"};
+	
+	// URI that the HTTP server listens on
+	private static URI baseUri = URI.create("http://127.0.0.1:8080");
 	// The actual embedded Grizzly HTTP server
 	private static HttpServer httpServer;
 
+	
+	/**
+	 * Sets the base URI to a new value if it passes validation.
+	 * Note that even if a URI passes validation the server may not actually be able to use it,
+	 * for example while 'http://localhost' is a valid URI the server won't be able to use it 
+	 * without the proper network permissions on Linux and thus will fail despite the URI being valid.
+	 * @param newUri - the string form of the URI to try and use as the new base URI
+	 */
+	private static void setBaseUri(String newUri) {
+		UrlValidator validator = new UrlValidator(ALLOWED_URI_SCHEMES);
+		
+		if (validator.isValid(newUri))
+			baseUri = URI.create(newUri);
+		else
+			System.err.println(String.format("Failed to set base URI to '%s', falling back to default", newUri));
+	}
+	
+	/**
+	 * Returns the URI that the HTTP server is listening on in string form.
+	 * @return the URI that the server is listening on as a string
+	 */
+	public static String getBaseUri() {
+		return baseUri.toString();
+	}
+	
 	/**
 	 * Creates the embedded Grizzly HTTP server with all the resources found in this package,
 	 * then tries to start it.
@@ -24,7 +51,7 @@ public class Server {
 	public static boolean startServer() {
 		// Create the HTTP server with all the resources in this package
 		final ResourceConfig resources = new ResourceConfig().packages("org.CommunityWitness.Backend");
-		httpServer = GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), resources, false);
+		httpServer = GrizzlyHttpServerFactory.createHttpServer(baseUri, resources, false);
 		
 		try {
 			httpServer.start();
@@ -38,7 +65,7 @@ public class Server {
 	}
 	
 	/**
-	 * Stops the HTTP server
+	 * Stops the HTTP server.
 	 */
 	public static void stopServer() {
 		// Try to shutdown gracefully, otherwise shutdown immediately
@@ -50,16 +77,20 @@ public class Server {
 	}
 
 	/**
-	 * Sets up and starts the HTTP server hosting the REST API
-	 * @param args - arguments from the command line, which are currently unused
+	 * Sets up and starts the HTTP server hosting the REST API.
+	 * @param args - arguments from the command line, the first of which is used as the base URI
 	 */
 	public static void main(String[] args) {
+		// Set baseUri to the first argument if it exists
+		if (args.length > 0)
+			setBaseUri(args[0]);
+		
 		if (!startServer())
-			return;
+			System.exit(-1);
 		
 		Runtime.getRuntime().addShutdownHook(new ShutdownHandler());
 
 		System.out.println(String.format("Backend started at '%s', to quit send a SIGTERM, SIGINT, or SIGHUP signal"
-				+ "(by using a service manager, pressing Ctrl-C command line, the stop button in an IDE, or some other means).", BASE_URI));
+				+ "(by using a service manager, pressing Ctrl-C command line, the stop button in an IDE, or some other means).", baseUri));
 	}
 }
