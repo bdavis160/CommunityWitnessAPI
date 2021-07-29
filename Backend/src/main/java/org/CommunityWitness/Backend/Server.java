@@ -15,7 +15,7 @@ public class Server {
 
 	// Multipliers that determine the base (core) and max number of worker threads relative to the systems processor count
 	private static final int CORE_POOL_MULTIPLIER = 1;
-	private static final int MAX_POOL_MULTIPLIER = 4;
+	private static final int MAX_POOL_MULTIPLIER = 2;
 
 	// The actual embedded Grizzly HTTP server
 	private static HttpServer httpServer;
@@ -28,7 +28,7 @@ public class Server {
 		final ResourceConfig resources = new ResourceConfig().packages("org.CommunityWitness.Backend");
 		httpServer = GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), resources, false);
 
-		// Set the number of selector threads and the size of the worker thread pool
+		// Set the size of the worker thread pool
 		int numProcessors = Runtime.getRuntime().availableProcessors();
 		httpServer.getListener("grizzly").getTransport().setSelectorRunnersCount(numProcessors);
 		ThreadPoolConfig workerPoolConfig = httpServer.getListener("grizzly").getTransport().getWorkerThreadPoolConfig();
