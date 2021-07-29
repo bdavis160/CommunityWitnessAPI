@@ -28,8 +28,9 @@ public class Server {
 		final ResourceConfig resources = new ResourceConfig().packages("org.CommunityWitness.Backend");
 		httpServer = GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), resources, false);
 
-		// Set the size of the worker thread pool
+		// Set the number of selector threads and the size of the worker thread pool
 		int numProcessors = Runtime.getRuntime().availableProcessors();
+		httpServer.getListener("grizzly").getTransport().setSelectorRunnersCount(numProcessors);
 		ThreadPoolConfig workerPoolConfig = httpServer.getListener("grizzly").getTransport().getWorkerThreadPoolConfig();
 		workerPoolConfig.setCorePoolSize(CORE_POOL_MULTIPLIER * numProcessors);
 		workerPoolConfig.setMaxPoolSize(MAX_POOL_MULTIPLIER * numProcessors);
