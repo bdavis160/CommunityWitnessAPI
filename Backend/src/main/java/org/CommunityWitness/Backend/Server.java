@@ -13,34 +13,19 @@ public class Server {
 	// URL that the HTTP server listens on, TODO: decide if this should be run locally and proxied
 	public static final String BASE_URI = "http://0.0.0.0:8080/";
 
-	// Multipliers that determine the base (core) and max number of worker threads relative to the systems processor count
-	private static final int CORE_POOL_MULTIPLIER = 1;
-	private static final int MAX_POOL_MULTIPLIER = 2;
-
 	// The actual embedded Grizzly HTTP server
 	private static HttpServer httpServer;
 
 	/**
-	 * Creates the embedded Grizzly HTTP server with all the resources in this package, but doesn't start it.
+	 * Creates the embedded Grizzly HTTP server with all the resources found in this package,
+	 * then tries to start it.
+	 * @return true if the server starts, false if it doesn't
 	 */
-	public static void setupServer() {
+	public static boolean startServer() {
 		// Create the HTTP server with all the resources in this package
 		final ResourceConfig resources = new ResourceConfig().packages("org.CommunityWitness.Backend");
 		httpServer = GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), resources, false);
-
-		// Set the size of the worker thread pool
-		int numProcessors = Runtime.getRuntime().availableProcessors();
-		httpServer.getListener("grizzly").getTransport().setSelectorRunnersCount(numProcessors);
-		ThreadPoolConfig workerPoolConfig = httpServer.getListener("grizzly").getTransport().getWorkerThreadPoolConfig();
-		workerPoolConfig.setCorePoolSize(CORE_POOL_MULTIPLIER * numProcessors);
-		workerPoolConfig.setMaxPoolSize(MAX_POOL_MULTIPLIER * numProcessors);
-	}
-
-	/**
-	 * Try to start the HTTP server
-	 * @return true on success, false on failure
-	 */
-	public static boolean startServer() {
+		
 		try {
 			httpServer.start();
 		} catch (IOException exception) {
@@ -69,7 +54,6 @@ public class Server {
 	 * @param args - arguments from the command line, which are currently unused
 	 */
 	public static void main(String[] args) {
-		setupServer();
 		if (!startServer())
 			return;
 		
