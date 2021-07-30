@@ -14,9 +14,9 @@ class ReportTest {
     @Test
     void singleIdConstructor() throws SQLException {
         Report report2 = new Report(0);
-        assertNotNull(report2.description);
-        assertNotNull(report2.time);
-        assertNotNull(report2.location);
+        assertNotNull(report2.getDescription());
+        assertNotNull(report2.getTime());
+        assertNotNull(report2.getLocation());
     }
 
     /* TODO: the following two tests should be removed if we move to continuous integration.
@@ -40,11 +40,11 @@ class ReportTest {
         Report report3 = new Report(testId);
 
         //store the data so we can write it back
-        boolean realResolved = report3.resolved;
-        String realDescription = report3.description;
-        Date realTime = report3.time;
-        String realLocation = report3.location;
-        int realWitnessId = report3.witnessId;
+        boolean realResolved = report3.isResolved();
+        String realDescription = report3.getDescription();
+        Date realTime = report3.getTime();
+        String realLocation = report3.getLocation();
+        int realWitnessId = report3.getWitnessID();
 
         //make changes and write to db
         report3.setResolved(testResolved);
@@ -56,11 +56,11 @@ class ReportTest {
 
         //pull the record and check that everything was updated
         Report report4 = new Report(testId);
-        assertEquals(testResolved, report4.resolved);
-        assertEquals(testDescription, report4.description);
-        assertEquals(testTime.toString(), report4.time.toString());
-        assertEquals(testLocation, report4.location);
-        assertEquals(testWitnessId, report4.witnessId);
+        assertEquals(testResolved, report4.isResolved());
+        assertEquals(testDescription, report4.getDescription());
+        assertEquals(testTime.toString(), report4.getTime().toString());
+        assertEquals(testLocation, report4.getLocation());
+        assertEquals(testWitnessId, report4.getWitnessID());
 
         //roll back the changes
         //TODO: see above
