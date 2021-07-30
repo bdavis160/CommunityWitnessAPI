@@ -25,7 +25,7 @@ public class ReportResource {
 	 */
 	@GET
 	public List<Report> queryReports(@QueryParam("location") String location, @QueryParam("time") String time) throws SQLException {
-		// TODO: modify this to accept a range of times and perhaps a radius relative to location (depending on front end needs
+		// TODO: modify this to accept a range of times and perhaps a radius relative to location (depending on front end needs)
 		SQLConnection myConnection = new SQLConnection();
 		Connection conn = myConnection.databaseConnection();
 		String query = String.format("SELECT id, resolved, description, time, location, witnessID " +
