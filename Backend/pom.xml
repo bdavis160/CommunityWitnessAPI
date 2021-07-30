@@ -52,7 +52,7 @@
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>libs/</classpathPrefix>
 							<mainClass>
-								org.CommunityWitness.Backend.Main
+								org.CommunityWitness.Backend.Server
 							</mainClass>
 						</manifest>
 					</archive>
@@ -89,6 +89,11 @@
 	</dependencyManagement>
 
 	<dependencies>
+		<dependency>
+			<groupId>commons-validator</groupId>
+			<artifactId>commons-validator</artifactId>
+			<version>1.7</version>
+		</dependency>
 		<dependency>
 			<groupId>jakarta.ws.rs</groupId>
 			<artifactId>jakarta.ws.rs-api</artifactId>
