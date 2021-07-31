@@ -1,19 +1,14 @@
 package org.CommunityWitness.Backend;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.FormParam;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -29,9 +24,25 @@ public class ReportResource {
 	 * @return a list of reports matching the query
 	 */
 	@GET
-	public List<Report> queryReports(@QueryParam("location") String location, @QueryParam("time") String time) {
-		// TODO: format query params for use in sql query, query for matching reports, put them in the results list
-		ArrayList<Report> results = new ArrayList<Report>();
+	public List<Report> queryReports(@QueryParam("location") String location, @QueryParam("time") String time) throws SQLException {
+		// TODO: modify this to accept a range of times and perhaps a radius relative to location (depending on front end needs)
+		SQLConnection myConnection = new SQLConnection();
+		Connection conn = myConnection.databaseConnection();
+		String query = String.format("SELECT id, resolved, description, time, location, witnessID " +
+						"FROM report " +
+						"WHERE location='%s' " +
+						"AND time='%s';", location, time);
+
+		Statement queryStatement = conn.createStatement();
+		ResultSet queryResults = queryStatement.executeQuery(query);
+
+		ArrayList<Report> results = new ArrayList<>();
+
+		while (queryResults.next()) {
+			Report report = new Report(queryResults.getInt(1));
+			results.add(report);
+		}
+
 		return results;
 	}
 
@@ -43,13 +54,12 @@ public class ReportResource {
 	 * @return the id of the newly created report.
 	 */
 	@POST
-	public int createReport(@FormParam("description") String description, @FormParam("time") Date time, @FormParam("location") String location) {
+	public int createReport(@FormParam("description") String description, @FormParam("time") Date time, @FormParam("location") String location) throws SQLException {
 		Report newReport = new Report();
 		newReport.setDescription(description);
 		newReport.setTime(time);
 		newReport.setLocation(location);
-		// TODO: save newReport to database here and fill in it's id from that
-		return newReport.id;
+		return newReport.writeToDb();
 	}
 	
 	/**
@@ -78,7 +88,7 @@ public class ReportResource {
 	 * @param status - the new status of the report
 	 * @return An OK status on success, otherwise a NOT_FOUND status when the report isn't found
 	 */
-	@POST
+	@PUT
 	@Path("/{reportId}")
 	public Response updateReportStatus(@PathParam("reportId") int reportId, @FormParam("status") boolean status) {
 		Report toUpdate;

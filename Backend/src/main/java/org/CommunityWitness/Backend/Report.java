@@ -8,12 +8,12 @@ import java.util.List;
 // TODO: determine if comments and evidence should also be pulled into the report class, 
 // or at least have methods in the class to grab them
 public class Report {
-    int id;
-    boolean resolved;
-    String description;
-    Date time;
-    String location;
-    int witnessId;
+    private int id = -1;
+    private boolean resolved;
+    private String description;
+    private Date time;
+    private String location;
+    private int witnessId;
 
     /**
      * 0-parameter constructor so that Jersey can generate objects for converting to and from JSON
@@ -61,7 +61,6 @@ public class Report {
      * @param witnessId   - id of reporting witness
      */
     public Report(boolean resolved, String description, Date time, String location, int witnessId) {
-        this.id = -1;
         this.resolved = resolved;
         this.description = description;
         this.time = time;
