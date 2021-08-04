@@ -1,75 +1,91 @@
-package org.communitywitness.api;
-
-import java.sql.*;
+package org.communitywitness.common;
 
 public class ReportComment {
-	int id;
-	int reportId;
-	int investigatorId;
-	String contents;
+	private int id;
+	private int reportId;
+	private int investigatorId;
+	private String contents;
 	
 	/**
-	 * 0-parameter constructor so that Jersey can generate objects for converting to and from JSON
+	 * 0-parameter constructor so that frameworks that work with beans 
+	 * can work with this type of object (like Jersey and GSON).
 	 */
 	public ReportComment() {}
 	
 	/**
-	 * Constructor that looks up a witness in the database then fills that data into the object.
-	 * @param id - the id of the witness to lookup in the database.
+	 * A constructor that sets all member variables at once for convenience.
+	 * @param id see {@link #setId(int)}
+	 * @param reportId see {@link #setReportId(int)}
+	 * @param investigatorId see {@link #setInvestigatorId(int)}
+	 * @param contents see {@link #setContents(String)}
 	 */
-	public ReportComment(int id) throws SQLException {
-		this.id = id;
-		
-		SQLConnection myConnection = new SQLConnection();
-		Connection conn = myConnection.databaseConnection();
-		String query = String.format("SELECT ID, ReportID, InvestigatorID, Contents " +
-				"FROM ReportComments " +
-				"WHERE ID='%s';", id);
-		Statement queryStatement = conn.createStatement();
-		ResultSet queryResults = queryStatement.executeQuery(query);
-
-		if (queryResults.next()) {
-			this.id = queryResults.getInt(1);
-			this.reportId = queryResults.getInt(2);
-			this.investigatorId = queryResults.getInt(3);
-			this.contents = queryResults.getString(4);
-		} else {
-			throw new RuntimeException("Comment with the supplied ID does not exist in database");
-		}
-
-		queryResults.close();
-		queryStatement.close();
+	public ReportComment(int id, int reportId, int investigatorId, String contents) {
+		setId(id);
+		setReportId(reportId);
+		setInvestigatorId(investigatorId);
+		setContents(contents);
 	}
 	
-	// Basic getters and setters
+	/**
+	 * Returns the database's id number of this comment
+	 * @return this.id
+	 */
 	public int getId() {
 		return id;
 	}
 	
+	/**
+	 * Sets the id of this comment.
+	 * @param id the id number associated with this comment
+	 */
 	public void setId(int id) {
 		this.id = id;
 	}
 	
+	/**
+	 * Returns the id number of the report this comment is associated with.
+	 * @return this.reportId
+	 */
 	public int getReportId() {
 		return reportId;
 	}
 	
+	/**
+	 * Sets the id of the report this comment is associated with.
+	 * @param reportID the id number of the report this comment is associated with
+	 */
 	public void setReportId(int reportID) {
 		this.reportId = reportID;
 	}
 	
+	/**
+	 * Returns the id number of the investigator that wrote this comment.
+	 * @return this.investigatorId
+	 */
 	public int getInvestigatorId() {
 		return investigatorId;
 	}
 	
+	/**
+	 * Sets the id of the investigator that wrote this comment.
+	 * @param investigatorID the id number of the investigator that wrote this comment
+	 */
 	public void setInvestigatorId(int investigatorID) {
 		this.investigatorId = investigatorID;
 	}
 	
+	/**
+	 * Returns the text of this comment.
+	 * @return this.contents
+	 */
 	public String getContents() {
 		return contents;
 	}
 	
+	/**
+	 * Sets the contents of this comment.
+	 * @param contents the actual text of this comment
+	 */
 	public void setContents(String contents) {
 		this.contents = contents;
 	}

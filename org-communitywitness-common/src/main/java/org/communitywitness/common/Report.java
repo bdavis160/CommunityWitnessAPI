@@ -1,229 +1,172 @@
-package org.communitywitness.api;
+package org.communitywitness.common;
 
-import java.sql.*;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-// TODO: determine if comments and evidence should also be pulled into the report class, 
-// or at least have methods in the class to grab them
 public class Report {
     private int id = -1;
     private boolean resolved;
     private String description;
-    private Date time;
+    private Date timestamp;
     private String location;
     private int witnessId;
+    private List<Integer> comments;
+    private List<Integer> evidence;
 
     /**
-     * 0-parameter constructor so that Jersey can generate objects for converting to and from JSON
+	 * 0-parameter constructor so that frameworks that work with beans 
+	 * can work with this type of object (like Jersey and GSON).
+	 */
+    public Report() {}
+    
+    /**
+     * A constructor that sets all member variables at once for convenience.
+     * @param id see {@link #setId(int)}
+     * @param resolved see {@link #setResolved(boolean)}
+     * @param description see {@link #setDescription(String)}
+     * @param timestamp see {@link #setTimestamp(Date)}
+     * @param location see {@link #setLocation(String)}
+     * @param witnessId see {@link #setWitnessId(int)}
+     * @param comments see {@link #setComments(List)}
+     * @param evidence see {@link #setEvidence(List)}
      */
-    public Report() {
+    public Report(int id, boolean resolved, String description, Date timestamp, 
+    		String location, int witnessId, List<Integer> comments, List<Integer> evidence) {
+    	setId(id);
+    	setResolved(resolved);
+    	setDescription(description);
+    	setTimestamp(timestamp);
+    	setLocation(location);
+    	setWitnessId(witnessId);
+    	setComments(comments);
+    	setEvidence(evidence);
     }
 
     /**
-     * Constructor that looks up a report in the database then fills that data into the object.
-     *
-     * @param id - the id of the report to lookup in the database.
+     * Returns the database's id number of this report.
+     * @return this.id
      */
-    public Report(int id) throws SQLException {
-        this.id = id;
-
-        SQLConnection myConnection = new SQLConnection();
-        Connection conn = myConnection.databaseConnection();
-        String query = String.format("SELECT resolved, description, time, location, witnessID " +
-                "FROM report " +
-                "WHERE id='%s';", id);
-        Statement queryStatement = conn.createStatement();
-        ResultSet queryResults = queryStatement.executeQuery(query);
-
-        if (queryResults.next()) {
-            this.resolved = queryResults.getBoolean(1);
-            this.description = queryResults.getString(2);
-            this.time = new Date(queryResults.getTimestamp(3).getTime());
-            this.location = queryResults.getString(4);
-            this.witnessId = queryResults.getInt(5);
-        } else {
-            throw new RuntimeException("Report with the supplied ID does not exist in database");
-        }
-
-        queryResults.close();
-        queryStatement.close();
-    }
-
-    /**
-     * Constructor that creates a new entry that will be added to the database.
-     *
-     * @param resolved    - whether or not the case is resolved
-     * @param description - user-entered description of the case
-     * @param time        - time of occurrence
-     * @param location    - location of occurrence
-     * @param witnessId   - id of reporting witness
-     */
-    public Report(boolean resolved, String description, Date time, String location, int witnessId) {
-        this.resolved = resolved;
-        this.description = description;
-        this.time = time;
-        this.location = location;
-        this.witnessId = witnessId;
-    }
-
-    /**
-     * Returns a list of the ids of the comments on this report from the database.
-     *
-     * @return a list containing the ids of the comments on this report
-     * @throws SQLException if no data is found
-     */
-    public List<Integer> getComments() throws SQLException {
-        ArrayList<Integer> commentIds = new ArrayList<>();
-
-        SQLConnection myConnection = new SQLConnection();
-        Connection conn = myConnection.databaseConnection();
-        String query = String.format("SELECT ID FROM ReportComments WHERE ReportID='%s';", id);
-        Statement queryStatement = conn.createStatement();
-        ResultSet queryResults = queryStatement.executeQuery(query);
-
-        while (queryResults.next()) {
-            commentIds.add(queryResults.getInt(1));
-        }
-
-        return commentIds;
-    }
-
-    /**
-     * Returns a list of the ids of the evidence associated with this report.
-     *
-     * @return a list of evidence id numbers
-     * @throws SQLException if no data is found
-     */
-    public List<Integer> getEvidence() throws SQLException {
-        ArrayList<Integer> evidenceIds = new ArrayList<>();
-
-        SQLConnection myConnection = new SQLConnection();
-        Connection conn = myConnection.databaseConnection();
-        String query = String.format("SELECT ID FROM Evidence WHERE ReportID='%s';", id);
-        Statement queryStatement = conn.createStatement();
-        ResultSet queryResults = queryStatement.executeQuery(query);
-
-        while (queryResults.next()) {
-            evidenceIds.add(queryResults.getInt(1));
-        }
-
-        return evidenceIds;
-    }
-
-    /**
-     * Writes the current Report object out to the database
-     * Updates the report with the current ID if one exists
-     * Returns the id of the object (newly generated if inserting a new report)
-     *
-     * @throws SQLException if unable to write
-     */
-
-    public int writeToDb() throws SQLException {
-        SQLConnection myConnection = new SQLConnection();
-        Connection conn = myConnection.databaseConnection();
-
-        // if the report is brand new (has not been written to the db yet), it will have an id of -1
-        // once the report gets written, it is given an id by the db which will be pulled back into the object
-        if (this.id == -1) {
-            String query = String.format("INSERT INTO report (resolved, description, time, location, witnessid) " +
-                            "VALUES ('%s', '%s', '%s', '%s', '%s');",
-                    this.resolved,
-                    this.description,
-                    this.time,
-                    this.location,
-                    this.witnessId
-            );
-
-            PreparedStatement queryStatement = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-            int rows = queryStatement.executeUpdate();
-            if (rows == 0) {
-                throw new SQLException("Report insertion failed");
-            }
-
-            try (ResultSet ids = queryStatement.getGeneratedKeys()) {
-                if (ids.next()) {
-                    this.id = ids.getInt(1);
-                } else {
-                    throw new SQLException("ID retrieval failed");
-                }
-            }
-
-            queryStatement.close();
-            //otherwise, we know that this report already has a place in the database and just needs updated
-        } else {
-            Statement queryStatement = conn.createStatement();
-            String query = String.format("UPDATE report " +
-                            "SET " +
-                            "resolved='%s', " +
-                            "description='%s', " +
-                            "time='%s', " +
-                            "location='%s', " +
-                            "witnessid='%s' " +
-                            "WHERE id='%s';",
-                    this.resolved,
-                    this.description,
-                    this.time,
-                    this.location,
-                    this.witnessId,
-                    this.id
-            );
-
-            queryStatement.executeUpdate(query);
-            queryStatement.close();
-        }
-        return this.id;
-    }
-
-    // Basic getters and setters
     public int getId() {
         return id;
     }
 
-    // this is for jersey. do not use this method manually.
+    /**
+     * Sets the id of this report.
+     * @param id the id number associated with this report
+     */
     public void setId(int id) {
         this.id = id;
     }
 
-    public boolean isResolved() {
+    /**
+     * Returns a boolean indicating whether the report is solved (true) or not (false).
+     * @return this.resolved
+     */
+    public boolean getResolved() {
         return resolved;
     }
 
+    /**
+     * Sets whether this report is resolved or not.
+     * @param resolved true if this report is resolved, false if it isn't
+     */
     public void setResolved(boolean resolved) {
         this.resolved = resolved;
     }
 
+    /**
+     * Returns a description of the event this report is about.
+     * @return this.description
+     */
     public String getDescription() {
         return description;
     }
 
+    /**
+     * Sets the description of this report.
+     * @param description a description of the event this report is about
+     */
     public void setDescription(String description) {
         this.description = description;
     }
 
-    public Date getTime() {
-        return time;
+    /**
+     * Returns the date and time that the event this report concerns occurred.
+     * @return this.timestamp
+     */
+    public Date getTimestamp() {
+        return timestamp;
     }
 
-    public void setTime(Date time) {
-        this.time = time;
+    /**
+     * Sets the timestamp of this report.
+     * @param timestamp the date and time that the event this report concerns occurred
+     */
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
     }
 
+    /**
+     * Returns the location that the event this report is concerned about occurred at.
+     * @return this.location
+     */
     public String getLocation() {
         return location;
     }
 
+    /**
+     * Sets the location of this report.
+     * @param location the location that the event this report concerns occurred at
+     */
     public void setLocation(String location) {
         this.location = location;
     }
 
-    public int getWitnessID() {
+    /**
+     * Returns the id of the witness that filed this report.
+     * @return this.witnessId
+     */
+    public int getWitnessId() {
         return witnessId;
     }
 
-    public void setWitnessID(int witnessID) {
-        this.witnessId = witnessID;
+    /**
+     * Sets the id of the witness of this report.
+     * @param witnessId the id number of the witness that filed this report
+     */
+    public void setWitnessId(int witnessId) {
+        this.witnessId = witnessId;
     }
 
+    /**
+     * Returns a list of the id numbers of the comments on this report.
+     * @return this.comments
+     */
+	public List<Integer> getComments() {
+		return comments;
+	}
+
+	/**
+	 * Sets the ids of the comments on this report.
+	 * @param comments a list of id numbers of comments on this report
+	 */
+	public void setComments(List<Integer> comments) {
+		this.comments = comments;
+	}
+
+	/**
+	 * Returns a list of the id numbers of evidence for this report.
+	 * @return this.evidence
+	 */
+	public List<Integer> getEvidence() {
+		return evidence;
+	}
+
+	/**
+	 * Sets the ids of the evidence for this report.
+	 * @param evidence a list of id numbers of evidence for this report
+	 */
+	public void setEvidence(List<Integer> evidence) {
+		this.evidence = evidence;
+	}
 }

@@ -8,4 +8,4 @@
  */
 
 rootProject.name = 'community-witness-api'
-include('community-witness-api-server')
+include('community-witness-api-server', 'org-communitywitness-common')
