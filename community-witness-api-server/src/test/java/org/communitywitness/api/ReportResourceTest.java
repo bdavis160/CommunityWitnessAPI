@@ -17,7 +17,7 @@ class ReportResourceTest {
 
     @Test
     void queryReports() throws SQLException {
-        List<Report> myList = res.queryReports("test location", "2021-07-29 18:08:05.0");
+        List<Report> myList = res.queryReports();
         assertNotNull(myList);
     }
 
