@@ -24,7 +24,7 @@ class ReportResourceTest {
     @Test
     void createReportTest() throws SQLException {
         Date time = new Date();
-        int myId = res.createReport("from unit test", time, "test location");
+        int myId = res.createReport("from unit test", time, "test location", 1);
         assertNotEquals(-1, myId);
     }
 
