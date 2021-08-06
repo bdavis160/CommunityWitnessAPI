@@ -4,6 +4,7 @@
 cd ~/CommunityWitnessAPI
 
 # Pull down changes from repository
+git checkout main
 git pull origin main
 
 # Install and restart server
