@@ -17,14 +17,14 @@ class ReportResourceTest {
 
     @Test
     void queryReports() throws SQLException {
-        List<Report> myList = res.queryReports("test location", "2021-07-29 18:08:05.0");
+        List<Report> myList = res.queryReports();
         assertNotNull(myList);
     }
 
     @Test
     void createReportTest() throws SQLException {
         Date time = new Date();
-        int myId = res.createReport("from unit test", time, "test location");
+        int myId = res.createReport("from unit test", time, "test location", 1);
         assertNotEquals(-1, myId);
     }
 

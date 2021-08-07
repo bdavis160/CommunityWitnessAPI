@@ -161,6 +161,7 @@ public class Report extends org.communitywitness.common.Report {
             queryStatement.executeUpdate(query);
             queryStatement.close();
         }
+
         return getId();
     }
 }

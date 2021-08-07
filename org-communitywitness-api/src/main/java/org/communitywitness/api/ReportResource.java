@@ -18,20 +18,14 @@ import jakarta.ws.rs.core.Response;
 @Consumes(MediaType.APPLICATION_JSON)
 public class ReportResource {
 	/**
-	 * Returns a list of reports matching the restrictions in the query parameters, or just all the reports if no parameters are specified.
-	 * @param location - the location of the report(s)
-	 * @param time - the time range for when the report(s) were submitted
-	 * @return a list of reports matching the query
+	 * Returns all the reports in the database.
+	 * @return a list of reports
 	 */
 	@GET
-	public List<Report> queryReports(@QueryParam("location") String location, @QueryParam("time") String time) throws SQLException {
-		// TODO: modify this to accept a range of times and perhaps a radius relative to location (depending on front end needs)
+	public List<Report> queryReports() throws SQLException {
 		SQLConnection myConnection = new SQLConnection();
 		Connection conn = myConnection.databaseConnection();
-		String query = String.format("SELECT id, resolved, description, time, location, witnessID " +
-						"FROM report " +
-						"WHERE location='%s' " +
-						"AND time='%s';", location, time);
+		String query = "SELECT id, resolved, description, time, location, witnessID FROM report;";
 
 		Statement queryStatement = conn.createStatement();
 		ResultSet queryResults = queryStatement.executeQuery(query);
@@ -39,7 +33,12 @@ public class ReportResource {
 		ArrayList<Report> results = new ArrayList<>();
 
 		while (queryResults.next()) {
-			Report report = new Report(queryResults.getInt(1));
+			Report report = new Report(queryResults.getBoolean(2),
+					queryResults.getString(3),
+					queryResults.getTime(4),
+					queryResults.getString(5),
+					queryResults.getInt(6));
+			report.setId(queryResults.getInt(1));
 			results.add(report);
 		}
 
@@ -54,11 +53,15 @@ public class ReportResource {
 	 * @return the id of the newly created report.
 	 */
 	@POST
-	public int createReport(@FormParam("description") String description, @FormParam("time") Date time, @FormParam("location") String location) throws SQLException {
+	public int createReport(@FormParam("description") String description,
+							@FormParam("time") Date time,
+							@FormParam("location") String location,
+							@FormParam("witnessId") int witnessId) throws SQLException {
 		Report newReport = new Report();
 		newReport.setDescription(description);
 		newReport.setTimestamp(time);
 		newReport.setLocation(location);
+		newReport.setWitnessID(witnessId);
 		return newReport.writeToDb();
 	}
 	
