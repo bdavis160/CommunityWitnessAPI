@@ -18,7 +18,7 @@ There following 3 properties control where the package is installed
 
 Property | Default Value | Description 
 -------- | ------------- | -----------
-`installDir` | `/opt/CommunityWitnessAPI` | The location to store launcher scripts, the application jar, and 3rd-party library jars.
+`installDir` | `/opt/CommunityWitnessAPI` | The location to store launcher scripts, the application jar, and library jars.
 `serviceInstallDir` | `/usr/local/lib/systemd/system/` | The location to store the systemd service file. This should be put somewhere systemd will look like /etc/systemd/system or the default value.
 `launcherInstallDir` | `/usr/local/bin` | The location to link the launcher script to. This should be somewhere in $PATH so that shells can find it.
 
