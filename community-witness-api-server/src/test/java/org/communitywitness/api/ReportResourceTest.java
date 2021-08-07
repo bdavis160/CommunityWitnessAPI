@@ -39,8 +39,8 @@ class ReportResourceTest {
     void updateReportStatus() {
         int testReportId = 2;
         Report testReport = res.getReport(testReportId);
-        boolean newStatus = !testReport.isResolved();
+        boolean newStatus = !testReport.getResolved();
         res.updateReportStatus(2, newStatus);
-        assertEquals(newStatus, res.getReport(testReportId).isResolved());
+        assertEquals(newStatus, res.getReport(testReportId).getResolved());
     }
 }

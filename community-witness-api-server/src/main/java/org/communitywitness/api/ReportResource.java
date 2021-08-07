@@ -57,7 +57,7 @@ public class ReportResource {
 	public int createReport(@FormParam("description") String description, @FormParam("time") Date time, @FormParam("location") String location) throws SQLException {
 		Report newReport = new Report();
 		newReport.setDescription(description);
-		newReport.setTime(time);
+		newReport.setTimestamp(time);
 		newReport.setLocation(location);
 		return newReport.writeToDb();
 	}

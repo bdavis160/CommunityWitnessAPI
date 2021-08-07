@@ -15,6 +15,10 @@ repositories {
 }
 
 dependencies {
+	// First party libraries
+	implementation project(':org-communitywitness-common')
+	
+	// Third party libraries
     implementation 'commons-validator:commons-validator:1.7'
     implementation 'jakarta.ws.rs:jakarta.ws.rs-api:3.0.0'
     implementation 'org.glassfish.grizzly:grizzly-http-server:3.0.0'
@@ -23,6 +27,8 @@ dependencies {
     implementation 'org.glassfish.jersey.inject:jersey-hk2:3.0.2'
     implementation 'org.glassfish.jersey.media:jersey-media-json-binding:3.0.2'
     implementation 'org.postgresql:postgresql:42.2.5'
+    
+    // For tests
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }

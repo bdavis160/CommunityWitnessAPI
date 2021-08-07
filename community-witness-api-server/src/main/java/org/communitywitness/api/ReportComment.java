@@ -2,23 +2,19 @@ package org.communitywitness.api;
 
 import java.sql.*;
 
-public class ReportComment {
-	int id;
-	int reportId;
-	int investigatorId;
-	String contents;
-	
+public class ReportComment extends org.communitywitness.common.ReportComment {
 	/**
-	 * 0-parameter constructor so that Jersey can generate objects for converting to and from JSON
+	 * Wrapper for base classes 0-parameter constructor.
+	 * This is needed to allow Jersey to marshal data in and out of JSON.
 	 */
-	public ReportComment() {}
+	public ReportComment() { super(); }
 	
 	/**
 	 * Constructor that looks up a witness in the database then fills that data into the object.
 	 * @param id - the id of the witness to lookup in the database.
 	 */
 	public ReportComment(int id) throws SQLException {
-		this.id = id;
+		setId(id);
 		
 		SQLConnection myConnection = new SQLConnection();
 		Connection conn = myConnection.databaseConnection();
@@ -29,48 +25,15 @@ public class ReportComment {
 		ResultSet queryResults = queryStatement.executeQuery(query);
 
 		if (queryResults.next()) {
-			this.id = queryResults.getInt(1);
-			this.reportId = queryResults.getInt(2);
-			this.investigatorId = queryResults.getInt(3);
-			this.contents = queryResults.getString(4);
+			setId(queryResults.getInt(1));
+			setReportId(queryResults.getInt(2));
+			setInvestigatorId(queryResults.getInt(3));
+			setContents(queryResults.getString(4));
 		} else {
 			throw new RuntimeException("Comment with the supplied ID does not exist in database");
 		}
 
 		queryResults.close();
 		queryStatement.close();
-	}
-	
-	// Basic getters and setters
-	public int getId() {
-		return id;
-	}
-	
-	public void setId(int id) {
-		this.id = id;
-	}
-	
-	public int getReportId() {
-		return reportId;
-	}
-	
-	public void setReportId(int reportID) {
-		this.reportId = reportID;
-	}
-	
-	public int getInvestigatorId() {
-		return investigatorId;
-	}
-	
-	public void setInvestigatorId(int investigatorID) {
-		this.investigatorId = investigatorID;
-	}
-	
-	public String getContents() {
-		return contents;
-	}
-	
-	public void setContents(String contents) {
-		this.contents = contents;
 	}
 }

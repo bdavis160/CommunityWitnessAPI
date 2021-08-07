@@ -2,27 +2,22 @@ package org.communitywitness.api;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.List;
 
-public class Investigator {
-	int id;
-	String name;
-	String organization;
-	String organizationType;
-	double rating;
-	
+public class Investigator extends org.communitywitness.common.Investigator {
 	/**
-	 * 0-parameter constructor so that Jersey can generate objects for converting to and from JSON
+	 * Wrapper for base classes 0-parameter constructor.
+	 * This is needed to allow Jersey to marshal data in and out of JSON.
 	 */
-	public Investigator() {}
+	public Investigator() { super(); }
 	
 	/**
 	 * Constructor that looks up a witness in the database then fills that data into the object.
 	 * @param id - the id of the witness to lookup in the database.
 	 */
 	public Investigator(int id) throws SQLException {
-		this.id = id;
+		setId(id);
 		
+		// retrieve investigators account info
 		SQLConnection myConnection = new SQLConnection();
 		Connection conn = myConnection.databaseConnection();
 		String query = String.format("SELECT Name, Organization, OrganizationType, Rating " +
@@ -32,10 +27,10 @@ public class Investigator {
 		ResultSet queryResults = queryStatement.executeQuery(query);
 
 		if (queryResults.next()) {
-			this.name = queryResults.getString(1);
-			this.organization = queryResults.getString(2);
-			this.organizationType = queryResults.getString(3);
-			this.rating = queryResults.getDouble(4);
+			setName(queryResults.getString(1));
+			setOrganization(queryResults.getString(2));
+			setOrganizationType(queryResults.getString(3));
+			setRating(queryResults.getDouble(4));
 		} else {
 			throw new RuntimeException("Investigator with the supplied ID does not exist in database");
 		}
@@ -43,19 +38,22 @@ public class Investigator {
 
 		queryResults.close();
 		queryStatement.close();
+		
+		// retrieve ids of the reports the investigator is investigating
+		loadReports();
 	}
 	
 	/**
-	 * Returns a list of the ids of reports being investigated by this investigator.
-	 * @return a list of report id numbers
+	 * Retrieves the list of ids of reports this investigator is investigating,
+	 * then saves that to this object.
 	 * @throws SQLException if no data is found
 	 */
-	public List<Integer> getReports() throws SQLException {
+	public void loadReports() throws SQLException {
 		ArrayList<Integer> reportIds = new ArrayList<>();
 		
 		SQLConnection myConnection = new SQLConnection();
 		Connection conn = myConnection.databaseConnection();
-		String query = String.format("SELECT ReportID FROM ReportInvestigations WHERE InvestigatorID='%s'", id);
+		String query = String.format("SELECT ReportID FROM ReportInvestigations WHERE InvestigatorID='%s'", getId());
 		Statement queryStatement = conn.createStatement();
 		ResultSet queryResults = queryStatement.executeQuery(query);
 		
@@ -66,7 +64,7 @@ public class Investigator {
 		queryResults.close();
 		queryStatement.close();
 		
-		return reportIds;
+		setReports(reportIds);
 	}
 	
 	/**
@@ -75,49 +73,8 @@ public class Investigator {
 	 * @param source - an Investigator object containing the updated data
 	 */
 	public void updateFrom(Investigator source) {
-		this.name = source.getName();
-		this.organization = source.getOrganization();
-		this.organizationType = source.getOrganizationType();
-	}
-	
-	// Basic getters and setters
-	public int getId() {
-		return id;
-	}
-	
-	public void setId(int id) {
-		this.id = id;
-	}
-	
-	public String getName() {
-		return name;
-	}
-	
-	public void setName(String name) {
-		this.name = name;
-	}
-	
-	public String getOrganization() {
-		return organization;
-	}
-	
-	public void setOrganization(String organization) {
-		this.organization = organization;
-	}
-	
-	public String getOrganizationType() {
-		return organizationType;
-	}
-	
-	public void setOrganizationType(String organizationType) {
-		this.organizationType = organizationType;
-	}
-	
-	public double getRating() {
-		return rating;
-	}
-	
-	public void setRating(double rating) {
-		this.rating = rating;
+		setName(source.getName());
+		setOrganization(source.getOrganization());
+		setOrganizationType(source.getOrganizationType());
 	}
 }
