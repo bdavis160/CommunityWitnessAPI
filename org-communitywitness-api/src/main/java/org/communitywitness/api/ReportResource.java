@@ -61,7 +61,7 @@ public class ReportResource {
 		newReport.setDescription(description);
 		newReport.setTimestamp(time);
 		newReport.setLocation(location);
-		newReport.setWitnessID(witnessId);
+		newReport.setWitnessId(witnessId);
 		return newReport.writeToDb();
 	}
 	
