@@ -3,7 +3,7 @@ package org.communitywitness.common;
 import java.util.Date;
 
 public class Evidence {
-	private int id;
+	private int id = SpecialIds.UNSET_ID;
 	private String title;
 	private String type;
 	private Date timestamp;

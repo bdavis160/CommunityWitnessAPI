@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 public class Report {
-    private int id = -1;
+    private int id = SpecialIds.UNSET_ID;
     private boolean resolved;
     private String description;
     private Date timestamp;

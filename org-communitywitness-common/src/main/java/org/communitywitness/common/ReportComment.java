@@ -1,7 +1,7 @@
 package org.communitywitness.common;
 
 public class ReportComment {
-	private int id;
+	private int id = SpecialIds.UNSET_ID;
 	private int reportId;
 	private int investigatorId;
 	private String contents;

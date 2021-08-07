@@ -3,7 +3,7 @@ package org.communitywitness.common;
 import java.util.List;
 
 public class Witness {
-    private int id;
+    private int id = SpecialIds.UNSET_ID;
     private String name;
     private double rating;
     private String location;
