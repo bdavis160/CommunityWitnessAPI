@@ -2,6 +2,11 @@ package org.communitywitness.common;
 
 import java.util.Date;
 
+/**
+ * A class representing the information in the database about a single piece of evidence.
+ * Where a piece of evidence is some sort of media (video, picture, sound, etc...) 
+ * along with some metadata about it.
+ */
 public class Evidence {
 	private int id = SpecialIds.UNSET_ID;
 	private String title;

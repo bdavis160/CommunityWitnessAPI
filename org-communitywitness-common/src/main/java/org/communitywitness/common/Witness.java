@@ -2,6 +2,11 @@ package org.communitywitness.common;
 
 import java.util.List;
 
+/**
+ * A class representing the information in the database about a witness.
+ * Where a witness is user who is a regular person who files reports about
+ * events they witness in their community.
+ */
 public class Witness {
     private int id = SpecialIds.UNSET_ID;
     private String name;

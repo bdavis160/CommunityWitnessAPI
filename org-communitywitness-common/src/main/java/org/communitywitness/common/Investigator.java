@@ -2,6 +2,11 @@ package org.communitywitness.common;
 
 import java.util.List;
 
+/**
+ * A class representing the information in the database about an investigator.
+ * Where an investigator is a human-verified user who works for a news organization
+ * or something similar, and investigates witness-submitted reports.
+ */
 public class Investigator {
 	private int id = SpecialIds.UNSET_ID;
 	private String name;

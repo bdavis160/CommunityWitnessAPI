@@ -1,5 +1,10 @@
 package org.communitywitness.common;
 
+/**
+ * A class representing the information in the database about a comment on a report.
+ * Where a comment on a report, or a ReportComment, 
+ * is a text comment left on a report by an investigator.
+ */
 public class ReportComment {
 	private int id = SpecialIds.UNSET_ID;
 	private int reportId;
