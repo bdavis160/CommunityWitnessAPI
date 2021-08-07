@@ -53,11 +53,15 @@ public class ReportResource {
 	 * @return the id of the newly created report.
 	 */
 	@POST
-	public int createReport(@FormParam("description") String description, @FormParam("time") Date time, @FormParam("location") String location) throws SQLException {
+	public int createReport(@FormParam("description") String description,
+							@FormParam("time") Date time,
+							@FormParam("location") String location,
+							@FormParam("witnessId") int witnessId) throws SQLException {
 		Report newReport = new Report();
 		newReport.setDescription(description);
 		newReport.setTime(time);
 		newReport.setLocation(location);
+		newReport.setWitnessID(witnessId);
 		return newReport.writeToDb();
 	}
 	
