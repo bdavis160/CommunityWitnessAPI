@@ -26,12 +26,11 @@ public class WitnessResource {
 	 * @return the id of the newly created witness
 	 */
 	@POST
-	public int createWitness(@FormParam("name") String name, @FormParam("location") String location) {
+	public int createWitness(@FormParam("name") String name, @FormParam("location") String location) throws SQLException {
 		Witness newWitness = new Witness();
 		newWitness.setName(name);
 		newWitness.setLocation(location);
-		// TODO: save newWitness to database and fill in it's id from that
-		return newWitness.getId();
+		return newWitness.writeToDb();
 	}
 
 	/**
@@ -67,7 +66,6 @@ public class WitnessResource {
 		try {
 			Witness requestedWitness = new Witness(witnessId);
 			requestedWitness.updateFrom(updatedData);
-			// TODO: write back update to database
 		} catch (SQLException exception) {
 			return Response.Status.NOT_FOUND;
 		}
