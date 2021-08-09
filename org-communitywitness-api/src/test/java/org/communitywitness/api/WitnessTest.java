@@ -1,8 +1,5 @@
 package org.communitywitness.api;
 
-import jakarta.validation.constraints.Null;
-
-import org.communitywitness.api.Witness;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
@@ -30,17 +27,18 @@ class WitnessTest {
     @Test
     void getReportsForWitnessWithReportsSucceeds() throws SQLException {
         Witness witness = new Witness();
-        witness.setId(0);
-        List<Integer> witnessReports = new ArrayList<Integer>() {
+        witness.setId(1);
+        witness.loadReports();
+        List<Integer> witnessReports = new ArrayList<>() {
             {
-                add(162);
-                add(61);
+                add(176);
+                add(173);
             }};
         assertEquals(witness.getReports(), witnessReports);
     }
 
     @Test
-    void updateFromCorrectlyUpdatesWitnessInfo() {
+    void updateFromCorrectlyUpdatesWitnessInfo() throws SQLException {
         Witness source = new Witness();
         Witness destination = new Witness();
 
@@ -50,8 +48,58 @@ class WitnessTest {
         destination.setLocation("destinationLocation");
 
         destination.updateFrom(source);
+        Witness check = new Witness(destination.getId());
 
-        assertEquals(source.getName(), destination.getName());
-        assertEquals(source.getLocation(), destination.getLocation());
+        assertEquals(source.getName(), check.getName());
+        assertEquals(source.getLocation(), check.getLocation());
+
+        check.setName("destinationName");
+        check.setLocation("destinationLocation");
+
+        check.writeToDb();
+    }
+
+    @Test
+    void writeNewWitnessToDatabase() throws SQLException {
+        String name = "from new witness unit test";
+        double rating = 0.999;
+        String location = "bar";
+
+        Witness witness = new Witness(name, rating, location);
+        witness.writeToDb();
+    }
+
+    @Test
+    void modifyExistingWitness() throws SQLException {
+        int id = 0;
+        String name = "foobar";
+        double rating = 0.999;
+        String location = "main street";
+
+        //pull our test witness
+        Witness witness = new Witness(id);
+
+        //store the data so we can write it back
+        String realName = witness.getName();
+        double realRating = witness.getRating();
+        String realLocation = witness.getLocation();
+
+        //make changes and write to db
+        witness.setName(name);
+        witness.setRating(rating);
+        witness.setLocation(location);
+        witness.writeToDb();
+
+        //pull the record and check that everything was updated
+        Witness modifiedWitness = new Witness(id);
+        assertEquals(name, modifiedWitness.getName());
+        assertEquals(rating, modifiedWitness.getRating());
+        assertEquals(location , modifiedWitness.getLocation());
+
+        //roll back the changes
+        modifiedWitness.setName(realName);
+        modifiedWitness.setRating(realRating);
+        modifiedWitness.setLocation(realLocation);
+        modifiedWitness.writeToDb();
     }
 }
