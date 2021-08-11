@@ -1,6 +1,6 @@
 package org.communitywitness.common;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -12,7 +12,7 @@ public class Report {
     private int id = SpecialIds.UNSET_ID;
     private boolean resolved;
     private String description;
-    private Date timestamp;
+    private LocalDateTime timestamp;
     private String location;
     private int witnessId;
     private List<Integer> comments;
@@ -29,14 +29,14 @@ public class Report {
      * @param id see {@link #setId(int)}
      * @param resolved see {@link #setResolved(boolean)}
      * @param description see {@link #setDescription(String)}
-     * @param timestamp see {@link #setTimestamp(Date)}
+     * @param timestamp see {@link #setTimestamp(LocalDateTime)}
      * @param location see {@link #setLocation(String)}
      * @param witnessId see {@link #setWitnessId(int)}
      * @param comments see {@link #setComments(List)}
      * @param evidence see {@link #setEvidence(List)}
      */
-    public Report(int id, boolean resolved, String description, Date timestamp, 
-    		String location, int witnessId, List<Integer> comments, List<Integer> evidence) {
+    public Report(int id, boolean resolved, String description, LocalDateTime timestamp,
+                  String location, int witnessId, List<Integer> comments, List<Integer> evidence) {
     	setId(id);
     	setResolved(resolved);
     	setDescription(description);
@@ -99,7 +99,7 @@ public class Report {
      * Returns the date and time that the event this report concerns occurred.
      * @return this.timestamp
      */
-    public Date getTimestamp() {
+    public LocalDateTime getTimestamp() {
         return timestamp;
     }
 
@@ -107,7 +107,7 @@ public class Report {
      * Sets the timestamp of this report.
      * @param timestamp the date and time that the event this report concerns occurred
      */
-    public void setTimestamp(Date timestamp) {
+    public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
 

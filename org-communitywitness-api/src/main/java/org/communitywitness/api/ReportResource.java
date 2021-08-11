@@ -5,9 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -35,7 +33,7 @@ public class ReportResource {
 		while (queryResults.next()) {
 			Report report = new Report(queryResults.getBoolean(2),
 					queryResults.getString(3),
-					queryResults.getTime(4),
+					queryResults.getTimestamp(4).toLocalDateTime(),
 					queryResults.getString(5),
 					queryResults.getInt(6));
 			report.setId(queryResults.getInt(1));
@@ -47,21 +45,17 @@ public class ReportResource {
 
 	/**
 	 * Creates a new report from data sent from a client.
-	 * @param description - a description of what took place
-	 * @param time - the time that the report took place
-	 * @param location - where the report took place
+	 * @param newReportRequestData - object containing data for new report
 	 * @return the id of the newly created report.
 	 */
 	@POST
-	public int createReport(@FormParam("description") String description,
-							@FormParam("time") Date time,
-							@FormParam("location") String location,
-							@FormParam("witnessId") int witnessId) throws SQLException {
-		Report newReport = new Report();
-		newReport.setDescription(description);
-		newReport.setTimestamp(time);
-		newReport.setLocation(location);
-		newReport.setWitnessId(witnessId);
+		public int createReport(NewReportRequest newReportRequestData) throws SQLException {
+		Report newReport = new Report(
+				false,
+				newReportRequestData.getDescription(),
+				newReportRequestData.getTime(),
+				newReportRequestData.getLocation(),
+				newReportRequestData.getWitnessId());
 		return newReport.writeToDb();
 	}
 	
@@ -92,8 +86,8 @@ public class ReportResource {
 	 * @return An OK status on success, otherwise a NOT_FOUND status when the report isn't found
 	 */
 	@PUT
-	@Path("/{reportId}")
-	public Response updateReportStatus(@PathParam("reportId") int reportId, @FormParam("status") boolean status) {
+	@Path("/{reportId}/{status}")
+	public Response updateReportStatus(@PathParam("reportId") int reportId, @PathParam("status") boolean status) {
 		Report toUpdate;
 		
 		try {
