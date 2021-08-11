@@ -1,8 +1,8 @@
 package org.communitywitness.api;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 
 import org.communitywitness.common.SpecialIds;
 
@@ -32,7 +32,7 @@ public class Report extends org.communitywitness.common.Report {
         if (queryResults.next()) {
             setResolved(queryResults.getBoolean(1));
             setDescription(queryResults.getString(2));
-            setTimestamp(new Date(queryResults.getTimestamp(3).getTime()));
+            setTimestamp(queryResults.getTimestamp(3).toLocalDateTime());
             setLocation(queryResults.getString(4));
             setWitnessId(queryResults.getInt(5));
         } else {
@@ -55,7 +55,7 @@ public class Report extends org.communitywitness.common.Report {
      * @param location    - location of occurrence
      * @param witnessId   - id of reporting witness
      */
-    public Report(boolean resolved, String description, Date time, String location, int witnessId) {
+    public Report(boolean resolved, String description, LocalDateTime time, String location, int witnessId) {
     	super(SpecialIds.UNSET_ID, resolved, description, time, location, witnessId, 
     			new ArrayList<Integer>(), new ArrayList<Integer>());
     }

@@ -1,14 +1,10 @@
 package org.communitywitness.api;
 
-import org.communitywitness.api.Report;
-import org.communitywitness.api.ReportResource;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.ListIterator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,8 +19,14 @@ class ReportResourceTest {
 
     @Test
     void createReportTest() throws SQLException {
-        Date time = new Date();
-        int myId = res.createReport("from unit test", time, "test location", 1);
+        LocalDateTime time = LocalDateTime.now();
+        NewReportRequest newReportRequestData= new NewReportRequest();
+        newReportRequestData.setDescription("description from unit test");
+        newReportRequestData.setTime(time);
+        newReportRequestData.setLocation("location from unit test");
+        newReportRequestData.setWitnessId(1);
+
+        int myId = res.createReport(newReportRequestData);
         assertNotEquals(-1, myId);
     }
 

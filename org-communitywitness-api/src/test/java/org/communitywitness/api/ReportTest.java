@@ -1,10 +1,9 @@
 package org.communitywitness.api;
 
-import org.communitywitness.api.Report;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -33,7 +32,7 @@ class ReportTest {
         int testId = 0;
         boolean testResolved = false;
         String testDescription = "foo";
-        Date testTime = new Date();
+        LocalDateTime testTime = LocalDateTime.now();
         String testLocation = "bar";
         int testWitnessId = 0;
 
@@ -43,7 +42,7 @@ class ReportTest {
         //store the data so we can write it back
         boolean realResolved = report3.getResolved();
         String realDescription = report3.getDescription();
-        Date realTime = report3.getTimestamp();
+        LocalDateTime realTime = report3.getTimestamp();
         String realLocation = report3.getLocation();
         int realWitnessId = report3.getWitnessId();
 
@@ -77,7 +76,7 @@ class ReportTest {
     void testWriteNewReportToDatabase() throws SQLException {
         boolean testResolved = false;
         String testDescription = "foo";
-        Date testTime = new Date();
+        LocalDateTime testTime = LocalDateTime.now();
         String testLocation = "bar";
         int testWitnessId = 0;
 
@@ -104,7 +103,7 @@ class ReportTest {
 
     @Test
     void setTime() {
-        Date testTime = new Date();
+        LocalDateTime testTime = LocalDateTime.now();
         report.setTimestamp(testTime);
         assertEquals(testTime, report.getTimestamp());
     }
