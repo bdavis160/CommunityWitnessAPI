@@ -22,21 +22,17 @@ public class InvestigatorResource {
 	 * Creates a new investigator with data sent by the client.
 	 * TODO: decide if this should be changed into a request somehow, 
 	 * 		perhaps with a separate requests table in the database to store them in.
-	 * @param name - the name of the investigator
-	 * @param organization - the organization the investigator works for
-	 * @param organizationType - the type of organization the investigator works for
+	 * @param newInvestigatorRequestData - object containing the new data to be inserted
 	 * @return the id of the newly created investigator
 	 */
 	@POST
-	public int createInvestigator(@FormParam("name") String name, @FormParam("organization") String organization,
-			@FormParam("organizationType") String organizationType) {
-		Investigator newInvestigator = new Investigator();
-		newInvestigator.setName(name);
-		newInvestigator.setOrganization(organization);
-		newInvestigator.setOrganizationType(organizationType);
-		// TODO: write investigator to database and get the id assigned by the db
-		
-		return newInvestigator.getId();
+	public int createInvestigator(NewInvestigatorRequest newInvestigatorRequestData) throws SQLException {
+		Investigator newInvestigator = new Investigator(
+				newInvestigatorRequestData.getName(),
+				newInvestigatorRequestData.getOrganization(),
+				newInvestigatorRequestData.getOrganizationType(),
+				newInvestigatorRequestData.getRating());
+		return newInvestigator.writeToDb();
 	}
 	
 	/**
@@ -63,16 +59,21 @@ public class InvestigatorResource {
 	 * Updates the changeable parts of an investigators data with data sent by the client.
 	 * This takes a whole Investigator object so that making more forms changeable is simple.
 	 * @param investigatorId - the id of the investigator whose data should be updated
-	 * @param updatedData - an Investigator object containing the updated data
+	 * @param updateInvestigatorRequestData - an object containing the updated data
 	 * @return An OK status on success, otherwise a NOT_FOUND status when no matching investigator is found.
 	 */
 	@POST
 	@Path("/{investigatorId}")
-	public Response updateInvestigator(@PathParam("investigatorId") int investigatorId, Investigator updatedData) {
+	public Response updateInvestigator(@PathParam("investigatorId") int investigatorId, UpdateInvestigatorRequest updateInvestigatorRequestData) {
 		try {
 			Investigator requestedInvestigator = new Investigator(investigatorId);
+			Investigator updatedData = new Investigator(
+					updateInvestigatorRequestData.getName(),
+					updateInvestigatorRequestData.getOrganization(),
+					updateInvestigatorRequestData.getOrganizationType(),
+					0);
 			requestedInvestigator.updateFrom(updatedData);
-			// TODO: write back update to database
+			requestedInvestigator.writeToDb();
 		} catch (SQLException exception) {
 			return Response.status(Response.Status.NOT_FOUND).build();
 		}
