@@ -1,8 +1,9 @@
 package org.communitywitness.api;
 
-import org.communitywitness.api.Evidence;
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,7 +27,7 @@ class EvidenceTest {
 
     @Test
     void setTimestamp() {
-        Date testTime = new Date();
+        LocalDateTime testTime = LocalDateTime.now();
         evidence.setTimestamp(testTime);
         assertEquals(testTime, evidence.getTimestamp());
     }

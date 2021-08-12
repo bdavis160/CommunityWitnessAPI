@@ -1,7 +1,6 @@
 package org.communitywitness.api;
 
 import java.sql.SQLException;
-import java.util.Date;
 
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -20,21 +19,20 @@ public class EvidenceResource {
 	/**
 	 * Creates new evidence with the data contained in the sent object.
 	 * TODO: figure out how to consume files associated with the evidence
-	 * @param newEvidence - an object containing the information about the evidence
+	 * @param newEvidenceRequestData - an object containing the information about the evidence
 	 * @return the actual id of the newly created evidence
 	 * @throws WebApplicationException if the report the evidence is associated with doesn't exist
 	 */
 	@POST
-	public int createEvidence(Evidence newEvidence) throws WebApplicationException {
+	public int createEvidence(NewEvidenceRequest newEvidenceRequestData) throws WebApplicationException, SQLException {
 		// check if the report exists
 		try {
-			Report requestedReport = new Report(newEvidence.getReportId());
+			Report requestedReport = new Report(newEvidenceRequestData.getReportId());
 		} catch (SQLException exception) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
 		}
-		
-		// TODO: write new evidence back to database and fill in its id
-		return newEvidence.getId();
+		Evidence newEvidence = new Evidence(newEvidenceRequestData);
+		return newEvidence.writeToDb();
 	}
 	
 	/**
@@ -56,11 +54,14 @@ public class EvidenceResource {
 		
 		return requestedEvidence;
 	}
-	
+
+	// TODO: Do we still need this?
+	/*
 	/**
 	 * A resource that doesn't rely on the database for testing if it's running properly on local machines.
 	 * @return an evidence object with simple contents
 	 */
+		/*
 	@GET
 	@Path("/test")
 	public Evidence testEvidence() {
@@ -74,4 +75,5 @@ public class EvidenceResource {
 		
 		return dummyData;
 	}
+	*/
 }
