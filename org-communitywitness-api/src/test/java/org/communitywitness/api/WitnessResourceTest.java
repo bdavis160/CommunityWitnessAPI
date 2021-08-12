@@ -11,7 +11,10 @@ class WitnessResourceTest {
 
     @Test
     void createWitness() throws SQLException {
-        int myId = res.createWitness("from createWitness unit test", "test createWitness location");
+        WitnessRequest witnessRequest = new WitnessRequest();
+        witnessRequest.setName("name from createWitness unit test");
+        witnessRequest.setLocation("location from createWitness unit test");
+        int myId = res.createWitness(witnessRequest);
         assertNotEquals(-1, myId);
     }
 
@@ -33,10 +36,11 @@ class WitnessResourceTest {
 
         // Values we'll use to update
         String updateName = "from updateWitness unit test";
-        double updateRating = 0.999;   // not actually changed but used for creating test object
         String updateLocation = "test updateWitness location";
 
-        Witness update = new Witness(updateName, updateRating, updateLocation);
+        WitnessRequest update = new WitnessRequest();
+        update.setName(updateName);
+        update.setLocation(updateLocation);
         res.updateWitness(id, update);
 
         // Pull it back out of the db to assert values
@@ -45,7 +49,9 @@ class WitnessResourceTest {
         assertEquals(updateLocation, changed.getLocation());
 
         // Change it back
-        res.updateWitness(id, witness);
+        update.setName(witness.getName());
+        update.setLocation(witness.getLocation());
+        res.updateWitness(id, update);
         Witness changedBack = new Witness(id);
         assertEquals(realName, changedBack.getName());
         assertEquals(realLocation, changedBack.getLocation());
