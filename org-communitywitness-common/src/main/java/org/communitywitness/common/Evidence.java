@@ -1,6 +1,6 @@
 package org.communitywitness.common;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * A class representing the information in the database about a single piece of evidence.
@@ -11,7 +11,7 @@ public class Evidence {
 	private int id = SpecialIds.UNSET_ID;
 	private String title;
 	private String type;
-	private Date timestamp;
+	private LocalDateTime timestamp;
 	private String link;
 	private int reportId;
 
@@ -20,17 +20,18 @@ public class Evidence {
 	 * can work with this type of object (like Jersey and GSON).
 	 */
 	public Evidence() {}
-	
+
+	// TODO: Maybe we should remove this. Setting id manually is dangerous.
 	/**
 	 * A constructor that sets all member variables at once for convenience.
 	 * @param id see {@link #setId(int)}
 	 * @param title see {@link #setTitle(String)}
 	 * @param type see {@link #setType(String)}
-	 * @param timestamp see {@link #setTimestamp(Date)}
+	 * @param timestamp see {@link #setTimestamp(LocalDateTime)}
 	 * @param link see {@link #setLink(String)}
 	 * @param reportId see {@link #setReportId(int)}
 	 */
-	public Evidence(int id, String title, String type, Date timestamp, String link, int reportId) {
+	public Evidence(int id, String title, String type, LocalDateTime timestamp, String link, int reportId) {
 		setId(id);
 		setTitle(title);
 		setType(type);
@@ -91,7 +92,7 @@ public class Evidence {
 	 * Returns the timestamp of the creation of this evidence
 	 * @return this.timestamp
 	 */
-	public Date getTimestamp() {
+	public LocalDateTime getTimestamp() {
 		return timestamp;
 	}
 
@@ -99,7 +100,7 @@ public class Evidence {
 	 * Sets the timestamp for this evidence.
 	 * @param timestamp the date and time that this evidence was originally created
 	 */
-	public void setTimestamp(Date timestamp) {
+	public void setTimestamp(LocalDateTime timestamp) {
 		this.timestamp = timestamp;
 	}
 

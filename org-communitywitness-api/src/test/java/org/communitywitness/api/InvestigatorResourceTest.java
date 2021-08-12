@@ -12,7 +12,6 @@ class InvestigatorResourceTest {
 
     @Test
     void createInvestigator() throws SQLException {
-        LocalDateTime time = LocalDateTime.now();
         NewInvestigatorRequest newInvestigatorRequestData = new NewInvestigatorRequest();
         newInvestigatorRequestData.setName("name from unit test");
         newInvestigatorRequestData.setOrganization("organization from unit test");

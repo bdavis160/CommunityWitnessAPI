@@ -1,5 +1,7 @@
 package org.communitywitness.api;
 
+import org.communitywitness.common.SpecialIds;
+
 import java.sql.*;
 
 public class Evidence extends org.communitywitness.common.Evidence {
@@ -10,8 +12,8 @@ public class Evidence extends org.communitywitness.common.Evidence {
 	public Evidence() { super(); };
 	
 	/**
-	 * Constructor that looks up a witness in the database then fills that data into the object.
-	 * @param id - the id of the witness to lookup in the database.
+	 * Constructor that looks up a piece of evidence in the database then fills that data into the object.
+	 * @param id - the id of the evidence to lookup in the database.
 	 */
 	public Evidence(int id) throws SQLException {
 		setId(id);
@@ -27,7 +29,7 @@ public class Evidence extends org.communitywitness.common.Evidence {
 		if (queryResults.next()) {
 			setTitle(queryResults.getString(1));
 			setType(queryResults.getString(2));
-			setTimestamp(queryResults.getDate(3));
+			setTimestamp(queryResults.getTimestamp(3).toLocalDateTime());
 			setLink(queryResults.getString(4));
 			setReportId(queryResults.getInt(5));
 		} else {
@@ -36,6 +38,18 @@ public class Evidence extends org.communitywitness.common.Evidence {
 
 		queryResults.close();
 		queryStatement.close();
+	}
+
+	/**
+	 * A constructor that converts NewEvidenceRequest into an Evidence object
+	 * @param newEvidenceRequest object containing the information to be written
+	 */
+	public Evidence(NewEvidenceRequest newEvidenceRequest) {
+		setTitle(newEvidenceRequest.getTitle());
+		setType(newEvidenceRequest.getType());
+		setTimestamp(newEvidenceRequest.getTimestamp());
+		setLink(newEvidenceRequest.getLink());
+		setReportId(newEvidenceRequest.getReportId());
 	}
 
 	/**
@@ -52,7 +66,7 @@ public class Evidence extends org.communitywitness.common.Evidence {
 
 		// if the evidence is brand new (has not been written to the db yet), it will have an id of -1
 		// once the evidence gets written, it is given an id by the db which will be pulled back into the object
-		if (getId() == -1) {
+		if (getId() == SpecialIds.UNSET_ID) {
 			String query = String.format("INSERT INTO evidence (title, type, timestamp, link, reportid) " +
 							"VALUES ('%s', '%s', '%s', '%s', '%s');",
 					getTitle(),
