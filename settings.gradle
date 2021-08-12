@@ -8,4 +8,4 @@
  */
 
 rootProject.name = 'community-witness-api'
-include('org-communitywitness-api', 'org-communitywitness-common')
+include('org-communitywitness-api', 'org-communitywitness-common', 'stress-test')
