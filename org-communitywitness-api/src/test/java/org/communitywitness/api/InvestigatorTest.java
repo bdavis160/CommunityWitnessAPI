@@ -3,14 +3,10 @@ package org.communitywitness.api;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class InvestigatorTest {
-    private static Investigator investigator = new Investigator();
-
     @Test
     void testChangeAndWriteToDatabase() throws SQLException {
         int id = 1;

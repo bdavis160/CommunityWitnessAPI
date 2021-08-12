@@ -1,16 +1,10 @@
 package org.communitywitness.api;
 
-import java.sql.SQLException;
-
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import java.sql.SQLException;
 
 @Path("/reportComments")
 @Produces(MediaType.APPLICATION_JSON)
@@ -18,22 +12,22 @@ import jakarta.ws.rs.core.Response;
 public class ReportCommentResource {
 	/**
 	 * Creates a new comment on a report with the data contained in the sent object.
-	 * @param newComment - an object containing the information about the comment
+	 * @param reportCommentRequest - an object containing the information about the comment
 	 * @return the actual id of the newly created comment
 	 * @throws WebApplicationException if the report or investigator the comment is associated with doesn't exist
 	 */
 	@POST
-	public int createReportComment(ReportComment newComment) throws WebApplicationException {
+	public int createReportComment(ReportCommentRequest reportCommentRequest) throws WebApplicationException, SQLException {
 		// check if the report and investigator exist
 		try {
-			Report requestedReport = new Report(newComment.getReportId());
-			Investigator requestedInvestigator = new Investigator(newComment.getInvestigatorId());
+			Report requestedReport = new Report(reportCommentRequest.getReportId());
+			Investigator requestedInvestigator = new Investigator(reportCommentRequest.getInvestigatorId());
 		} catch (SQLException exception) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
 		}
-		
-		// TODO: write new comment back to database and fill in its id
-		return newComment.getId();
+
+		ReportComment newComment = new ReportComment(reportCommentRequest);
+		return newComment.writeToDb();
 	}
 	
 	/**

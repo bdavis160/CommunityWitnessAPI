@@ -3,7 +3,6 @@ package org.communitywitness.api;
 import org.communitywitness.common.SpecialIds;
 
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Investigator extends org.communitywitness.common.Investigator {
@@ -14,7 +13,7 @@ public class Investigator extends org.communitywitness.common.Investigator {
 	public Investigator() { super(); }
 	
 	/**
-	 * Constructor that looks up a witness in the database then fills that data into the object.
+	 * Constructor that looks up an investigator in the database then fills that data into the object.
 	 * @param id - the id of the witness to lookup in the database.
 	 */
 	public Investigator(int id) throws SQLException {
