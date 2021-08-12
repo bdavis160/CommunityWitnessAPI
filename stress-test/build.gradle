@@ -1,0 +1,10 @@
+tasks.register('stressTest', Exec) {
+	group = 'Verification'
+	description = 'Starts the Locust stress tester.'
+	doFirst {
+		println('Alert: Running this requires Locust to be installed')
+		println('See https://locust.io for install instructions.')
+		println('Once Locust is started navigate to http://localhost:8080 to control it.')
+	}
+	commandLine 'locust -P 8080'
+}
