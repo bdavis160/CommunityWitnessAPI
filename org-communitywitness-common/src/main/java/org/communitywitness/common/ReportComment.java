@@ -16,7 +16,8 @@ public class ReportComment {
 	 * can work with this type of object (like Jersey and GSON).
 	 */
 	public ReportComment() {}
-	
+
+	// TODO: I think we maybe should remove this, setting id manually is dangerous.
 	/**
 	 * A constructor that sets all member variables at once for convenience.
 	 * @param id see {@link #setId(int)}
