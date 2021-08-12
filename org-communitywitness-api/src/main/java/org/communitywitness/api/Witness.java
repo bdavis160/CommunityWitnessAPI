@@ -44,6 +44,15 @@ public class Witness extends org.communitywitness.common.Witness {
     }
 
     /**
+     * A constructor that converts WitnessRequest into a Witness object
+     * @param witnessRequest object containing the information to be written
+     */
+    public Witness(WitnessRequest witnessRequest) {
+        setName(witnessRequest.getName());
+        setLocation(witnessRequest.getLocation());
+    }
+
+    /**
      * Constructor that creates a new entry that will be added to the database.
      * @param name        - the name of the witness
      * @param rating   - rating of the witness

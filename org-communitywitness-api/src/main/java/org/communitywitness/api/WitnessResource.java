@@ -21,15 +21,12 @@ import jakarta.ws.rs.core.Response.Status;
 public class WitnessResource {
 	/**
 	 * Creates a new witness with the data sent by the client.
-	 * @param name - the name of the witness
-	 * @param location - where the witness lives
+	 * @param witnessRequest - the updated data for the witness
 	 * @return the id of the newly created witness
 	 */
 	@POST
-	public int createWitness(@FormParam("name") String name, @FormParam("location") String location) throws SQLException {
-		Witness newWitness = new Witness();
-		newWitness.setName(name);
-		newWitness.setLocation(location);
+	public int createWitness(WitnessRequest witnessRequest) throws SQLException {
+		Witness newWitness = new Witness(witnessRequest);
 		return newWitness.writeToDb();
 	}
 
@@ -57,15 +54,16 @@ public class WitnessResource {
 	 * Updates the changeable parts of a witness' data with data sent by the client.
 	 * This takes a whole witness object so that making more forms changeable is possible with minimal modifications.
 	 * @param witnessId - the id of the witness whose data should be updated
-	 * @param updatedData - the updated data for the witness
+	 * @param witnessRequestData - the updated data for the witness
 	 * @return A status of OK if the witness is found and update, otherwise a status of NOT_FOUND
 	 */
 	@POST
 	@Path("/{witnessId}")
-	public Status updateWitness(@PathParam("witnessId") int witnessId, Witness updatedData) {
+	public Status updateWitness(@PathParam("witnessId") int witnessId, WitnessRequest witnessRequestData) {
 		try {
 			Witness requestedWitness = new Witness(witnessId);
-			requestedWitness.updateFrom(updatedData);
+			Witness updates = new Witness(witnessRequestData);
+			requestedWitness.updateFrom(updates);
 		} catch (SQLException exception) {
 			return Response.Status.NOT_FOUND;
 		}
