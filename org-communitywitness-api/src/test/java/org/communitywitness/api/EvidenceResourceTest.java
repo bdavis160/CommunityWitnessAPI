@@ -18,7 +18,7 @@ class EvidenceResourceTest {
 
     @Test
     void createEvidence() throws IOException, SQLException {
-        String location = "C:\\Users\\Kyle\\IdeaProjects\\CommunityWitnessAPI\\org-communitywitness-api\\test.jpg";
+        String location = "test.png";
         Path path = Paths.get(location);
         String data = Base64.getEncoder().encodeToString(Files.readAllBytes(path));
 
