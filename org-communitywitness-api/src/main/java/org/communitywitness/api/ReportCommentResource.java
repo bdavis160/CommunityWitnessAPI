@@ -20,8 +20,8 @@ public class ReportCommentResource {
 	public int createReportComment(ReportCommentRequest reportCommentRequest) throws WebApplicationException, SQLException {
 		// check if the report and investigator exist
 		try {
-			Report requestedReport = new Report(reportCommentRequest.getReportId());
-			Investigator requestedInvestigator = new Investigator(reportCommentRequest.getInvestigatorId());
+			new Report(reportCommentRequest.getReportId());
+			new Investigator(reportCommentRequest.getInvestigatorId());
 		} catch (SQLException exception) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
 		}

@@ -1,10 +1,10 @@
 package org.communitywitness.api;
 
+import org.communitywitness.common.SpecialIds;
+
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-
-import org.communitywitness.common.SpecialIds;
 
 public class Report extends org.communitywitness.common.Report {
 	/**

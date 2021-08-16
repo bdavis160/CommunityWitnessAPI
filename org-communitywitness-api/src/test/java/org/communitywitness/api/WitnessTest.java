@@ -3,8 +3,6 @@ package org.communitywitness.api;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,21 +18,14 @@ class WitnessTest {
     @Test
     void invalidIdConstructorThrowsCorrectException() {
         assertThrows(RuntimeException.class, () -> {
-            Witness witness = new Witness(-1);
+            new Witness(-1);
         });
     }
 
     @Test
     void getReportsForWitnessWithReportsSucceeds() throws SQLException {
-        Witness witness = new Witness();
-        witness.setId(1);
-        witness.loadReports();
-        List<Integer> witnessReports = new ArrayList<>() {
-            {
-                add(176);
-                add(173);
-            }};
-        assertEquals(witness.getReports(), witnessReports);
+        Witness witness = new Witness(1);
+        assertFalse(witness.getReports().isEmpty());
     }
 
     @Test

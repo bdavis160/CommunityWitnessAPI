@@ -1,16 +1,16 @@
 package org.communitywitness.api;
 
-import java.sql.SQLException;
-
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URLConnection;
+import java.sql.SQLException;
+import java.util.Base64;
 
 @Path("/evidence")
 @Produces(MediaType.APPLICATION_JSON)
@@ -24,13 +24,52 @@ public class EvidenceResource {
 	 * @throws WebApplicationException if the report the evidence is associated with doesn't exist
 	 */
 	@POST
-	public int createEvidence(NewEvidenceRequest newEvidenceRequestData) throws WebApplicationException, SQLException {
+	public int createEvidence(NewEvidenceRequest newEvidenceRequestData) throws WebApplicationException, SQLException, IOException {
+		String dirname;
+		String filename;
+		File directory;
+		FileOutputStream out = null;
+
+		// sets write directory to windows project dir if api is running locally
+		boolean localAPI = System.getProperty("os.name").equals("Windows 10");
+
 		// check if the report exists
 		try {
-			Report requestedReport = new Report(newEvidenceRequestData.getReportId());
+			new Report(newEvidenceRequestData.getReportId());
 		} catch (SQLException exception) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
 		}
+
+		if (localAPI)
+		{
+			dirname = System.getProperty("user.dir") + "\\"
+					+ newEvidenceRequestData.getReportId() + "\\";
+		} else {
+			dirname = "/home/kaz4_pdx_edu/communityWitnessImages/"
+					+ newEvidenceRequestData.getReportId() + "/";
+		}
+
+		directory = new File (dirname);
+		if (!directory.exists()) {
+			directory.mkdirs();
+		}
+
+		try {
+			byte[] byteArray = Base64.getMimeDecoder().decode(newEvidenceRequestData.getData());
+			filename = dirname
+					+ newEvidenceRequestData.getTimestamp().toString().replaceAll("[^a-zA-Z0-9]", "_")
+					+ URLConnection.guessContentTypeFromStream(new ByteArrayInputStream(byteArray)).replaceAll("image/", ".");			out = new FileOutputStream(filename);
+			out.write(byteArray);
+
+		} catch (IOException ioException) {
+			ioException.printStackTrace();
+		} finally {
+			if (out != null) {
+				out.close();
+			}
+		}
+
+		newEvidenceRequestData.setLink(dirname);
 		Evidence newEvidence = new Evidence(newEvidenceRequestData);
 		return newEvidence.writeToDb();
 	}
