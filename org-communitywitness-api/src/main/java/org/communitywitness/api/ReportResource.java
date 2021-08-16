@@ -1,14 +1,15 @@
 package org.communitywitness.api;
 
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 
 // TODO: implement user authentication for all of these calls
 @Path("/reports")
@@ -37,6 +38,8 @@ public class ReportResource {
 					queryResults.getString(5),
 					queryResults.getInt(6));
 			report.setId(queryResults.getInt(1));
+			report.loadComments();
+			report.loadEvidence();
 			results.add(report);
 		}
 
