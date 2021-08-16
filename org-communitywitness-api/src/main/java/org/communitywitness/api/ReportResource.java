@@ -38,8 +38,9 @@ public class ReportResource {
 					queryResults.getString(5),
 					queryResults.getInt(6));
 			report.setId(queryResults.getInt(1));
-			report.loadComments();
-			report.loadEvidence();
+
+			report.loadComments(conn);
+			report.loadEvidence(conn);
 			results.add(report);
 		}
 

@@ -43,8 +43,8 @@ public class Report extends org.communitywitness.common.Report {
         queryStatement.close();
         
         // retrieve the ids of the comments and evidence relating to this report
-        loadComments();
-        loadEvidence();
+        loadComments(conn);
+        loadEvidence(conn);
     }
 
     /**
@@ -65,11 +65,9 @@ public class Report extends org.communitywitness.common.Report {
      * then saves that in this object.
      * @throws SQLException if no data is found
      */
-    public void loadComments() throws SQLException {
+    public void loadComments(Connection conn) throws SQLException {
         ArrayList<Integer> commentIds = new ArrayList<>();
 
-        SQLConnection myConnection = new SQLConnection();
-        Connection conn = myConnection.databaseConnection();
         String query = String.format("SELECT ID FROM ReportComments WHERE ReportID='%s';", getId());
         Statement queryStatement = conn.createStatement();
         ResultSet queryResults = queryStatement.executeQuery(query);
@@ -86,11 +84,9 @@ public class Report extends org.communitywitness.common.Report {
      * then saves that in this object.
      * @throws SQLException if no data is found
      */
-    public void loadEvidence() throws SQLException {
+    public void loadEvidence(Connection conn) throws SQLException {
         ArrayList<Integer> evidenceIds = new ArrayList<>();
 
-        SQLConnection myConnection = new SQLConnection();
-        Connection conn = myConnection.databaseConnection();
         String query = String.format("SELECT ID FROM Evidence WHERE ReportID='%s';", getId());
         Statement queryStatement = conn.createStatement();
         ResultSet queryResults = queryStatement.executeQuery(query);
