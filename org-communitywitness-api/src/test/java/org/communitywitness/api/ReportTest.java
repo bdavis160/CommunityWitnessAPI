@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -32,11 +33,13 @@ class ReportTest {
         int testId = 0;
         boolean testResolved = false;
         String testDescription = "foo";
-        LocalDateTime testTime = LocalDateTime.now();
+        // Needed to truncate this to microseconds to get the assertion to work
+        // Database chops off the last three digits on write
+        LocalDateTime testTime = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS);
+
         String testLocation = "bar";
         int testWitnessId = 0;
 
-        //test write functionality if report already exists
         Report report3 = new Report(testId);
 
         //store the data so we can write it back
@@ -58,7 +61,7 @@ class ReportTest {
         Report report4 = new Report(testId);
         assertEquals(testResolved, report4.getResolved());
         assertEquals(testDescription, report4.getDescription());
-        assertEquals(testTime.toString(), report4.getTimestamp().toString());
+        assertEquals(testTime, report4.getTimestamp());
         assertEquals(testLocation, report4.getLocation());
         assertEquals(testWitnessId, report4.getWitnessId());
 

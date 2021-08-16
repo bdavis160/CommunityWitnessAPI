@@ -8,6 +8,7 @@ public class NewEvidenceRequest {
     private LocalDateTime timestamp;
     private String link;
     private int reportId;
+    private String data;
 
     public String getTitle() {
         return title;
@@ -47,5 +48,13 @@ public class NewEvidenceRequest {
 
     public void setReportId(int reportId) {
         this.reportId = reportId;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
     }
 }
