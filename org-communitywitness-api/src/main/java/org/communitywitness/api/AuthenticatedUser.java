@@ -11,21 +11,67 @@ import org.communitywitness.common.SpecialIds;
 import jakarta.ws.rs.core.SecurityContext;
 
 public class AuthenticatedUser implements SecurityContext {
-	private String username;
-	private String role;
+	private static final String AUTHENTICATION_SCHEME = "API_KEY";
 	private int id;
+	private String role;
 	private Principal principal;
 
-	public AuthenticatedUser(String username, String password) throws BadLoginException {
-		setUsername(username);
+	/**
+	 * Authenticates a user based on their api key.
+	 * @param apiKey the api key sent by the user
+	 * @throws BadLoginException if the user couldn't be authenticated
+	 */
+	public AuthenticatedUser(String apiKey) throws BadLoginException {
+		// Check the api key against the database
+		try {
+			SQLConnection myConnection = new SQLConnection();
+			Connection dbConnection = myConnection.databaseConnection();
+			String query = "SELECT WitnessId, InvestigatorId FROM ApiKeys WHERE ApiKey=?";
+			PreparedStatement queryStatement = dbConnection.prepareStatement(query);
+			queryStatement.setString(1, apiKey);
+			ResultSet queryResults = queryStatement.executeQuery();
+			
+			int witnessId;
+			int investigatorId;
+			if (queryResults.next()) {
+				witnessId = queryResults.getInt(1);
+				investigatorId = queryResults.getInt(2);
+			} else {
+				throw new SQLException();
+			}
+			
+			// Determine the users role
+			if (witnessId == SpecialIds.USER_NOT_IN_ROLE && !SpecialIds.isSpecialId(investigatorId)) {
+				setRole(UserRoles.INVESTIGATOR);
+				setId(investigatorId);
+			} else if (investigatorId == SpecialIds.USER_NOT_IN_ROLE && !SpecialIds.isSpecialId(witnessId)) {
+				setRole(UserRoles.WITNESS);
+				setId(witnessId);
+			} else {
+				throw new BadLoginException("User has bad role data.");
+			}
+		} catch (SQLException exception) {
+			throw new BadLoginException("Error retrieving data from database.");
+		}
+		
 		setPrincipal();
+	}
+	
+	/**
+	 * Authenticates an investigator based on their username and password.
+	 * @param username the username sent by the user
+	 * @param password the password sent by the user
+	 * @throws BadLoginException if the user couldn't be authenticated
+	 */
+	public AuthenticatedUser(String username, String password) throws BadLoginException {
+		setRole(UserRoles.INVESTIGATOR);
 
 		// Check the login details against the database
 		try {
 			SQLConnection myConnection = new SQLConnection();
 			Connection dbConnection = myConnection.databaseConnection();
-			String query = "SELECT Username, Password, Salt, WitnessId" +
-					"InvestigatorId FROM Account WHERE Username=?";
+			String query = "SELECT Password, Salt, InvestigatorId" +
+					"FROM Accounts WHERE Username=?";
 			PreparedStatement queryStatement = dbConnection.prepareStatement(query);
 			queryStatement.setString(1, username);
 			ResultSet queryResults = queryStatement.executeQuery();
@@ -33,13 +79,12 @@ public class AuthenticatedUser implements SecurityContext {
 			
 			String passwordInDb;
 			String salt;
-			int witnessId;
-			int investigatorId;
 			if (queryResults.next()) {
-				passwordInDb = queryResults.getString(2);
-				salt = queryResults.getString(3);
-				witnessId = queryResults.getInt(4);
-				investigatorId = queryResults.getInt(5);
+				passwordInDb = queryResults.getString(1);
+				salt = queryResults.getString(2);
+				setId(queryResults.getInt(3));
+			} else {
+				throw new SQLException();
 			}
 			
 			// Check that the given password matches the db entry
@@ -47,21 +92,14 @@ public class AuthenticatedUser implements SecurityContext {
 			if (!hashedPassword.equals(passwordInDb))
 				throw new BadLoginException("Incorrect password.");
 			
-			// Determine the users role
-			if (witnessId == SpecialIds.UNSET_ID && investigatorId == SpecialIds.UNSET_ID) {
-				throw new BadLoginException("User has no role.");
-			} else if (witnessId == SpecialIds.UNSET_ID) {
-				setRole(UserRoles.INVESTIGATOR);
-				setId(investigatorId);
-			} else if (investigatorId == SpecialIds.UNSET_ID) {
-				setRole(UserRoles.WITNESS);
-				setId(witnessId);
-			} else {
-				throw new BadLoginException("User has multiple roles.");
-			}
+			// Check that the id is valid
+			if (SpecialIds.isSpecialId(id))
+				throw new BadLoginException("Invalid account id.");
 		} catch (SQLException exception) {
 			throw new BadLoginException("Error retrieving data from database.");
 		}
+		
+		setPrincipal();
 	}
 
 	@Override
@@ -85,24 +123,7 @@ public class AuthenticatedUser implements SecurityContext {
 
 	@Override
 	public String getAuthenticationScheme() {
-		return SecurityContext.BASIC_AUTH;
-	}
-
-	/**
-	 * Returns the username of this user, where witness usernames match their id,
-	 * and investigator usernames are text set by the investigator.
-	 * @return this.username
-	 */
-	public String getUsername() {
-		return username;
-	}
-
-	/**
-	 * Sets the username of this user.
-	 * @param username either a witness id number or an investigators custom username
-	 */
-	public void setUsername(String username) {
-		this.username = username;
+		return AUTHENTICATION_SCHEME;
 	}
 
 	/**
@@ -144,7 +165,7 @@ public class AuthenticatedUser implements SecurityContext {
 	public void setPrincipal() {
 		this.principal = new Principal() {
 			public String getName() {
-				return username;
+				return String.valueOf(id);
 			}
 		};
 	}
