@@ -70,26 +70,23 @@ public class AuthenticatedUser implements SecurityContext {
 		try {
 			SQLConnection myConnection = new SQLConnection();
 			Connection dbConnection = myConnection.databaseConnection();
-			String query = "SELECT Password, Salt, InvestigatorId" +
+			String query = "SELECT PasswordHash, InvestigatorId" +
 					"FROM Accounts WHERE Username=?";
 			PreparedStatement queryStatement = dbConnection.prepareStatement(query);
 			queryStatement.setString(1, username);
 			ResultSet queryResults = queryStatement.executeQuery();
 
 			
-			String passwordInDb;
-			String salt;
+			String passwordHash;
 			if (queryResults.next()) {
-				passwordInDb = queryResults.getString(1);
-				salt = queryResults.getString(2);
-				setId(queryResults.getInt(3));
+				passwordHash = queryResults.getString(1);
+				setId(queryResults.getInt(2));
 			} else {
 				throw new SQLException();
 			}
 			
 			// Check that the given password matches the db entry
-			String hashedPassword = AccountManagement.hashPassword(password, salt);
-			if (!hashedPassword.equals(passwordInDb))
+			if (!AccountManagement.checkPassword(passwordHash, password))
 				throw new BadLoginException("Incorrect password.");
 			
 			// Check that the id is valid
