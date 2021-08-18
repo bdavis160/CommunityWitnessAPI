@@ -93,26 +93,4 @@ public class EvidenceResource {
 		
 		return requestedEvidence;
 	}
-
-	// TODO: Do we still need this?
-	/*
-	/**
-	 * A resource that doesn't rely on the database for testing if it's running properly on local machines.
-	 * @return an evidence object with simple contents
-	 */
-		/*
-	@GET
-	@Path("/test")
-	public Evidence testEvidence() {
-		Evidence dummyData = new Evidence();
-		dummyData.setId(0);
-		dummyData.setLink("link");
-		dummyData.setReportId(0);
-		dummyData.setTimestamp(new Date());
-		dummyData.setTitle("title");
-		dummyData.setType("type");
-		
-		return dummyData;
-	}
-	*/
 }

@@ -17,30 +17,30 @@ public class Witness extends org.communitywitness.common.Witness {
      * @param id - the id of the witness to lookup in the database.
      */
     public Witness(int id) throws SQLException {
-        setId(id);
-
         // retrieve witnesses account info
-        SQLConnection myConnection = new SQLConnection();
-        Connection conn = myConnection.databaseConnection();
-        String myQuery = String.format("SELECT Name, Rating, Location " +
+        Connection conn = new SQLConnection().databaseConnection();
+        String query = "SELECT Name, Rating, Location " +
                 "FROM Witness " +
-                "WHERE ID='%s';", id);
-        Statement st = conn.createStatement();
-        ResultSet rs = st.executeQuery(myQuery);
+                "WHERE ID=?";
+        PreparedStatement queryStatement = conn.prepareStatement(query);
+        queryStatement.setInt(1, id);
+        ResultSet queryResults = queryStatement.executeQuery();
 
-        if (rs.next()) {
-            setName(rs.getString(1));
-            setRating(rs.getDouble(2));
-            setLocation(rs.getString(3));
+        if (queryResults.next()) {
+            setId(id);
+            setName(queryResults.getString(1));
+            setRating(queryResults.getDouble(2));
+            setLocation(queryResults.getString(3));
         } else {
             throw new RuntimeException("Witness with the supplied ID does not exist in database");
         }
-
-        rs.close();
-        st.close();
-        
         // retrieve ids of the witnesses filed cases
-        loadReports();
+        loadReports(conn);
+
+        queryResults.close();
+        conn.close();
+        
+
     }
 
     /**
@@ -67,22 +67,19 @@ public class Witness extends org.communitywitness.common.Witness {
      * Retrieves the list of the ids of reports filed by this witness,
      * then saves that to this object.
      */
-    public void loadReports() throws SQLException {
+    public void loadReports(Connection conn) throws SQLException {
         ArrayList<Integer> reportIds = new ArrayList<>();
 
-        SQLConnection myConnection = new SQLConnection();
-        Connection conn = myConnection.databaseConnection();
-        String query = String.format("SELECT ID FROM Report WHERE WitnessID='%s'", getId());
-        Statement queryStatement = conn.createStatement();
-        ResultSet queryResults = queryStatement.executeQuery(query);
+        String query = "SELECT ID FROM Report WHERE WitnessID=?";
+        PreparedStatement queryStatement = conn.prepareStatement(query);
+        queryStatement.setInt(1, getId());
+        ResultSet queryResults = queryStatement.executeQuery();
 
         while (queryResults.next()) {
             reportIds.add(queryResults.getInt(1));
         }
 
-        queryResults.close();
         queryStatement.close();
-
         setReports(reportIds);
     }
 
@@ -104,20 +101,19 @@ public class Witness extends org.communitywitness.common.Witness {
      * @throws SQLException if unable to write
      */
     public int writeToDb() throws SQLException {
-        SQLConnection myConnection = new SQLConnection();
-        Connection conn = myConnection.databaseConnection();
+        Connection conn = new SQLConnection().databaseConnection();
 
         // if the report is brand new (has not been written to the db yet), it will have an id of UNSET_ID (-1)
         // once the report gets written, it is given an id by the db which will be pulled back into the object
         if (getId() == SpecialIds.UNSET_ID) {
-            String query = String.format("INSERT INTO witness (name, rating, location) " +
-                            "VALUES ('%s', '%s', '%s');",
-                    getName(),
-                    getRating(),
-                    getLocation()
-            );
+            String query = "INSERT INTO witness (name, rating, location) " +
+                            "VALUES (?,?,?)";
 
             PreparedStatement queryStatement = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            queryStatement.setString(1, getName());
+            queryStatement.setDouble(2, getRating());
+            queryStatement.setString(3, getLocation());
+
             int rows = queryStatement.executeUpdate();
             if (rows == 0) {
                 throw new SQLException("Witness insertion failed");
@@ -134,20 +130,20 @@ public class Witness extends org.communitywitness.common.Witness {
             queryStatement.close();
             //otherwise, we know that this report already has a place in the database and just needs updated
         } else {
-            Statement queryStatement = conn.createStatement();
-            String query = String.format("UPDATE witness " +
+            String query = "UPDATE witness " +
                             "SET " +
-                            "name='%s', " +
-                            "rating='%s', " +
-                            "location='%s' " +
-                            "WHERE id='%s';",
-                    getName(),
-                    getRating(),
-                    getLocation(),
-                    getId()
-            );
+                            "name=?, " +
+                            "rating=?, " +
+                            "location=? " +
+                            "WHERE id=?";
 
-            queryStatement.executeUpdate(query);
+            PreparedStatement queryStatement = conn.prepareStatement(query);
+            queryStatement.setString(1, getName());
+            queryStatement.setDouble(2, getRating());
+            queryStatement.setString(3, getLocation());
+            queryStatement.setInt(4, getId());
+
+            queryStatement.executeUpdate();
             queryStatement.close();
         }
 

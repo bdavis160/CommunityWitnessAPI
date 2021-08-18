@@ -1,0 +1,147 @@
+# curl http://commdbserver.ddns.net/witnesses/1
+GET http://localhost:8080/witnesses/1
+
+<> 2021-08-17T183529.200.json
+<> 2021-08-17T183357.200.json
+<> 2021-08-17T183315.200.json
+
+###
+
+# curl http://commdbserver.ddns.net/reports/2
+GET http://localhost:8080/reports/2
+
+<> 2021-08-17T183529-1.200.json
+<> 2021-08-17T183521.200.json
+<> 2021-08-17T183357-1.200.json
+<> 2021-08-17T183315-1.200.json
+
+###
+
+# curl http://commdbserver.ddns.net/reportComments/2
+GET http://localhost:8080/reportComments/2
+
+<> 2021-08-17T183529-2.200.json
+<> 2021-08-17T183521-1.200.json
+<> 2021-08-17T183357-2.200.json
+<> 2021-08-17T183315-2.200.json
+
+###
+
+# curl -d '{"description":"from cURL", "time":"2021-09-13T17:32:20.897", "location":"foo", "witnessId":2}' -H "Content-Type: application/json" -X POST http://commdbserver.ddns.net/reports
+POST http://localhost:8080/reports
+Content-Type: application/json
+
+{
+  "description": "from http test",
+  "time": "2021-09-13T17:32:20.897",
+  "location": "foo",
+  "witnessId": 2
+}
+
+<> 2021-08-17T183529-3.200.json
+<> 2021-08-17T183521-2.200.json
+<> 2021-08-17T183357-3.200.json
+<> 2021-08-17T183315-3.200.json
+
+###
+
+# curl http://commdbserver.ddns.net/evidence/0
+GET http://localhost:8080/evidence/0
+
+<> 2021-08-17T183530.200.json
+<> 2021-08-17T183522.200.json
+<> 2021-08-17T183357-4.200.json
+<> 2021-08-17T183316.200.json
+
+###
+
+# curl -X PUT http://commdbserver.ddns.net/reports/2/true
+PUT http://localhost:8080/reports/2/true
+
+###
+
+# curl -d '{"name":"from cURL", "location":"foo"}' -H "Content-Type: application/json" -X POST http://commdbserver.ddns.net/witnesses/2
+POST http://localhost:8080/witnesses/2
+Content-Type: application/json
+
+{
+  "name": "from http test",
+  "location": "foo"
+}
+
+<> 2021-08-17T183531.200.json
+<> 2021-08-17T183523.200.json
+<> 2021-08-17T183358.200.json
+<> 2021-08-17T183316-1.200.json
+<> 2021-08-17T183310-3.200.json
+
+###
+
+# curl http://commdbserver.ddns.net/investigators/1
+GET http://localhost:8080/investigators/1
+
+<> 2021-08-17T183531-1.200.json
+<> 2021-08-17T183523-1.200.json
+<> 2021-08-17T183358-1.200.json
+<> 2021-08-17T183316-2.200.json
+<> 2021-08-17T183310-4.200.json
+
+###
+
+# curl http://commdbserver.ddns.net/reports
+GET http://localhost:8080/reports
+
+<> 2021-08-17T183536.200.json
+<> 2021-08-17T183358-2.200.json
+<> 2021-08-17T183316-3.200.json
+<> 2021-08-17T183311.200.json
+
+###
+
+# curl -d '{"name": "from curl", "organization": "foo", "organizationType": "bar", "rating": 1.00}' -H "Content-Type: application/json" -X POST http://commdbserver.ddns.net/investigators
+POST http://localhost:8080/investigators
+Content-Type: application/json
+
+{
+  "name": "from http test",
+  "organization": "foo",
+  "organizationType": "bar",
+  "rating": 1.00
+}
+
+<> 2021-08-17T183537.200.json
+<> 2021-08-17T183358-3.200.json
+<> 2021-08-17T183317.200.json
+<> 2021-08-17T183311-1.200.json
+
+###
+
+# curl -d '{"name": "from curl", "organization": "foo", "organizationType": "bar"}' -H "Content-Type: application/json" -X POST http://commdbserver.ddns.net/investigators/4
+POST http://localhost:8080/investigators/4
+Content-Type: application/json
+
+{
+  "name": "from http test",
+  "organization": "foo",
+  "organizationType": "bar"
+}
+
+###
+
+# curl -X POST http://commdbserver.ddns.net/reportComments -H "Content-Type: application/json" -d '{"reportId":0, "investigatorId":0, "contents":"comment from cURL"}'
+POST http://localhost:8080/reportComments
+Content-Type: application/json
+
+{
+  "reportId": 0,
+  "investigatorId": 0,
+  "contents": "comment from http test"
+}
+
+<> 2021-08-17T183538.200.json
+<> 2021-08-17T183359.200.json
+<> 2021-08-17T183317-1.200.json
+<> 2021-08-17T183312.200.json
+
+###
+

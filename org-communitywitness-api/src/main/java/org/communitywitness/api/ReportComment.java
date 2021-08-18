@@ -16,17 +16,16 @@ public class ReportComment extends org.communitywitness.common.ReportComment {
 	 * @param id - the id of the witness to lookup in the database.
 	 */
 	public ReportComment(int id) throws SQLException {
-		setId(id);
-		
-		SQLConnection myConnection = new SQLConnection();
-		Connection conn = myConnection.databaseConnection();
-		String query = String.format("SELECT ID, ReportID, InvestigatorID, Contents " +
+		Connection conn = new SQLConnection().databaseConnection();
+		String query = "SELECT ID, ReportID, InvestigatorID, Contents " +
 				"FROM ReportComments " +
-				"WHERE ID='%s';", id);
-		Statement queryStatement = conn.createStatement();
-		ResultSet queryResults = queryStatement.executeQuery(query);
+				"WHERE ID=?";
+		PreparedStatement queryStatement = conn.prepareStatement(query);
+		queryStatement.setInt(1, id);
+		ResultSet queryResults = queryStatement.executeQuery();
 
 		if (queryResults.next()) {
+			setId(id);
 			setId(queryResults.getInt(1));
 			setReportId(queryResults.getInt(2));
 			setInvestigatorId(queryResults.getInt(3));
@@ -57,20 +56,18 @@ public class ReportComment extends org.communitywitness.common.ReportComment {
 	 * @throws SQLException if unable to write
 	 */
 	public int writeToDb() throws SQLException {
-		SQLConnection myConnection = new SQLConnection();
-		Connection conn = myConnection.databaseConnection();
+		Connection conn = new SQLConnection().databaseConnection();
 
 		// if the evidence is brand new (has not been written to the db yet), it will have an id of -1
 		// once the evidence gets written, it is given an id by the db which will be pulled back into the object
 		if (getId() == SpecialIds.UNSET_ID) {
-			String query = String.format("INSERT INTO reportcomments (reportid, investigatorid, contents) " +
-							"VALUES ('%s', '%s', '%s');",
-					getReportId(),
-					getInvestigatorId(),
-					getContents()
-			);
-
+			String query = "INSERT INTO reportcomments (reportid, investigatorid, contents) " +
+							"VALUES (?,?,?)";
 			PreparedStatement queryStatement = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+			queryStatement.setInt(1, getReportId());
+			queryStatement.setInt(2, getInvestigatorId());
+			queryStatement.setString(3, getContents());
+
 			int rows = queryStatement.executeUpdate();
 			if (rows == 0) {
 				throw new SQLException("Report comment insertion failed");
@@ -87,20 +84,20 @@ public class ReportComment extends org.communitywitness.common.ReportComment {
 			queryStatement.close();
 			//otherwise, we know that this evidence already has a place in the database and just needs updated
 		} else {
-			Statement queryStatement = conn.createStatement();
-			String query = String.format("UPDATE reportcomments " +
+			String query = "UPDATE reportcomments " +
 							"SET " +
-							"reportid='%s', " +
-							"investigatorid='%s', " +
-							"contents='%s' " +
-							"WHERE id='%s';",
-					getReportId(),
-					getInvestigatorId(),
-					getContents(),
-					getId()
-			);
+							"reportid=?, " +
+							"investigatorid=?, " +
+							"contents=? " +
+							"WHERE id=?";
 
-			queryStatement.executeUpdate(query);
+			PreparedStatement queryStatement = conn.prepareStatement(query);
+			queryStatement.setInt(1, getReportId());
+			queryStatement.setInt(2, getInvestigatorId());
+			queryStatement.setString(3, getContents());
+			queryStatement.setInt(4, getId());
+
+			queryStatement.executeUpdate();
 			queryStatement.close();
 		}
 		return getId();
