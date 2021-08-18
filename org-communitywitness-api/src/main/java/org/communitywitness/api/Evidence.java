@@ -9,24 +9,23 @@ public class Evidence extends org.communitywitness.common.Evidence {
 	 * Wrapper for base classes 0-parameter constructor.
 	 * This is needed to allow Jersey to marshal data in and out of JSON.
 	 */
-	public Evidence() { super(); };
+	public Evidence() { super(); }
 	
 	/**
 	 * Constructor that looks up a piece of evidence in the database then fills that data into the object.
 	 * @param id - the id of the evidence to lookup in the database.
 	 */
 	public Evidence(int id) throws SQLException {
-		setId(id);
-		
-		SQLConnection myConnection = new SQLConnection();
-		Connection conn = myConnection.databaseConnection();
-		String query = String.format("SELECT Title, Type, Timestamp, Link, reportID " +
+		Connection conn = new SQLConnection().databaseConnection();
+		String query = "SELECT Title, Type, Timestamp, Link, reportID " +
 				"FROM Evidence " +
-				"WHERE ID='%s';", id);
-		Statement queryStatement = conn.createStatement();
-		ResultSet queryResults = queryStatement.executeQuery(query);
+				"WHERE ID=?";
+		PreparedStatement queryStatement = conn.prepareStatement(query);
+		queryStatement.setInt(1, id);
+		ResultSet queryResults = queryStatement.executeQuery();
 
 		if (queryResults.next()) {
+			setId(id);
 			setTitle(queryResults.getString(1));
 			setType(queryResults.getString(2));
 			setTimestamp(queryResults.getTimestamp(3).toLocalDateTime());
@@ -36,8 +35,9 @@ public class Evidence extends org.communitywitness.common.Evidence {
 			throw new RuntimeException("Evidence with the supplied ID does not exist in database");
 		}
 
-		queryResults.close();
+		// close out sql stuff
 		queryStatement.close();
+		conn.close();
 	}
 
 	/**
@@ -61,22 +61,21 @@ public class Evidence extends org.communitywitness.common.Evidence {
 	 */
 
 	public int writeToDb() throws SQLException {
-		SQLConnection myConnection = new SQLConnection();
-		Connection conn = myConnection.databaseConnection();
+		Connection conn = new SQLConnection().databaseConnection();
 
 		// if the evidence is brand new (has not been written to the db yet), it will have an id of -1
 		// once the evidence gets written, it is given an id by the db which will be pulled back into the object
 		if (getId() == SpecialIds.UNSET_ID) {
-			String query = String.format("INSERT INTO evidence (title, type, timestamp, link, reportid) " +
-							"VALUES ('%s', '%s', '%s', '%s', '%s');",
-					getTitle(),
-					getType(),
-					getTimestamp(),
-					getLink(),
-					getReportId()
-			);
+			String query = "INSERT INTO evidence (title, type, timestamp, link, reportid) " +
+							"VALUES (?,?,?,?,?);";
 
 			PreparedStatement queryStatement = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+			queryStatement.setString(1, getTitle());
+			queryStatement.setString(2, getType());
+			queryStatement.setTimestamp(3, java.sql.Timestamp.valueOf(getTimestamp()));
+			queryStatement.setString(4, getLink());
+			queryStatement.setInt(5, getReportId());
+
 			int rows = queryStatement.executeUpdate();
 			if (rows == 0) {
 				throw new SQLException("Evidence insertion failed");
@@ -93,24 +92,24 @@ public class Evidence extends org.communitywitness.common.Evidence {
 			queryStatement.close();
 			//otherwise, we know that this evidence already has a place in the database and just needs updated
 		} else {
-			Statement queryStatement = conn.createStatement();
-			String query = String.format("UPDATE evidence " +
+			String query = "UPDATE evidence " +
 							"SET " +
-							"title='%s', " +
-							"type='%s', " +
-							"timestamp='%s', " +
-							"link='%s', " +
-							"reportid='%s' " +
-							"WHERE id='%s';",
-					getTitle(),
-					getType(),
-					getTimestamp(),
-					getLink(),
-					getReportId(),
-					getId()
-			);
+							"title=?, " +
+							"type=?, " +
+							"timestamp=?, " +
+							"link=?, " +
+							"reportid=? " +
+							"WHERE id=?";
 
-			queryStatement.executeUpdate(query);
+			PreparedStatement queryStatement = conn.prepareStatement(query);
+			queryStatement.setString(1, getTitle());
+			queryStatement.setString(2, getType());
+			queryStatement.setTimestamp(3, java.sql.Timestamp.valueOf(getTimestamp()));
+			queryStatement.setString(4, getLink());
+			queryStatement.setInt(5, getReportId());
+			queryStatement.setInt(6, getId());
+
+			queryStatement.executeUpdate();
 			queryStatement.close();
 		}
 		return getId();

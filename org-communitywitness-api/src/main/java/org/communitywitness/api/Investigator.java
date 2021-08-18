@@ -17,18 +17,17 @@ public class Investigator extends org.communitywitness.common.Investigator {
 	 * @param id - the id of the witness to lookup in the database.
 	 */
 	public Investigator(int id) throws SQLException {
-		setId(id);
-		
 		// retrieve investigators account info
-		SQLConnection myConnection = new SQLConnection();
-		Connection conn = myConnection.databaseConnection();
-		String query = String.format("SELECT Name, Organization, OrganizationType, Rating " +
+		Connection conn = new SQLConnection().databaseConnection();
+		String query = "SELECT Name, Organization, OrganizationType, Rating " +
 				"FROM Investigator " +
-				"WHERE ID='%s';", id);
-		Statement queryStatement = conn.createStatement();
-		ResultSet queryResults = queryStatement.executeQuery(query);
+				"WHERE ID=?";
+		PreparedStatement queryStatement = conn.prepareStatement(query);
+		queryStatement.setInt(1, id);
+		ResultSet queryResults = queryStatement.executeQuery();
 
 		if (queryResults.next()) {
+			setId(id);
 			setName(queryResults.getString(1));
 			setOrganization(queryResults.getString(2));
 			setOrganizationType(queryResults.getString(3));
@@ -36,13 +35,11 @@ public class Investigator extends org.communitywitness.common.Investigator {
 		} else {
 			throw new RuntimeException("Investigator with the supplied ID does not exist in database");
 		}
-
-
-		queryResults.close();
-		queryStatement.close();
-		
 		// retrieve ids of the reports the investigator is investigating
-		loadReports();
+		loadReports(conn);
+
+		queryStatement.close();
+		conn.close();
 	}
 
 	/**
@@ -62,22 +59,18 @@ public class Investigator extends org.communitywitness.common.Investigator {
 	 * then saves that to this object.
 	 * @throws SQLException if no data is found
 	 */
-	public void loadReports() throws SQLException {
+	public void loadReports(Connection conn) throws SQLException {
 		ArrayList<Integer> reportIds = new ArrayList<>();
-		
-		SQLConnection myConnection = new SQLConnection();
-		Connection conn = myConnection.databaseConnection();
-		String query = String.format("SELECT ReportID FROM ReportInvestigations WHERE InvestigatorID='%s'", getId());
-		Statement queryStatement = conn.createStatement();
-		ResultSet queryResults = queryStatement.executeQuery(query);
+
+		String query = "SELECT ReportID FROM ReportInvestigations WHERE InvestigatorID=?";
+		PreparedStatement queryStatement = conn.prepareStatement(query);
+		queryStatement.setInt(1, getId());
+		ResultSet queryResults = queryStatement.executeQuery();
 		
 		while (queryResults.next()) {
 			reportIds.add(queryResults.getInt(1));
 		}
-		
-		queryResults.close();
 		queryStatement.close();
-		
 		setReports(reportIds);
 	}
 	
@@ -99,21 +92,20 @@ public class Investigator extends org.communitywitness.common.Investigator {
 	 * @throws SQLException if unable to write
 	 */
 	public int writeToDb() throws SQLException {
-		SQLConnection myConnection = new SQLConnection();
-		Connection conn = myConnection.databaseConnection();
+		Connection conn = new SQLConnection().databaseConnection();
 
 		// if the investigator is brand new (has not been written to the db yet), it will have an id of UNSET_ID (-1)
 		// once the investigator gets written, it is given an id by the db which will be pulled back into the object
 		if (getId() == SpecialIds.UNSET_ID) {
-			String query = String.format("INSERT INTO investigator (name, organization, organizationtype, rating) " +
-							"VALUES ('%s', '%s', '%s', '%s');",
-					getName(),
-					getOrganization(),
-					getOrganizationType(),
-					getRating()
-			);
+			String query = "INSERT INTO investigator (name, organization, organizationtype, rating) " +
+							"VALUES (?,?,?,?)";
 
 			PreparedStatement queryStatement = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+			queryStatement.setString(1, getName());
+			queryStatement.setString(2, getOrganization());
+			queryStatement.setString(3, getOrganizationType());
+			queryStatement.setDouble(4, getRating());
+
 			int rows = queryStatement.executeUpdate();
 			if (rows == 0) {
 				throw new SQLException("Investigator insertion failed");
@@ -130,22 +122,22 @@ public class Investigator extends org.communitywitness.common.Investigator {
 			queryStatement.close();
 			//otherwise, we know that this investigator already has a place in the database and just needs updated
 		} else {
-			Statement queryStatement = conn.createStatement();
-			String query = String.format("UPDATE investigator " +
+			String query = "UPDATE investigator " +
 							"SET " +
-							"name='%s', " +
-							"organization='%s', " +
-							"organizationtype='%s', " +
-							"rating='%s' " +
-							"WHERE id='%s';",
-					getName(),
-					getOrganization(),
-					getOrganizationType(),
-					getRating(),
-					getId()
-			);
+							"name=?, " +
+							"organization=?, " +
+							"organizationtype=?, " +
+							"rating=? " +
+							"WHERE id=?";
 
-			queryStatement.executeUpdate(query);
+			PreparedStatement queryStatement = conn.prepareStatement(query);
+			queryStatement.setString(1, getName());
+			queryStatement.setString(2, getOrganization());
+			queryStatement.setString(3, getOrganizationType());
+			queryStatement.setDouble(4, getRating());
+			queryStatement.setInt(5, getId());
+
+			queryStatement.executeUpdate();
 			queryStatement.close();
 		}
 

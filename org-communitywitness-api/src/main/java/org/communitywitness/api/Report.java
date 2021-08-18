@@ -18,18 +18,17 @@ public class Report extends org.communitywitness.common.Report {
      * @param id - the id of the report to lookup in the database.
      */
     public Report(int id) throws SQLException {
-        setId(id);
-
         // retrieve the primary info about the report
-        SQLConnection myConnection = new SQLConnection();
-        Connection conn = myConnection.databaseConnection();
-        String query = String.format("SELECT resolved, description, time, location, witnessID " +
+        Connection conn = new SQLConnection().databaseConnection();
+        String query = "SELECT resolved, description, time, location, witnessID " +
                 "FROM report " +
-                "WHERE id='%s';", id);
-        Statement queryStatement = conn.createStatement();
-        ResultSet queryResults = queryStatement.executeQuery(query);
+                "WHERE id=?";
+        PreparedStatement queryStatement = conn.prepareStatement(query);
+        queryStatement.setInt(1, id);
+        ResultSet queryResults = queryStatement.executeQuery();
 
         if (queryResults.next()) {
+            setId(id);
             setResolved(queryResults.getBoolean(1));
             setDescription(queryResults.getString(2));
             setTimestamp(queryResults.getTimestamp(3).toLocalDateTime());
@@ -39,12 +38,13 @@ public class Report extends org.communitywitness.common.Report {
             throw new RuntimeException("Report with the supplied ID does not exist in database");
         }
 
-        queryResults.close();
-        queryStatement.close();
-        
         // retrieve the ids of the comments and evidence relating to this report
         loadComments(conn);
         loadEvidence(conn);
+
+        // close out sql stuff
+        queryStatement.close();
+        conn.close();
     }
 
     /**
@@ -68,14 +68,15 @@ public class Report extends org.communitywitness.common.Report {
     public void loadComments(Connection conn) throws SQLException {
         ArrayList<Integer> commentIds = new ArrayList<>();
 
-        String query = String.format("SELECT ID FROM ReportComments WHERE ReportID='%s';", getId());
-        Statement queryStatement = conn.createStatement();
-        ResultSet queryResults = queryStatement.executeQuery(query);
+        String query = "SELECT ID FROM ReportComments WHERE ReportID=?";
+        PreparedStatement queryStatement = conn.prepareStatement(query);
+        queryStatement.setInt(1, getId());
+        ResultSet queryResults = queryStatement.executeQuery();
 
         while (queryResults.next()) {
             commentIds.add(queryResults.getInt(1));
         }
-
+        queryStatement.close();
         setComments(commentIds);
     }
 
@@ -87,15 +88,18 @@ public class Report extends org.communitywitness.common.Report {
     public void loadEvidence(Connection conn) throws SQLException {
         ArrayList<Integer> evidenceIds = new ArrayList<>();
 
-        String query = String.format("SELECT ID FROM Evidence WHERE ReportID='%s';", getId());
-        Statement queryStatement = conn.createStatement();
-        ResultSet queryResults = queryStatement.executeQuery(query);
+        String query = "SELECT ID FROM Evidence WHERE ReportID=?";
+        PreparedStatement queryStatement = conn.prepareStatement(query);
+        queryStatement.setInt(1, getId());
+        ResultSet queryResults = queryStatement.executeQuery();
 
         while (queryResults.next()) {
             evidenceIds.add(queryResults.getInt(1));
         }
-
         setEvidence(evidenceIds);
+
+        // close out sql stuff (not connection, calling routine may need it)
+        queryStatement.close();
     }
 
     /**
@@ -105,22 +109,21 @@ public class Report extends org.communitywitness.common.Report {
      * @throws SQLException if unable to write
      */
     public int writeToDb() throws SQLException {
-        SQLConnection myConnection = new SQLConnection();
-        Connection conn = myConnection.databaseConnection();
+        Connection conn = new SQLConnection().databaseConnection();
 
         // if the report is brand new (has not been written to the db yet), it will have an id of UNSET_ID (-1)
         // once the report gets written, it is given an id by the db which will be pulled back into the object
         if (getId() == SpecialIds.UNSET_ID) {
-            String query = String.format("INSERT INTO report (resolved, description, time, location, witnessid) " +
-                            "VALUES ('%s', '%s', '%s', '%s', '%s');",
-                    getResolved(),
-                    getDescription(),
-                    getTimestamp(),
-                    getLocation(),
-                    getWitnessId()
-            );
+            String query = "INSERT INTO report (resolved, description, time, location, witnessid) " +
+                            "VALUES (?,?,?,?,?)";
 
             PreparedStatement queryStatement = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            queryStatement.setBoolean(1, getResolved());
+            queryStatement.setString(2, getDescription());
+            queryStatement.setTimestamp(3, java.sql.Timestamp.valueOf(getTimestamp()));
+            queryStatement.setString(4, getLocation());
+            queryStatement.setInt(5, getWitnessId());
+
             int rows = queryStatement.executeUpdate();
             if (rows == 0) {
                 throw new SQLException("Report insertion failed");
@@ -137,27 +140,28 @@ public class Report extends org.communitywitness.common.Report {
             queryStatement.close();
             //otherwise, we know that this report already has a place in the database and just needs updated
         } else {
-            Statement queryStatement = conn.createStatement();
-            String query = String.format("UPDATE report " +
+            String query = "UPDATE report " +
                             "SET " +
-                            "resolved='%s', " +
-                            "description='%s', " +
-                            "time='%s', " +
-                            "location='%s', " +
-                            "witnessid='%s' " +
-                            "WHERE id='%s';",
-                    getResolved(),
-                    getDescription(),
-                    getTimestamp(),
-                    getLocation(),
-                    getWitnessId(),
-                    getId()
-            );
+                            "resolved=?, " +
+                            "description=?, " +
+                            "time=?, " +
+                            "location=?, " +
+                            "witnessid=? " +
+                            "WHERE id=?";
 
-            queryStatement.executeUpdate(query);
+            PreparedStatement queryStatement = conn.prepareStatement(query);
+            queryStatement.setBoolean(1, getResolved());
+            queryStatement.setString(2, getDescription());
+            queryStatement.setTimestamp(3, java.sql.Timestamp.valueOf(getTimestamp()));
+            queryStatement.setString(4, getLocation());
+            queryStatement.setInt(5, getWitnessId());
+            queryStatement.setInt(6, getId());
+
+            queryStatement.executeUpdate();
             queryStatement.close();
         }
 
+        conn.close();
         return getId();
     }
 }

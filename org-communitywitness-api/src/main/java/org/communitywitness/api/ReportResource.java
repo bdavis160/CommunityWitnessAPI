@@ -7,7 +7,6 @@ import jakarta.ws.rs.core.Response;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,12 +21,9 @@ public class ReportResource {
 	 */
 	@GET
 	public List<Report> queryReports() throws SQLException {
-		SQLConnection myConnection = new SQLConnection();
-		Connection conn = myConnection.databaseConnection();
-		String query = "SELECT id, resolved, description, time, location, witnessID FROM report;";
-
-		Statement queryStatement = conn.createStatement();
-		ResultSet queryResults = queryStatement.executeQuery(query);
+		Connection conn = new SQLConnection().databaseConnection();
+		String query = "SELECT id, resolved, description, time, location, witnessID FROM report";
+		ResultSet queryResults = conn.prepareStatement(query).executeQuery();
 
 		ArrayList<Report> results = new ArrayList<>();
 
@@ -43,6 +39,10 @@ public class ReportResource {
 			report.loadEvidence(conn);
 			results.add(report);
 		}
+
+		// close out sql stuff
+		queryResults.close();
+		conn.close();
 
 		return results;
 	}

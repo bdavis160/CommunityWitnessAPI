@@ -6,8 +6,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ReportTest {
     private static Report report = new Report();
@@ -32,12 +31,12 @@ class ReportTest {
     void testChangeAndWriteToDatabase() throws SQLException {
         int testId = 0;
         boolean testResolved = false;
-        String testDescription = "foo";
+        String testDescription = "description from testChangeAndWriteToDatabase unit test";
         // Needed to truncate this to microseconds to get the assertion to work
         // Database chops off the last three digits on write
         LocalDateTime testTime = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS);
 
-        String testLocation = "bar";
+        String testLocation = "location from testChangeAndWriteToDatabase unit test";
         int testWitnessId = 0;
 
         Report report3 = new Report(testId);
@@ -78,13 +77,14 @@ class ReportTest {
     @Test
     void testWriteNewReportToDatabase() throws SQLException {
         boolean testResolved = false;
-        String testDescription = "foo";
+        String testDescription = "description from testWriteNewReportToDatabase unit test";
         LocalDateTime testTime = LocalDateTime.now();
-        String testLocation = "bar";
+        String testLocation = "location from testWriteNewReportToDatabase unit test";
         int testWitnessId = 0;
 
         Report report = new Report(testResolved, testDescription, testTime, testLocation, testWitnessId);
-        report.writeToDb();
+        int id = report.writeToDb();
+        assertNotEquals(-1, id);
 
         // in the spirit of "nothing gets deleted", this test data is sticking around for the time being as well.
         // Don't really feel like writing a delete method if we aren't planning on using that in production code.

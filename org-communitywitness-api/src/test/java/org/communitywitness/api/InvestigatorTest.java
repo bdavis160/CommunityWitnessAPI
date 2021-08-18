@@ -40,7 +40,6 @@ class InvestigatorTest {
     @Test
     void testLoadReports() throws SQLException {
         Investigator investigator = new Investigator(2);
-        investigator.loadReports();
         assertFalse(investigator.getReports().isEmpty());
     }
 }
