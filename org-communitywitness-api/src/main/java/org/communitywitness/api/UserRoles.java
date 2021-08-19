@@ -17,6 +17,6 @@ public class UserRoles {
 	 * @return true if the given string is a role, false otherwise
 	 */
 	public static boolean isRole(String role) {
-		return role == WITNESS || role == INVESTIGATOR;
+		return role.equalsIgnoreCase(WITNESS) || role.equalsIgnoreCase(INVESTIGATOR);
 	}
 }

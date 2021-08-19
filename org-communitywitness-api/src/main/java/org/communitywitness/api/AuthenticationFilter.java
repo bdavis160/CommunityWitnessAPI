@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import jakarta.annotation.security.DenyAll;
@@ -43,15 +44,18 @@ public class AuthenticationFilter implements ContainerRequestFilter {
 
 		// RolesAllowed lets in requests with proper credentials and roles
 		if (targetMethod.isAnnotationPresent(RolesAllowed.class)) {
-			Set<String> rolesAllowed = new HashSet<String>(Arrays.asList(
-					targetMethod.getAnnotation(RolesAllowed.class).value()));
+			List<String> roleList = Arrays.asList(targetMethod.getAnnotation(RolesAllowed.class).value());
+			roleList.replaceAll(string -> string.toLowerCase());
+			Set<String> rolesAllowed = new HashSet<String>(roleList);
+			
+			
 			String apiKey = requestContext.getHeaderString(CREDENTIAL_HEADER);
 
 			try {
 				AuthenticatedUser currentUser = new AuthenticatedUser(apiKey);
 				requestContext.setSecurityContext(currentUser);
 
-				if (rolesAllowed.contains(currentUser.getRole())) 
+				if (rolesAllowed.contains(currentUser.getRole().toLowerCase())) 
 					return;
 				else 
 					throw new BadLoginException("User is not in appropriate role.");

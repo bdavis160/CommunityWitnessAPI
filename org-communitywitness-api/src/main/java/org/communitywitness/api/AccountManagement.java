@@ -143,9 +143,9 @@ public class AccountManagement {
 		
 		try {
 			// Make sure the user exists, if they don't these constructors throw exceptions
-			if (role == UserRoles.INVESTIGATOR)
+			if (role.equalsIgnoreCase(UserRoles.INVESTIGATOR))
 				new Investigator(id);
-			else if (role == UserRoles.WITNESS)
+			else if (role.equalsIgnoreCase(UserRoles.WITNESS))
 				new Witness(id);
 			
 
@@ -154,9 +154,9 @@ public class AccountManagement {
 			
 			// Check if this user already has an api key
 			String existingKeyQuery = "SELECT %s FROM ApiKeys WHERE %s=?";
-			if (role == UserRoles.INVESTIGATOR)
+			if (role.equalsIgnoreCase(UserRoles.INVESTIGATOR))
 				existingKeyQuery = String.format(existingKeyQuery,"InvestigatorId", "InvestigatorId");
-			else if (role == UserRoles.WITNESS)
+			else if (role.equalsIgnoreCase(UserRoles.WITNESS))
 				existingKeyQuery = String.format(existingKeyQuery, "WitnessId", "WitnessId");
 			
 			PreparedStatement existingKeyStatement = dbConnection.prepareStatement(existingKeyQuery);
@@ -174,10 +174,10 @@ public class AccountManagement {
 			String insertQuery = "INSERT INTO ApiKeys (ApiKey, WitnessId, InvestigatorId) VALUES (?, ?, ?)";
 			PreparedStatement insertStatement = dbConnection.prepareStatement(insertQuery);
 			insertStatement.setString(1, apiKey);
-			if (role == UserRoles.INVESTIGATOR) {
+			if (role.equalsIgnoreCase(UserRoles.INVESTIGATOR)) {
 				insertStatement.setNull(2, Types.INTEGER);
 				insertStatement.setInt(3, id);
-			} else if (role == UserRoles.WITNESS) {
+			} else if (role.equalsIgnoreCase(UserRoles.WITNESS)) {
 				insertStatement.setInt(2, id);
 				insertStatement.setNull(3, Types.INTEGER);
 			}
