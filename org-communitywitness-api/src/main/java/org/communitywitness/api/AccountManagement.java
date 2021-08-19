@@ -121,9 +121,15 @@ public class AccountManagement {
 			insertStatement.setInt(3, investigatorId);
 			
 			if (insertStatement.executeUpdate() == 0)
+				throw new SQLException();
+			
+			// Create the investigators API key
+			String apiKey = giveUserApiKey(investigatorId, UserRoles.INVESTIGATOR);
+			if (apiKey == null)
 				return false;
 			else
 				return true;
+			
 			
 		} catch (SQLException exception) {
 			return false;
