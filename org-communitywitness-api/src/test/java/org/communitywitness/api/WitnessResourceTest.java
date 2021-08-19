@@ -14,8 +14,8 @@ class WitnessResourceTest {
         WitnessRequest witnessRequest = new WitnessRequest();
         witnessRequest.setName("name from createWitness unit test");
         witnessRequest.setLocation("location from createWitness unit test");
-        int myId = res.createWitness(witnessRequest);
-        assertNotEquals(-1, myId);
+        String apiKey = res.createWitness(witnessRequest);
+        assertNotNull(apiKey);
     }
 
     @Test

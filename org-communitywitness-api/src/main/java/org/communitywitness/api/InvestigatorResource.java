@@ -2,8 +2,8 @@ package org.communitywitness.api;
 
 import java.sql.SQLException;
 
+import jakarta.annotation.security.PermitAll;
 import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -25,14 +25,27 @@ public class InvestigatorResource {
 	 * @param newInvestigatorRequestData - object containing the new data to be inserted
 	 * @return the id of the newly created investigator
 	 */
+	@PermitAll
 	@POST
-	public int createInvestigator(NewInvestigatorRequest newInvestigatorRequestData) throws SQLException {
+	public int createInvestigator(NewInvestigatorRequest newInvestigatorRequestData) throws WebApplicationException {
+		int id;
 		Investigator newInvestigator = new Investigator(
 				newInvestigatorRequestData.getName(),
 				newInvestigatorRequestData.getOrganization(),
 				newInvestigatorRequestData.getOrganizationType(),
 				newInvestigatorRequestData.getRating());
-		return newInvestigator.writeToDb();
+		
+		try {
+			id = newInvestigator.writeToDb();
+		} catch (SQLException exception) {
+			throw new WebApplicationException("Failed to write investigator to database.");
+		}
+		
+		if (!AccountManagement.createInvestigatorAccount(newInvestigatorRequestData.getUsername(),
+				newInvestigatorRequestData.getPassword(), id))
+			throw new WebApplicationException("Failed to create investigator account.");
+			
+		return id;
 	}
 	
 	/**

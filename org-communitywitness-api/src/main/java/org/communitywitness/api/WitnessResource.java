@@ -2,8 +2,8 @@ package org.communitywitness.api;
 
 import java.sql.SQLException;
 
+import jakarta.annotation.security.PermitAll;
 import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -22,12 +22,24 @@ public class WitnessResource {
 	/**
 	 * Creates a new witness with the data sent by the client.
 	 * @param witnessRequest - the updated data for the witness
-	 * @return the id of the newly created witness
+	 * @return the api key of the newly created witness
 	 */
+	@PermitAll
 	@POST
-	public int createWitness(WitnessRequest witnessRequest) throws SQLException {
+	public String createWitness(WitnessRequest witnessRequest) throws WebApplicationException {
 		Witness newWitness = new Witness(witnessRequest);
-		return newWitness.writeToDb();
+		
+		try {
+			int id = newWitness.writeToDb();
+			String apiKey = AccountManagement.giveUserApiKey(id, UserRoles.WITNESS);
+			
+			if (apiKey != null)
+				return apiKey;
+			else
+				throw new WebApplicationException("Failed to create API key.");
+		} catch (SQLException exception) {
+			throw new WebApplicationException("Failed to create database entry.");
+		}
 	}
 
 	/**
