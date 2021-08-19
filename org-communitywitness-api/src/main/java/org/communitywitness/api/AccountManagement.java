@@ -196,7 +196,7 @@ public class AccountManagement {
 	 * @param password a plaintext password to hash and salt
 	 * @return the hashed and salted password encoded as text in jargon2's format
 	 */
-	private static String hashPassword(String password) {
+	public static String hashPassword(String password) {
 		byte[] passwordBytes = password.getBytes(TEXT_CHARSET);
 		
 		Hasher hasher = Jargon2.jargon2Hasher()
