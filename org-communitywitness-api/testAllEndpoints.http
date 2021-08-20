@@ -145,3 +145,25 @@ Content-Type: application/json
 
 ###
 
+# curl http://localhost:8080/chat/investigator/0
+GET http://localhost:8080/chat/investigator/0
+
+###
+
+# curl http://localhost:8080/chat/witness/48
+GET http://localhost:8080/chat/witness/48
+
+###
+
+# curl -X POST http://localhost:8080/chat/2 -H "Content-Type: application/json" -d '{"investigatorId":0, "message":"chat message from cURL", "time":"2008-10-08 11:29:25.504000"}'
+PUT http://localhost:8080/chat/2
+Content-Type: application/json
+
+{
+  "investigatorId": 0,
+  "message": "chat message from cURL",
+  "time": "2021-09-13T17:32:20.897"
+}
+
+###
+
