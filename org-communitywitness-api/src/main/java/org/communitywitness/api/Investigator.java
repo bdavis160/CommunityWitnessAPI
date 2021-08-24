@@ -16,7 +16,7 @@ public class Investigator extends org.communitywitness.common.Investigator {
 	 * Constructor that looks up an investigator in the database then fills that data into the object.
 	 * @param id - the id of the witness to lookup in the database.
 	 */
-	public Investigator(int id) throws SQLException {
+	public Investigator(int id) throws SQLException, RuntimeException {
 		// retrieve investigators account info
 		Connection conn = new SQLConnection().databaseConnection();
 		String query = "SELECT Name, Organization, OrganizationType, Rating " +
@@ -142,5 +142,23 @@ public class Investigator extends org.communitywitness.common.Investigator {
 		}
 
 		return getId();
+	}
+
+	/**
+	 * Marks this investigator as interested in the given case (by reportId)
+	 * @throws SQLException if unable to write (most likely due to foreign key constraint
+	 */
+	public void takeCase(int reportId) throws SQLException {
+		Connection conn = new SQLConnection().databaseConnection();
+
+		String query = "INSERT INTO reportinvestigations (reportid, investigatorid) " +
+				"VALUES (?,?)";
+
+		PreparedStatement queryStatement = conn.prepareStatement(query);
+		queryStatement.setInt(1, reportId);
+		queryStatement.setInt(2, getId());
+
+		queryStatement.executeUpdate();
+		queryStatement.close();
 	}
 }
