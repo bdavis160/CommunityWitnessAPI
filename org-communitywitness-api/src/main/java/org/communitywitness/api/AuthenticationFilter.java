@@ -22,7 +22,13 @@ public class AuthenticationFilter implements ContainerRequestFilter {
 	@Override
 	public void filter(ContainerRequestContext requestContext) throws IOException {
 		String apiKey = requestContext.getHeaderString(CREDENTIAL_HEADER);
-		apiKey = apiKey.strip();
+		
+		if (apiKey == null) {
+			requestContext.setSecurityContext(new GuestUser());
+			return;
+		} else {
+			apiKey = apiKey.strip();
+		}
 
 		// Try to authenticate the user
 		try {
@@ -31,10 +37,8 @@ public class AuthenticationFilter implements ContainerRequestFilter {
 			requestContext.setProperty(AuthenticatedUser.REQUEST_CONTEXT_PROPERTY, currentUser);
 			return;
 		} catch (BadLoginException exception) {
-			// Fall through to the default case of being a guest user
+			requestContext.setSecurityContext(new GuestUser());
 		}
-		
-		requestContext.setSecurityContext(new GuestUser());
 	}
 
 	/**

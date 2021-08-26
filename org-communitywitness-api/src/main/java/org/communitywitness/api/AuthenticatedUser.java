@@ -26,7 +26,7 @@ public class AuthenticatedUser implements SecurityContext {
 	 */
 	public AuthenticatedUser(String apiKey) throws BadLoginException {
 		// Users have to actually present an API key
-		if (apiKey.isBlank())
+		if (apiKey == null || apiKey.isBlank())
 			throw new BadLoginException("No API key given.");
 			
 		// Check the api key against the database
