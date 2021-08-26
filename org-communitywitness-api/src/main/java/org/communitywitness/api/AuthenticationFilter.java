@@ -26,51 +26,20 @@ import jakarta.ws.rs.ext.Provider;
 public class AuthenticationFilter implements ContainerRequestFilter {
 	private static final String CREDENTIAL_HEADER = "X-API-KEY";
 
-	@Context 
-	private ResourceInfo targetResource;
-
-
+	/**
+	 * A filter before each request that tries to authenticate the user based on any credentials given.
+	 */
 	@Override
 	public void filter(ContainerRequestContext requestContext) throws IOException {
-		Method targetMethod = targetResource.getResourceMethod();
+		String apiKey = requestContext.getHeaderString(CREDENTIAL_HEADER);
+		apiKey = apiKey.strip();
 
-		// If there's no method actually being called then no authentication is needed
-		if (targetMethod == null)
-			return;
-
-		// PermitAll lets all requests through
-		if (targetMethod.isAnnotationPresent(PermitAll.class)) 
-			return;
-
-		// DenyAll lets no requests through
-		if (targetMethod.isAnnotationPresent(DenyAll.class)) {
-			requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
-			return;
-		}
-
-		// RolesAllowed lets in requests with proper credentials and roles
-		if (targetMethod.isAnnotationPresent(RolesAllowed.class)) {
-			List<String> roleList = Arrays.asList(targetMethod.getAnnotation(RolesAllowed.class).value());
-			roleList.replaceAll(string -> string.toLowerCase());
-			Set<String> rolesAllowed = new HashSet<String>(roleList);
-			
-			
-			String apiKey = requestContext.getHeaderString(CREDENTIAL_HEADER);
-			apiKey = apiKey.replaceFirst(CREDENTIAL_HEADER, "");
-			apiKey = apiKey.strip();
-
-			try {
-				AuthenticatedUser currentUser = new AuthenticatedUser(apiKey);
-				requestContext.setSecurityContext(currentUser);
-
-				if (rolesAllowed.contains(currentUser.getRole().toLowerCase())) 
-					return;
-				else 
-					throw new BadLoginException("User is not in appropriate role.");
-				
-			} catch (BadLoginException exception) {
-				requestContext.abortWith(unauthorizedAccessResponse(exception.getMessage()));
-			}
+		// Try to authenticate the user
+		try {
+			AuthenticatedUser currentUser = new AuthenticatedUser(apiKey);
+			requestContext.setSecurityContext(currentUser);
+		} catch (BadLoginException exception) {
+			requestContext.setSecurityContext(new GuestUser());
 		}
 	}
 
