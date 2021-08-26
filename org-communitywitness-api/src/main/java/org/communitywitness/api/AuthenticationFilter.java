@@ -7,16 +7,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import jakarta.annotation.Priority;
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
+import jakarta.ws.rs.container.PreMatching;
 import jakarta.ws.rs.container.ResourceInfo;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.Provider;
 
-
+@Provider
+@PreMatching
+@Priority(Priorities.AUTHENTICATION)
 public class AuthenticationFilter implements ContainerRequestFilter {
 	private static final String CREDENTIAL_HEADER = "X-API-KEY";
 
