@@ -22,7 +22,7 @@ public class ReportCommentResource {
 	@POST
 	public int createReportComment(ReportCommentRequest reportCommentRequest, @Context AuthenticatedUser user) throws WebApplicationException, SQLException {
 		if (user.getId() != reportCommentRequest.getInvestigatorId())
-			AuthorizationFilter.unauthorizedAccessResponse("You cannot file a comment as a different investigator");
+			AuthenticationFilter.unauthorizedAccessResponse("You cannot file a comment as a different investigator");
 		
 		// check if the report and investigator exist
 		try {
@@ -55,7 +55,7 @@ public class ReportCommentResource {
 			if (user.isUserInRole(UserRoles.WITNESS)) {
 				Report relevantReport = new Report(requestedComment.getReportId());
 				if (user.getId() != relevantReport.getWitnessId())
-					throw new WebApplicationException(AuthorizationFilter.unauthorizedAccessResponse("You can only view comments on your reports."));
+					throw new WebApplicationException(AuthenticationFilter.unauthorizedAccessResponse("You can only view comments on your reports."));
 			}
 		} catch (SQLException exception) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND);

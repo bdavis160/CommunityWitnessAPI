@@ -26,7 +26,7 @@ public class ChatResource {
     @Path("/investigator/{investigatorId}")
     public List<ChatMessage> investigatorMessages(@PathParam("investigatorId") int id, @Context AuthenticatedUser user) throws WebApplicationException, SQLException {
 		if (user.getId() != id)
-			throw new WebApplicationException(AuthorizationFilter.unauthorizedAccessResponse("You cannot view other investigators messages."));
+			throw new WebApplicationException(AuthenticationFilter.unauthorizedAccessResponse("You cannot view other investigators messages."));
 		
         Connection conn = new SQLConnection().databaseConnection();
         String query = "SELECT id, reportid, investigatorid, message, time FROM chat WHERE investigatorid=?";
@@ -64,7 +64,7 @@ public class ChatResource {
     @Path("/witness/{witnessId}")
     public List<ChatMessage> witnessMessages(@PathParam("witnessId") int id, @Context AuthenticatedUser user) throws SQLException {
 		if (user.getId() != id)
-			throw new WebApplicationException(AuthorizationFilter.unauthorizedAccessResponse("You cannot view other witnesses messages."));
+			throw new WebApplicationException(AuthenticationFilter.unauthorizedAccessResponse("You cannot view other witnesses messages."));
 		
         List<Integer> reportIdString = new Witness(id).getReports();
 
@@ -108,12 +108,12 @@ public class ChatResource {
     public int addMessage(@PathParam("reportId") int reportId, ChatMessageRequest chatMessageRequest, @Context AuthenticatedUser user) throws WebApplicationException, SQLException {
 		// Verify that the user is allowed to send this message
 		if (user.isUserInRole(UserRoles.INVESTIGATOR) && user.getId() != chatMessageRequest.getInvestigatorId())
-			throw new WebApplicationException(AuthorizationFilter.unauthorizedAccessResponse("You cannot send messages as another investigator."));
+			throw new WebApplicationException(AuthenticationFilter.unauthorizedAccessResponse("You cannot send messages as another investigator."));
 		
 		if (user.isUserInRole(UserRoles.WITNESS)) {
 			Report relevantReport = new Report(reportId);
 			if (user.getId() != relevantReport.getWitnessId())
-				throw new WebApplicationException(AuthorizationFilter.unauthorizedAccessResponse("You can only send messages regarding your reports."));
+				throw new WebApplicationException(AuthenticationFilter.unauthorizedAccessResponse("You can only send messages regarding your reports."));
 		}
 		
         ChatMessage message = new ChatMessage(

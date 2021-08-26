@@ -167,11 +167,6 @@ public class AuthenticatedUser implements SecurityContext {
 			public String getName() {
 				return String.valueOf(id);
 			}
-			
-			// Set the hash as the id for easy access
-			public int hashCode() {
-				return id;
-			}
 		};
 	}
 }

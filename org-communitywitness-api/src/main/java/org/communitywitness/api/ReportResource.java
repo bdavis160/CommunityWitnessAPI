@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+// TODO: implement user authentication for all of these calls
 @Path("/reports")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -58,7 +59,7 @@ public class ReportResource {
 	@POST
 	public int createReport(NewReportRequest newReportRequestData, @Context AuthenticatedUser user) throws WebApplicationException, SQLException {
 		if (user.getId() != newReportRequestData.getWitnessId())
-			throw new WebApplicationException(AuthorizationFilter.unauthorizedAccessResponse("You can't file a report as another witness."));
+			throw new WebApplicationException(AuthenticationFilter.unauthorizedAccessResponse("You can't file a report as another witness."));
 		
 		Report newReport = new Report(
 				false,
@@ -85,7 +86,7 @@ public class ReportResource {
 			requestedReport = new Report(reportId);
 			
 			if (user.isUserInRole(UserRoles.WITNESS) && user.getId() != requestedReport.getWitnessId())
-				throw new WebApplicationException(AuthorizationFilter.unauthorizedAccessResponse("You can only access reports you filed."));
+				throw new WebApplicationException(AuthenticationFilter.unauthorizedAccessResponse("You can only access reports you filed."));
 		} catch (SQLException exception) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
 		}
@@ -109,7 +110,7 @@ public class ReportResource {
 			toUpdate = new Report(reportId);
 			
 			if (user.getId() != toUpdate.getWitnessId())
-				return AuthorizationFilter.unauthorizedAccessResponse("You can only modify the status of your own reports.");
+				return AuthenticationFilter.unauthorizedAccessResponse("You can only modify the status of your own reports.");
 			
 			toUpdate.setResolved(status);
 			toUpdate.writeToDb();

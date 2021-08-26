@@ -14,7 +14,6 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.SecurityContext;
 
 // TODO: implement user authentication for all of these calls
 @Path("/investigators")
@@ -84,7 +83,7 @@ public class InvestigatorResource {
 	@Path("/{investigatorId}")
 	public Response updateInvestigator(@PathParam("investigatorId") int investigatorId, UpdateInvestigatorRequest updateInvestigatorRequestData, @Context AuthenticatedUser user) {
 		if (user.getId() != investigatorId)
-			return AuthorizationFilter.unauthorizedAccessResponse("You can only change your own investigator profile.");
+			return AuthenticationFilter.unauthorizedAccessResponse("You can only change your own investigator profile.");
 			
 		try {
 			Investigator requestedInvestigator = new Investigator(investigatorId);
@@ -126,7 +125,7 @@ public class InvestigatorResource {
 	@RolesAllowed({UserRoles.INVESTIGATOR})
 	@GET
 	@Path("/echo")
-	public String echoId(@Context SecurityContext user) {
-		return String.valueOf(user.hashCode());
+	public String echoId(@Context AuthenticatedUser user) {
+		return String.valueOf(user.getId());
 	}
 }

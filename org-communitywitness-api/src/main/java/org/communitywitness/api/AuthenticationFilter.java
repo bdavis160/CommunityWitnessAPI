@@ -7,6 +7,7 @@ import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.container.PreMatching;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
 
 @Provider
@@ -27,9 +28,22 @@ public class AuthenticationFilter implements ContainerRequestFilter {
 		try {
 			AuthenticatedUser currentUser = new AuthenticatedUser(apiKey);
 			requestContext.setSecurityContext(currentUser);
-			//requestContext.setProperty(AuthenticatedUser.REQUEST_CONTEXT_PROPERTY, currentUser);
+			requestContext.setProperty(AuthenticatedUser.REQUEST_CONTEXT_PROPERTY, currentUser);
 		} catch (BadLoginException exception) {
 			requestContext.setSecurityContext(new GuestUser());
 		}
+	}
+
+	/**
+	 * Returns an HTTP 401 Unauthorized response containing information about how
+	 * to authenticate and the reason the request was unauthorized.
+	 * @param reason a description of why the request was unauthorized
+	 * @return an HTTP 401 response with the given reason
+	 */
+	public static Response unauthorizedAccessResponse(String reason) {
+		return Response
+				.status(Response.Status.UNAUTHORIZED)
+				.entity(reason)
+				.build();
 	}
 }
