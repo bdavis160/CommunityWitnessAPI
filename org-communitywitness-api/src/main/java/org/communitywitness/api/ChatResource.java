@@ -1,6 +1,8 @@
 package org.communitywitness.api;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 
 import java.sql.Connection;
@@ -19,9 +21,13 @@ public class ChatResource {
      * Returns all chat messages for the given investigator
      * @returns a list of messages
      */
+	@RolesAllowed({UserRoles.INVESTIGATOR})
     @GET
     @Path("/investigator/{investigatorId}")
-    public List<ChatMessage> investigatorMessages(@PathParam("investigatorId") int id) throws SQLException {
+    public List<ChatMessage> investigatorMessages(@PathParam("investigatorId") int id, @Context AuthenticatedUser user) throws WebApplicationException, SQLException {
+		if (user.getId() != id)
+			throw new WebApplicationException(AuthenticationFilter.unauthorizedAccessResponse("You cannot view other investigators messages."));
+		
         Connection conn = new SQLConnection().databaseConnection();
         String query = "SELECT id, reportid, investigatorid, message, time FROM chat WHERE investigatorid=?";
         PreparedStatement preparedStatement = conn.prepareStatement(query);
@@ -53,9 +59,13 @@ public class ChatResource {
      * Returns all chat messages for the given witness
      * @returns a list of messages
      */
+	@RolesAllowed({UserRoles.WITNESS})
     @GET
     @Path("/witness/{witnessId}")
-    public List<ChatMessage> witnessMessages(@PathParam("witnessId") int id) throws SQLException {
+    public List<ChatMessage> witnessMessages(@PathParam("witnessId") int id, @Context AuthenticatedUser user) throws SQLException {
+		if (user.getId() != id)
+			throw new WebApplicationException(AuthenticationFilter.unauthorizedAccessResponse("You cannot view other witnesses messages."));
+		
         List<Integer> reportIdString = new Witness(id).getReports();
 
         Connection conn = new SQLConnection().databaseConnection();
@@ -92,9 +102,20 @@ public class ChatResource {
         return messages;
     }
 
+	@RolesAllowed({UserRoles.INVESTIGATOR, UserRoles.WITNESS})
     @PUT
     @Path("/{reportId}")
-    public int addMessage(@PathParam("reportId") int reportId, ChatMessageRequest chatMessageRequest) throws SQLException {
+    public int addMessage(@PathParam("reportId") int reportId, ChatMessageRequest chatMessageRequest, @Context AuthenticatedUser user) throws WebApplicationException, SQLException {
+		// Verify that the user is allowed to send this message
+		if (user.isUserInRole(UserRoles.INVESTIGATOR) && user.getId() != chatMessageRequest.getInvestigatorId())
+			throw new WebApplicationException(AuthenticationFilter.unauthorizedAccessResponse("You cannot send messages as another investigator."));
+		
+		if (user.isUserInRole(UserRoles.WITNESS)) {
+			Report relevantReport = new Report(reportId);
+			if (user.getId() != relevantReport.getWitnessId())
+				throw new WebApplicationException(AuthenticationFilter.unauthorizedAccessResponse("You can only send messages regarding your reports."));
+		}
+		
         ChatMessage message = new ChatMessage(
                 reportId,
                 chatMessageRequest.getInvestigatorId(),

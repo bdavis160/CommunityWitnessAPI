@@ -3,6 +3,7 @@ package org.communitywitness.api;
 import java.sql.SQLException;
 
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -10,6 +11,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
@@ -48,11 +50,15 @@ public class WitnessResource {
 	 * @return the witness with the given id
 	 * @throws WebApplicationException if the witness isn't in the database
 	 */
+	@RolesAllowed({UserRoles.WITNESS})
 	@GET
 	@Path("/{witnessId}")
-	public Witness getWitness(@PathParam("witnessId") int witnessId) throws WebApplicationException {
+	public Witness getWitness(@PathParam("witnessId") int witnessId, @Context AuthenticatedUser user) throws WebApplicationException {
 		Witness requestedWitness;
 
+		if (user.getId() != witnessId)
+			throw new WebApplicationException(AuthenticationFilter.unauthorizedAccessResponse("You can only view your own witness data."));
+		
 		try {
 			requestedWitness = new Witness(witnessId);
 		} catch (SQLException exception) {
@@ -69,17 +75,21 @@ public class WitnessResource {
 	 * @param witnessRequestData - the updated data for the witness
 	 * @return A status of OK if the witness is found and update, otherwise a status of NOT_FOUND
 	 */
+	@RolesAllowed({UserRoles.WITNESS})
 	@POST
 	@Path("/{witnessId}")
-	public Status updateWitness(@PathParam("witnessId") int witnessId, WitnessRequest witnessRequestData) {
+	public Response updateWitness(@PathParam("witnessId") int witnessId, WitnessRequest witnessRequestData, @Context AuthenticatedUser user) {
+		if (user.getId() != witnessId)
+			return AuthenticationFilter.unauthorizedAccessResponse("You can only modify your own witness data.");
+		
 		try {
 			Witness requestedWitness = new Witness(witnessId);
 			Witness updates = new Witness(witnessRequestData);
 			requestedWitness.updateFrom(updates);
 		} catch (SQLException exception) {
-			return Response.Status.NOT_FOUND;
+			return Response.status(Response.Status.NOT_FOUND).build();
 		}
 		
-		return Response.Status.OK;
+		return Response.ok().build();
 	}
 }

@@ -3,6 +3,7 @@ package org.communitywitness.api;
 import java.sql.SQLException;
 
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -10,8 +11,10 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 
 // TODO: implement user authentication for all of these calls
 @Path("/investigators")
@@ -54,6 +57,7 @@ public class InvestigatorResource {
 	 * @return the data about the investigator
 	 * @throws WebApplicationException if the investigator isn't found in the database
 	 */
+	@RolesAllowed({UserRoles.INVESTIGATOR, UserRoles.WITNESS})
 	@GET
 	@Path("/{investigatorId}")
 	public Investigator getInvestigator(@PathParam("investigatorId") int investigatorId) throws WebApplicationException {
@@ -75,9 +79,13 @@ public class InvestigatorResource {
 	 * @param updateInvestigatorRequestData - an object containing the updated data
 	 * @return An OK status on success, otherwise a NOT_FOUND status when no matching investigator is found.
 	 */
+	@RolesAllowed({UserRoles.INVESTIGATOR})
 	@POST
 	@Path("/{investigatorId}")
-	public Response updateInvestigator(@PathParam("investigatorId") int investigatorId, UpdateInvestigatorRequest updateInvestigatorRequestData) {
+	public Response updateInvestigator(@PathParam("investigatorId") int investigatorId, UpdateInvestigatorRequest updateInvestigatorRequestData, @Context AuthenticatedUser user) {
+		if (user.getId() != investigatorId)
+			return AuthenticationFilter.unauthorizedAccessResponse("You can only change your own investigator profile.");
+			
 		try {
 			Investigator requestedInvestigator = new Investigator(investigatorId);
 			Investigator updatedData = new Investigator(

@@ -1,6 +1,8 @@
 package org.communitywitness.api;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -18,13 +20,13 @@ import java.util.Base64;
 public class EvidenceResource {
 	/**
 	 * Creates new evidence with the data contained in the sent object.
-	 * TODO: figure out how to consume files associated with the evidence
 	 * @param newEvidenceRequestData - an object containing the information about the evidence
 	 * @return the actual id of the newly created evidence
 	 * @throws WebApplicationException if the report the evidence is associated with doesn't exist
 	 */
+	@RolesAllowed({UserRoles.WITNESS})
 	@POST
-	public int createEvidence(NewEvidenceRequest newEvidenceRequestData) throws WebApplicationException, SQLException, IOException {
+	public int createEvidence(NewEvidenceRequest newEvidenceRequestData, @Context AuthenticatedUser user) throws WebApplicationException, SQLException, IOException {
 		String dirname;
 		String filename;
 		File directory;
@@ -33,9 +35,12 @@ public class EvidenceResource {
 		// sets write directory to windows project dir if api is running locally
 		boolean localAPI = System.getProperty("os.name").equals("Windows 10");
 
-		// check if the report exists
+		// check if the report exists and if it belongs to this user
 		try {
-			new Report(newEvidenceRequestData.getReportId());
+			Report relevantReport = new Report(newEvidenceRequestData.getReportId());
+			
+			if (user.getId() != relevantReport.getWitnessId())
+				throw new WebApplicationException(AuthenticationFilter.unauthorizedAccessResponse("You can only post evidence for your reports."));
 		} catch (SQLException exception) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
 		}
@@ -80,13 +85,21 @@ public class EvidenceResource {
 	 * @return the evidence data
 	 * @throws WebApplicationException if no evidence with the given id is found
 	 */
+	@RolesAllowed({UserRoles.INVESTIGATOR, UserRoles.WITNESS})
 	@GET
 	@Path("/{evidenceId}")
-	public Evidence getEvidence(@PathParam("evidenceId") int evidenceId) throws WebApplicationException {
+	public Evidence getEvidence(@PathParam("evidenceId") int evidenceId, @Context AuthenticatedUser user) throws WebApplicationException {
 		Evidence requestedEvidence;
 		
 		try {
 			requestedEvidence = new Evidence(evidenceId);
+			
+			if (user.isUserInRole(UserRoles.WITNESS)) {
+				Report relevantReport = new Report(requestedEvidence.getReportId());
+				
+				if (user.getId() != relevantReport.getWitnessId())
+					throw new WebApplicationException(AuthenticationFilter.unauthorizedAccessResponse("You can only view evidence for your reports."));
+			}
 		} catch (SQLException exception) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
 		}
