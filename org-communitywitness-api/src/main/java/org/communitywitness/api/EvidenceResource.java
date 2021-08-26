@@ -40,7 +40,7 @@ public class EvidenceResource {
 			Report relevantReport = new Report(newEvidenceRequestData.getReportId());
 			
 			if (user.getId() != relevantReport.getWitnessId())
-				throw new WebApplicationException(AuthenticationFilter.unauthorizedAccessResponse("You can only post evidence for your reports."));
+				throw new WebApplicationException(AuthorizationFilter.unauthorizedAccessResponse("You can only post evidence for your reports."));
 		} catch (SQLException exception) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
 		}
@@ -98,7 +98,7 @@ public class EvidenceResource {
 				Report relevantReport = new Report(requestedEvidence.getReportId());
 				
 				if (user.getId() != relevantReport.getWitnessId())
-					throw new WebApplicationException(AuthenticationFilter.unauthorizedAccessResponse("You can only view evidence for your reports."));
+					throw new WebApplicationException(AuthorizationFilter.unauthorizedAccessResponse("You can only view evidence for your reports."));
 			}
 		} catch (SQLException exception) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND);

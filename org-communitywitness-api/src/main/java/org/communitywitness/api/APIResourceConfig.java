@@ -10,10 +10,7 @@ public class APIResourceConfig extends ResourceConfig {
 		// Scan for resources in this package
 		packages("org.communitywitness.api");
 		
-		// Discover roles dynamically
-		register(RolesAllowedDynamicFeature.class);
-		
-		// Register the AuthenticatedUser inejction factory
+		// Register the AuthenticatedUser injection factory
 		register(new AbstractBinder() {
 			@Override
 			protected void configure() {
