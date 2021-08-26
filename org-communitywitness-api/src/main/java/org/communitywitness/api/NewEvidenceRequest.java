@@ -6,9 +6,8 @@ public class NewEvidenceRequest {
     private String title;
     private String type;
     private LocalDateTime timestamp;
-    private String link;
     private int reportId;
-    private String data;
+    private byte[] data;
 
     public String getTitle() {
         return title;
@@ -34,14 +33,6 @@ public class NewEvidenceRequest {
         this.timestamp = timestamp;
     }
 
-    public String getLink() {
-        return link;
-    }
-
-    public void setLink(String link) {
-        this.link = link;
-    }
-
     public int getReportId() {
         return reportId;
     }
@@ -50,11 +41,11 @@ public class NewEvidenceRequest {
         this.reportId = reportId;
     }
 
-    public String getData() {
+    public byte[] getData() {
         return data;
     }
 
-    public void setData(String data) {
+    public void setData(byte[] data) {
         this.data = data;
     }
 }
