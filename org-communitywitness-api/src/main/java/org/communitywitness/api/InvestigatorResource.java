@@ -83,7 +83,7 @@ public class InvestigatorResource {
 	@Path("/{investigatorId}")
 	public Response updateInvestigator(@PathParam("investigatorId") int investigatorId, UpdateInvestigatorRequest updateInvestigatorRequestData, @Context AuthenticatedUser user) {
 		if (user.getId() != investigatorId)
-			return AuthenticationFilter.unauthorizedAccessResponse("You can only change your own investigator profile.");
+			return AuthorizationFilter.unauthorizedAccessResponse("You can only change your own investigator profile.");
 			
 		try {
 			Investigator requestedInvestigator = new Investigator(investigatorId);
@@ -120,12 +120,5 @@ public class InvestigatorResource {
 		}
 		
 		return currentInvestigator;
-	}
-	
-	@RolesAllowed({UserRoles.INVESTIGATOR})
-	@GET
-	@Path("/echo")
-	public String echoId(@Context AuthenticatedUser user) {
-		return String.valueOf(user.getId());
 	}
 }

@@ -56,7 +56,7 @@ public class WitnessResource {
 		Witness requestedWitness;
 
 		if (user.getId() != witnessId)
-			throw new WebApplicationException(AuthenticationFilter.unauthorizedAccessResponse("You can only view your own witness data."));
+			throw new WebApplicationException(AuthorizationFilter.unauthorizedAccessResponse("You can only view your own witness data."));
 		
 		try {
 			requestedWitness = new Witness(witnessId);
@@ -79,7 +79,7 @@ public class WitnessResource {
 	@Path("/{witnessId}")
 	public Response updateWitness(@PathParam("witnessId") int witnessId, WitnessRequest witnessRequestData, @Context AuthenticatedUser user) {
 		if (user.getId() != witnessId)
-			return AuthenticationFilter.unauthorizedAccessResponse("You can only modify your own witness data.");
+			return AuthorizationFilter.unauthorizedAccessResponse("You can only modify your own witness data.");
 		
 		try {
 			Witness requestedWitness = new Witness(witnessId);

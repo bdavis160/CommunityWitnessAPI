@@ -59,7 +59,7 @@ public class ReportResource {
 	@POST
 	public int createReport(NewReportRequest newReportRequestData, @Context AuthenticatedUser user) throws WebApplicationException, SQLException {
 		if (user.getId() != newReportRequestData.getWitnessId())
-			throw new WebApplicationException(AuthenticationFilter.unauthorizedAccessResponse("You can't file a report as another witness."));
+			throw new WebApplicationException(AuthorizationFilter.unauthorizedAccessResponse("You can't file a report as another witness."));
 		
 		Report newReport = new Report(
 				false,
@@ -86,7 +86,7 @@ public class ReportResource {
 			requestedReport = new Report(reportId);
 			
 			if (user.isUserInRole(UserRoles.WITNESS) && user.getId() != requestedReport.getWitnessId())
-				throw new WebApplicationException(AuthenticationFilter.unauthorizedAccessResponse("You can only access reports you filed."));
+				throw new WebApplicationException(AuthorizationFilter.unauthorizedAccessResponse("You can only access reports you filed."));
 		} catch (SQLException exception) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
 		}
@@ -110,7 +110,7 @@ public class ReportResource {
 			toUpdate = new Report(reportId);
 			
 			if (user.getId() != toUpdate.getWitnessId())
-				return AuthenticationFilter.unauthorizedAccessResponse("You can only modify the status of your own reports.");
+				return AuthorizationFilter.unauthorizedAccessResponse("You can only modify the status of your own reports.");
 			
 			toUpdate.setResolved(status);
 			toUpdate.writeToDb();
