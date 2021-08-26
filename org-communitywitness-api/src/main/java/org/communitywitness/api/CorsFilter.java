@@ -2,6 +2,8 @@ package org.communitywitness.api;
 
 import java.io.IOException;
 
+import jakarta.annotation.Priority;
+import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.container.ContainerResponseContext;
@@ -13,6 +15,7 @@ import jakarta.ws.rs.ext.Provider;
 // taken from https://stackoverflow.com/questions/28065963/how-to-handle-cors-using-jax-rs-with-jersey, TODO: replace/ tighten up later
 @Provider
 @PreMatching
+@Priority(Priorities.HEADER_DECORATOR)
 public class CorsFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
     /**

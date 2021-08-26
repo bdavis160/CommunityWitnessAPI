@@ -50,6 +50,8 @@ public class AuthenticationFilter implements ContainerRequestFilter {
 			
 			
 			String apiKey = requestContext.getHeaderString(CREDENTIAL_HEADER);
+			apiKey = apiKey.replaceFirst(CREDENTIAL_HEADER, "");
+			apiKey = apiKey.strip();
 
 			try {
 				AuthenticatedUser currentUser = new AuthenticatedUser(apiKey);
