@@ -157,12 +157,17 @@ public class AuthenticatedUser implements SecurityContext {
 	}
 	
 	/**
-	 * Creates a security principle that simply contains the users username.
+	 * Creates a security principle that simply contains the users id as both their name and hash.
 	 */
 	public void setPrincipal() {
 		this.principal = new Principal() {
 			public String getName() {
 				return String.valueOf(id);
+			}
+			
+			// Setting the hash as the id makes it accessible directly as an int for downstream clients.
+			public int hashCode() {
+				return id;
 			}
 		};
 	}

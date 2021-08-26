@@ -15,6 +15,7 @@ import jakarta.ws.rs.ext.Provider;
 @Priority(Priorities.AUTHENTICATION)
 public class AuthenticationFilter implements ContainerRequestFilter {
 	private static final String CREDENTIAL_HEADER = "X-API-KEY";
+	private static final String AUTHENTICATION_DETAILS_PROPERTY = "org.communitywitness.api.AuthenticationDetails";
 
 	/**
 	 * A filter before each request that tries to authenticate the user based on any credentials given.
@@ -28,6 +29,7 @@ public class AuthenticationFilter implements ContainerRequestFilter {
 		try {
 			AuthenticatedUser currentUser = new AuthenticatedUser(apiKey);
 			requestContext.setSecurityContext(currentUser);
+			requestContext.setProperty(AUTHENTICATION_DETAILS_PROPERTY, currentUser);
 		} catch (BadLoginException exception) {
 			requestContext.setSecurityContext(new GuestUser());
 		}

@@ -121,4 +121,11 @@ public class InvestigatorResource {
 		
 		return currentInvestigator;
 	}
+	
+	@RolesAllowed({UserRoles.INVESTIGATOR})
+	@GET
+	@Path("/echo")
+	public String echoId(@Context AuthenticatedUser user) {
+		return String.valueOf(user.getId());
+	}
 }
