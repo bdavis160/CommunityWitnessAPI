@@ -8,7 +8,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.Base64;
 
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -20,7 +19,7 @@ class EvidenceResourceTest {
     void createEvidence() throws IOException, SQLException {
         String location = "test.png";
         Path path = Paths.get(location);
-        String data = Base64.getEncoder().encodeToString(Files.readAllBytes(path));
+        byte[] data = Files.readAllBytes(path);
 
         NewEvidenceRequest req = new NewEvidenceRequest();
         req.setTitle("From unit test");
@@ -35,7 +34,7 @@ class EvidenceResourceTest {
 
     @Test
     void getEvidence() {
-        int id = 0;
+        int id = 283;
         Evidence evidence = res.getEvidence(id);
         assertNotNull(evidence);
     }

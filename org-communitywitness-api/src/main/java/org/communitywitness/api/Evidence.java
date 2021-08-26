@@ -17,7 +17,7 @@ public class Evidence extends org.communitywitness.common.Evidence {
 	 */
 	public Evidence(int id) throws SQLException {
 		Connection conn = new SQLConnection().databaseConnection();
-		String query = "SELECT Title, Type, Timestamp, Link, reportID " +
+		String query = "SELECT Title, Type, Timestamp, Data, reportID " +
 				"FROM Evidence " +
 				"WHERE ID=?";
 		PreparedStatement queryStatement = conn.prepareStatement(query);
@@ -29,7 +29,7 @@ public class Evidence extends org.communitywitness.common.Evidence {
 			setTitle(queryResults.getString(1));
 			setType(queryResults.getString(2));
 			setTimestamp(queryResults.getTimestamp(3).toLocalDateTime());
-			setLink(queryResults.getString(4));
+			setData(queryResults.getBytes(4));
 			setReportId(queryResults.getInt(5));
 		} else {
 			throw new RuntimeException("Evidence with the supplied ID does not exist in database");
@@ -48,7 +48,7 @@ public class Evidence extends org.communitywitness.common.Evidence {
 		setTitle(newEvidenceRequest.getTitle());
 		setType(newEvidenceRequest.getType());
 		setTimestamp(newEvidenceRequest.getTimestamp());
-		setLink(newEvidenceRequest.getLink());
+		setData(newEvidenceRequest.getData());
 		setReportId(newEvidenceRequest.getReportId());
 	}
 
@@ -66,14 +66,14 @@ public class Evidence extends org.communitywitness.common.Evidence {
 		// if the evidence is brand new (has not been written to the db yet), it will have an id of -1
 		// once the evidence gets written, it is given an id by the db which will be pulled back into the object
 		if (getId() == SpecialIds.UNSET_ID) {
-			String query = "INSERT INTO evidence (title, type, timestamp, link, reportid) " +
+			String query = "INSERT INTO evidence (title, type, timestamp, data, reportid) " +
 							"VALUES (?,?,?,?,?);";
 
 			PreparedStatement queryStatement = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 			queryStatement.setString(1, getTitle());
 			queryStatement.setString(2, getType());
 			queryStatement.setTimestamp(3, java.sql.Timestamp.valueOf(getTimestamp()));
-			queryStatement.setString(4, getLink());
+			queryStatement.setBytes(4, getData());
 			queryStatement.setInt(5, getReportId());
 
 			int rows = queryStatement.executeUpdate();
@@ -97,7 +97,7 @@ public class Evidence extends org.communitywitness.common.Evidence {
 							"title=?, " +
 							"type=?, " +
 							"timestamp=?, " +
-							"link=?, " +
+							"data=?, " +
 							"reportid=? " +
 							"WHERE id=?";
 
@@ -105,7 +105,7 @@ public class Evidence extends org.communitywitness.common.Evidence {
 			queryStatement.setString(1, getTitle());
 			queryStatement.setString(2, getType());
 			queryStatement.setTimestamp(3, java.sql.Timestamp.valueOf(getTimestamp()));
-			queryStatement.setString(4, getLink());
+			queryStatement.setBytes(4, getData());
 			queryStatement.setInt(5, getReportId());
 			queryStatement.setInt(6, getId());
 
