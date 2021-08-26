@@ -14,6 +14,7 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 
 // TODO: implement user authentication for all of these calls
 @Path("/investigators")
@@ -125,7 +126,7 @@ public class InvestigatorResource {
 	@RolesAllowed({UserRoles.INVESTIGATOR})
 	@GET
 	@Path("/echo")
-	public String echoId(@Context AuthenticatedUser user) {
-		return String.valueOf(user.getId());
+	public String echoId(@Context SecurityContext user) {
+		return String.valueOf(user.hashCode());
 	}
 }

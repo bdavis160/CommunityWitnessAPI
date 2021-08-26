@@ -10,14 +10,16 @@ public class APIResourceConfig extends ResourceConfig {
 		// Scan for resources in this package
 		packages("org.communitywitness.api");
 		
+		register(RolesAllowedDynamicFeature.class);
+		
 		// Register the AuthenticatedUser injection factory
-		register(new AbstractBinder() {
-			@Override
-			protected void configure() {
-				bindFactory(AuthenticatedUserInjectionFactory.class)
-				.to(AuthenticatedUser.class)
-				.in(RequestScoped.class);
-			}
-		});
+//		register(new AbstractBinder() {
+//			@Override
+//			protected void configure() {
+//				bindFactory(AuthenticatedUserInjectionFactory.class)
+//				.to(AuthenticatedUser.class)
+//				.in(RequestScoped.class);
+//			}
+//		});
 	}
 }
