@@ -27,7 +27,7 @@ public class AuthenticationFilter implements ContainerRequestFilter {
 		try {
 			AuthenticatedUser currentUser = new AuthenticatedUser(apiKey);
 			requestContext.setSecurityContext(currentUser);
-			requestContext.setProperty(AuthenticatedUser.REQUEST_CONTEXT_PROPERTY, currentUser);
+			//requestContext.setProperty(AuthenticatedUser.REQUEST_CONTEXT_PROPERTY, currentUser);
 		} catch (BadLoginException exception) {
 			requestContext.setSecurityContext(new GuestUser());
 		}
