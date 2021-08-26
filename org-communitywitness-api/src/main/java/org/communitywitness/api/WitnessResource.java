@@ -92,4 +92,25 @@ public class WitnessResource {
 		
 		return Response.ok().build();
 	}
+	
+	/**
+	 * Returns the information about the currently logged in witness.
+	 * @param user the authentication details of the current user
+	 * @return the data about the witness that's logged in
+	 * @throws WebApplicationException if the data could not be retrieved
+	 */
+	@RolesAllowed({UserRoles.WITNESS})
+	@GET
+	@Path("/self")
+	public Witness getSelfWitness(@Context AuthenticatedUser user) throws WebApplicationException {
+		Witness currentWitness;
+		
+		try {
+			currentWitness = new Witness(user.getId());
+		} catch (SQLException exception) {
+			throw new WebApplicationException(Response.Status.NOT_FOUND);
+		}
+		
+		return currentWitness;
+	}
 }

@@ -101,4 +101,25 @@ public class InvestigatorResource {
 		
 		return Response.ok().build();
 	}
+	
+	/**
+	 * Returns the information about the currently logged in investigator.
+	 * @param user the authentication details of the current user
+	 * @return the data about the investigator that's logged in
+	 * @throws WebApplicationException if the data could not be retrieved
+	 */
+	@RolesAllowed({UserRoles.INVESTIGATOR})
+	@GET
+	@Path("/self")
+	public Investigator getSelfInvestigator(@Context AuthenticatedUser user) throws WebApplicationException {
+		Investigator currentInvestigator;
+		
+		try {
+			currentInvestigator = new Investigator(user.getId());
+		} catch (SQLException exception) {
+			throw new WebApplicationException(Response.Status.NOT_FOUND);
+		}
+		
+		return currentInvestigator;
+	}
 }
