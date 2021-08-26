@@ -11,7 +11,10 @@ import org.communitywitness.common.SpecialIds;
 import jakarta.ws.rs.core.SecurityContext;
 
 public class AuthenticatedUser implements SecurityContext {
-	private static final String AUTHENTICATION_SCHEME = "API_KEY";
+	// The request context property this information is stored in
+	public static final String REQUEST_CONTEXT_PROPERTY = "org.communitywitness.api.AuthenticatedUser";
+	
+	private static final String AUTHENTICATION_SCHEME = "API_KEY";	
 	private int id;
 	private String role;
 	private Principal principal;
@@ -163,11 +166,6 @@ public class AuthenticatedUser implements SecurityContext {
 		this.principal = new Principal() {
 			public String getName() {
 				return String.valueOf(id);
-			}
-			
-			// Setting the hash as the id makes it accessible directly as an int for downstream clients.
-			public int hashCode() {
-				return id;
 			}
 		};
 	}

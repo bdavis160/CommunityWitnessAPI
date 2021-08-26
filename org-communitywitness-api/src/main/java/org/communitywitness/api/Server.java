@@ -8,7 +8,6 @@ import org.apache.commons.validator.routines.UrlValidator;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 
 public class Server {
 	// The kinds of URI's ("schemes") that are accepted
@@ -50,9 +49,7 @@ public class Server {
 	 * @return true if the server starts, false if it doesn't
 	 */
 	public static boolean startServer() {
-		// Create the HTTP server with all the resources in this package
-		final ResourceConfig resources = new ResourceConfig().packages("org.communitywitness.api");
-		resources.register(RolesAllowedDynamicFeature.class);
+		final ResourceConfig resources = new APIResourceConfig();
 		httpServer = GrizzlyHttpServerFactory.createHttpServer(baseUri, resources, false);
 		
 		try {
