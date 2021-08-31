@@ -120,4 +120,34 @@ public class InvestigatorResource {
 		
 		return currentInvestigator;
 	}
+
+	/**
+	 * Connects this investigator to a report (case)
+	 * Takes an investigator id and a case id
+	 * @param investigatorId - the id of the investigator
+	 * @param reportId - the id of the report they're interested in
+	 * @return An OK status on success, otherwise a NOT_FOUND status when no matching investigator/report is found.
+	 */
+	@RolesAllowed({UserRoles.INVESTIGATOR})
+	@POST
+	@Path("/{investigatorId}/take/{reportId}")
+	public Response takeCase(@PathParam("investigatorId") int investigatorId, @PathParam("reportId") int reportId, @Context AuthenticatedUser user) throws SQLException {
+		Investigator investigator;
+		
+		if (user.getId() != investigatorId)
+			return AuthorizationFilter.unauthorizedAccessResponse("You can only take cases for yourself.");
+
+		try {
+			investigator = new Investigator(investigatorId);
+		} catch (RuntimeException exception) {
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
+
+		try {
+			investigator.takeCase(reportId);
+		} catch (SQLException exception) {
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
+		return Response.ok().build();
+	}
 }

@@ -10,14 +10,17 @@ import jakarta.ws.rs.container.PreMatching;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
 
-// taken from https://stackoverflow.com/questions/28065963/how-to-handle-cors-using-jax-rs-with-jersey, TODO: replace/ tighten up later
+// Based on https://stackoverflow.com/a/28067653
 @Provider
 @PreMatching
 public class CorsFilter implements ContainerRequestFilter, ContainerResponseFilter {
-
-    /**
-     * Method for ContainerRequestFilter.
-     */
+	// The headers that Cross-Origin clients are allowed to send
+	private static final String ALLOWED_HEADERS = "X-API-KEY, X-Requested-With, Accept-Version, Content-MD5, CSRF-Token, Content-Type";
+	// The methods that Cross-Origin clients are allowed to send
+	private static final String ALLOWED_METHODS = "GET, POST, PUT, DELETE, OPTIONS, HEAD";
+	// The URL/Origin of clients that are allowed to make Cross-Origin requests, with * being any origin
+	private static final String ALLOWED_ORIGIN = "*";
+	
     @Override
     public void filter(ContainerRequestContext request) throws IOException {
 
@@ -31,17 +34,15 @@ public class CorsFilter implements ContainerRequestFilter, ContainerResponseFilt
     }
 
     /**
-     * A preflight request is an OPTIONS request
-     * with an Origin header.
+     * Checks if a request is a preflight CORS request.
+     * @param request the request to check
+     * @return true if the request is a preflight request, false if not
      */
     private static boolean isPreflightRequest(ContainerRequestContext request) {
         return request.getHeaderString("Origin") != null
                 && request.getMethod().equalsIgnoreCase("OPTIONS");
     }
 
-    /**
-     * Method for ContainerResponseFilter.
-     */
     @Override
     public void filter(ContainerRequestContext request, ContainerResponseContext response)
             throws IOException {
@@ -56,20 +57,14 @@ public class CorsFilter implements ContainerRequestFilter, ContainerResponseFilt
         // the CORS headers here.
         if (isPreflightRequest(request)) {
             response.getHeaders().add("Access-Control-Allow-Credentials", "true");
-            response.getHeaders().add("Access-Control-Allow-Methods",
-                "GET, POST, PUT, DELETE, OPTIONS, HEAD");
-            response.getHeaders().add("Access-Control-Allow-Headers",
-                // Whatever other non-standard/safe headers (see list above) 
-                // you want the client to be able to send to the server,
-                // put it in this list. And remove the ones you don't want.
-                "X-Requested-With, Authorization, " +
-                "Accept-Version, Content-MD5, CSRF-Token, Content-Type");
+            response.getHeaders().add("Access-Control-Allow-Methods", ALLOWED_METHODS);
+            response.getHeaders().add("Access-Control-Allow-Headers", ALLOWED_HEADERS);
         }
 
         // Cross origin requests can be either simple requests
         // or preflight request. We need to add this header
         // to both type of requests. Only preflight requests
         // need the previously added headers.
-        response.getHeaders().add("Access-Control-Allow-Origin", "*");
+        response.getHeaders().add("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
     }
 }
