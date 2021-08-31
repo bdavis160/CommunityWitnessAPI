@@ -82,7 +82,7 @@ public class InvestigatorResource {
 	@Path("/{investigatorId}")
 	public Response updateInvestigator(@PathParam("investigatorId") int investigatorId, UpdateInvestigatorRequest updateInvestigatorRequestData, @Context AuthenticatedUser user) {
 		if (user.getId() != investigatorId)
-			return AuthorizationFilter.unauthorizedAccessResponse("You can only change your own investigator profile.");
+			return AuthorizationFilter.unauthorizedAccessResponse("Investigators may only update their own profiles.");
 			
 		try {
 			Investigator requestedInvestigator = new Investigator(investigatorId);
@@ -135,7 +135,7 @@ public class InvestigatorResource {
 		Investigator investigator;
 		
 		if (user.getId() != investigatorId)
-			return AuthorizationFilter.unauthorizedAccessResponse("You can only take cases for yourself.");
+			return AuthorizationFilter.unauthorizedAccessResponse("Investigators can only take on cases for themselves.");
 
 		try {
 			investigator = new Investigator(investigatorId);
