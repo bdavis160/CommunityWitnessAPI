@@ -1,81 +1,42 @@
 package org.communitywitness.api;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
-import jakarta.annotation.security.DenyAll;
-import jakarta.annotation.security.PermitAll;
-import jakarta.annotation.security.RolesAllowed;
+import jakarta.annotation.Priority;
+import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
-import jakarta.ws.rs.container.ResourceInfo;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.container.PreMatching;
+import jakarta.ws.rs.ext.Provider;
 
-
+@Provider
+@PreMatching
+@Priority(Priorities.AUTHENTICATION)
 public class AuthenticationFilter implements ContainerRequestFilter {
 	private static final String CREDENTIAL_HEADER = "X-API-KEY";
 
-	@Context 
-	private ResourceInfo targetResource;
-
-
+	/**
+	 * A filter before each request that tries to authenticate the user based on any credentials given.
+	 */
 	@Override
 	public void filter(ContainerRequestContext requestContext) throws IOException {
-		Method targetMethod = targetResource.getResourceMethod();
-
-		// If there's no method actually being called then no authentication is needed
-		if (targetMethod == null)
+		String apiKey = requestContext.getHeaderString(CREDENTIAL_HEADER);
+		
+		if (apiKey == null) {
+			requestContext.setSecurityContext(new GuestUser());
 			return;
-
-		// PermitAll lets all requests through
-		if (targetMethod.isAnnotationPresent(PermitAll.class)) 
-			return;
-
-		// DenyAll lets no requests through
-		if (targetMethod.isAnnotationPresent(DenyAll.class)) {
-			requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
-			return;
+		} else {
+			apiKey = apiKey.strip();
 		}
 
-		// RolesAllowed lets in requests with proper credentials and roles
-		if (targetMethod.isAnnotationPresent(RolesAllowed.class)) {
-			List<String> roleList = Arrays.asList(targetMethod.getAnnotation(RolesAllowed.class).value());
-			roleList.replaceAll(string -> string.toLowerCase());
-			Set<String> rolesAllowed = new HashSet<String>(roleList);
-			
-			
-			String apiKey = requestContext.getHeaderString(CREDENTIAL_HEADER);
-
-			try {
-				AuthenticatedUser currentUser = new AuthenticatedUser(apiKey);
-				requestContext.setSecurityContext(currentUser);
-
-				if (rolesAllowed.contains(currentUser.getRole().toLowerCase())) 
-					return;
-				else 
-					throw new BadLoginException("User is not in appropriate role.");
-				
-			} catch (BadLoginException exception) {
-				requestContext.abortWith(unauthorizedAccessResponse(exception.getMessage()));
-			}
+		// Try to authenticate the user
+		try {
+			AuthenticatedUser currentUser = new AuthenticatedUser(apiKey);
+			requestContext.setSecurityContext(currentUser);
+			requestContext.setProperty(AuthenticatedUser.REQUEST_CONTEXT_PROPERTY, currentUser);
+			return;
+		} catch (BadLoginException exception) {
+			requestContext.setSecurityContext(new GuestUser());
 		}
-	}
-
-	/**
-	 * Returns an HTTP 401 Unauthorized response containing information about how
-	 * to authenticate and the reason the request was unauthorized.
-	 * @param reason a description of why the request was unauthorized
-	 * @return an HTTP 401 response with the given reason
-	 */
-	public static Response unauthorizedAccessResponse(String reason) {
-		return Response
-				.status(Response.Status.UNAUTHORIZED)
-				.entity(reason)
-				.build();
 	}
 }

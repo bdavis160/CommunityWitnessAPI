@@ -49,8 +49,7 @@ public class Server {
 	 * @return true if the server starts, false if it doesn't
 	 */
 	public static boolean startServer() {
-		// Create the HTTP server with all the resources in this package
-		final ResourceConfig resources = new ResourceConfig().packages("org.communitywitness.api");
+		final ResourceConfig resources = new APIResourceConfig();
 		httpServer = GrizzlyHttpServerFactory.createHttpServer(baseUri, resources, false);
 		
 		try {

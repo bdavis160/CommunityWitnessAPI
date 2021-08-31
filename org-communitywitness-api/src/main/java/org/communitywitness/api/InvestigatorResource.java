@@ -1,13 +1,20 @@
 package org.communitywitness.api;
 
+import java.sql.SQLException;
+
 import jakarta.annotation.security.PermitAll;
-import jakarta.ws.rs.*;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import java.sql.SQLException;
-
-// TODO: implement user authentication for all of these calls
 @Path("/investigators")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -48,6 +55,7 @@ public class InvestigatorResource {
 	 * @return the data about the investigator
 	 * @throws WebApplicationException if the investigator isn't found in the database
 	 */
+	@RolesAllowed({UserRoles.INVESTIGATOR, UserRoles.WITNESS})
 	@GET
 	@Path("/{investigatorId}")
 	public Investigator getInvestigator(@PathParam("investigatorId") int investigatorId) throws WebApplicationException {
@@ -69,9 +77,13 @@ public class InvestigatorResource {
 	 * @param updateInvestigatorRequestData - an object containing the updated data
 	 * @return An OK status on success, otherwise a NOT_FOUND status when no matching investigator is found.
 	 */
+	@RolesAllowed({UserRoles.INVESTIGATOR})
 	@POST
 	@Path("/{investigatorId}")
-	public Response updateInvestigator(@PathParam("investigatorId") int investigatorId, UpdateInvestigatorRequest updateInvestigatorRequestData) {
+	public Response updateInvestigator(@PathParam("investigatorId") int investigatorId, UpdateInvestigatorRequest updateInvestigatorRequestData, @Context AuthenticatedUser user) {
+		if (user.getId() != investigatorId)
+			return AuthorizationFilter.unauthorizedAccessResponse("Investigators may only update their own profiles.");
+			
 		try {
 			Investigator requestedInvestigator = new Investigator(investigatorId);
 			Investigator updatedData = new Investigator(
@@ -87,6 +99,27 @@ public class InvestigatorResource {
 		
 		return Response.ok().build();
 	}
+	
+	/**
+	 * Returns the information about the currently logged in investigator.
+	 * @param user the authentication details of the current user
+	 * @return the data about the investigator that's logged in
+	 * @throws WebApplicationException if the data could not be retrieved
+	 */
+	@RolesAllowed({UserRoles.INVESTIGATOR})
+	@GET
+	@Path("/self")
+	public Investigator getSelfInvestigator(@Context AuthenticatedUser user) throws WebApplicationException {
+		Investigator currentInvestigator;
+		
+		try {
+			currentInvestigator = new Investigator(user.getId());
+		} catch (SQLException exception) {
+			throw new WebApplicationException(Response.Status.NOT_FOUND);
+		}
+		
+		return currentInvestigator;
+	}
 
 	/**
 	 * Connects this investigator to a report (case)
@@ -95,10 +128,14 @@ public class InvestigatorResource {
 	 * @param reportId - the id of the report they're interested in
 	 * @return An OK status on success, otherwise a NOT_FOUND status when no matching investigator/report is found.
 	 */
+	@RolesAllowed({UserRoles.INVESTIGATOR})
 	@POST
 	@Path("/{investigatorId}/take/{reportId}")
-	public Response takeCase(@PathParam("investigatorId") int investigatorId, @PathParam("reportId") int reportId) throws SQLException {
+	public Response takeCase(@PathParam("investigatorId") int investigatorId, @PathParam("reportId") int reportId, @Context AuthenticatedUser user) throws SQLException {
 		Investigator investigator;
+		
+		if (user.getId() != investigatorId)
+			return AuthorizationFilter.unauthorizedAccessResponse("Investigators can only take on cases for themselves.");
 
 		try {
 			investigator = new Investigator(investigatorId);

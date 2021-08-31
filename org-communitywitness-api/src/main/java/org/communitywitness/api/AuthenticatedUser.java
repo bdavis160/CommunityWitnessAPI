@@ -11,7 +11,10 @@ import org.communitywitness.common.SpecialIds;
 import jakarta.ws.rs.core.SecurityContext;
 
 public class AuthenticatedUser implements SecurityContext {
-	private static final String AUTHENTICATION_SCHEME = "API_KEY";
+	// The request context property this information is stored in
+	public static final String REQUEST_CONTEXT_PROPERTY = "org.communitywitness.api.AuthenticatedUser";
+	
+	private static final String AUTHENTICATION_SCHEME = "API_KEY";	
 	private int id;
 	private String role;
 	private Principal principal;
@@ -22,6 +25,10 @@ public class AuthenticatedUser implements SecurityContext {
 	 * @throws BadLoginException if the user couldn't be authenticated
 	 */
 	public AuthenticatedUser(String apiKey) throws BadLoginException {
+		// Users have to actually present an API key
+		if (apiKey == null || apiKey.isBlank())
+			throw new BadLoginException("No API key given.");
+			
 		// Check the api key against the database
 		try {
 			SQLConnection myConnection = new SQLConnection();
@@ -157,7 +164,7 @@ public class AuthenticatedUser implements SecurityContext {
 	}
 	
 	/**
-	 * Creates a security principle that simply contains the users username.
+	 * Creates a security principle that simply contains the users id as both their name and hash.
 	 */
 	public void setPrincipal() {
 		this.principal = new Principal() {
