@@ -13,8 +13,9 @@ import jakarta.ws.rs.core.SecurityContext;
 public class AuthenticatedUser implements SecurityContext {
 	// The request context property this information is stored in
 	public static final String REQUEST_CONTEXT_PROPERTY = "org.communitywitness.api.AuthenticatedUser";
-	
+	// The style of authentication being used
 	private static final String AUTHENTICATION_SCHEME = "API_KEY";	
+	
 	private int id;
 	private String role;
 	private Principal principal;
