@@ -15,29 +15,11 @@ import java.util.Set;
 
 import com.kosprov.jargon2.api.Jargon2;
 import com.kosprov.jargon2.api.Jargon2.Hasher;
-import com.kosprov.jargon2.api.Jargon2.Type;
 import com.kosprov.jargon2.api.Jargon2.Verifier;
 
 public class AccountManagement {
 	// Text should be encoded in UTF-8 form
 	private static final Charset TEXT_CHARSET = StandardCharsets.UTF_8;
-	// The recommended argon2 type for password hashing
-	private static final Jargon2.Type HASH_TYPE = Type.ARGON2i;
-	/*
-	 * The settings for the hashing algorithm, which where determined
-	 * experimentally on the google cloud server with the aim of
-	 * hashing a password taking around 0.5 seconds to ensure security.
-	 * When running this on another system these values may need changing for security.
-	 */
-	private static final int HASH_MEMORY_COST = 131072;
-	private static final int HASH_TIME_COST = 3;
-	private static final int HASH_PARALLELISM = 4;
-	private static final int HASH_SALT_LENGTH = 32;
-	private static final int HASH_LENGTH = 32;
-	// The number of bytes long an API key should be.
-	// 24 bytes allows for 2^192 different keys, which is more than enough, 
-	// and since 192 is divisible by 6 there is no need for padding in the Base64 form of the key.
-	private static final int API_KEY_LENGTH = 24;
 
 	/**
 	 * Checks if a given password matches the hashed correct password.
@@ -206,12 +188,12 @@ public class AccountManagement {
 		byte[] passwordBytes = password.getBytes(TEXT_CHARSET);
 		
 		Hasher hasher = Jargon2.jargon2Hasher()
-				.type(HASH_TYPE)
-				.memoryCost(HASH_MEMORY_COST)
-				.timeCost(HASH_TIME_COST)
-				.parallelism(HASH_PARALLELISM)
-				.saltLength(HASH_SALT_LENGTH)
-				.hashLength(HASH_LENGTH);
+				.type(Settings.getInstance().getPasswordHashType())
+				.memoryCost(Settings.getInstance().getPasswordHashMemoryCost())
+				.timeCost(Settings.getInstance().getPasswordHashTimeCost())
+				.parallelism(Settings.getInstance().getPasswordHashParallelism())
+				.saltLength(Settings.getInstance().getPasswordHashSaltLength())
+				.hashLength(Settings.getInstance().getPasswordHashLength());
 		
 		return hasher.password(passwordBytes).encodedHash();
 	}
@@ -222,7 +204,7 @@ public class AccountManagement {
 	 */
 	private static String generateApiKey() {
 		SecureRandom randomGenerator = new SecureRandom();
-		byte[] keyBytes = new byte[API_KEY_LENGTH];
+		byte[] keyBytes = new byte[Settings.getInstance().getApiKeyLength()];
 		
 		randomGenerator.nextBytes(keyBytes);
 		

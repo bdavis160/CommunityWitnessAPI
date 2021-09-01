@@ -61,6 +61,14 @@ tasks.register('ensureServiceInstallDir') {
 	}
 }
 
+tasks.register('ensureConfigInstallDir') {
+	group = 'Installation'
+	description = "Makes configInstallDir if it doesn't exist"
+	doLast {
+		mkdir configInstallDir
+	}
+}
+
 tasks.register('ensureLauncherInstallDir') {
 	group = 'Installation'
 	description = "Makes launcherInstallDir if it doesn't exist"
@@ -83,7 +91,15 @@ tasks.register('installService', Copy) {
 	dependsOn ensureServiceInstallDir
 	from 'CommunityWitnessAPI.service'
 	into serviceInstallDir
-	expand('launcherInstallDir': launcherInstallDir, 'file': project.name, 'BASE_URI': '$BASE_URI')
+	expand('launcherInstallDir': launcherInstallDir, 'file': project.name, 'CONFIG_FILE': '$CONFIG_FILE')
+}
+
+tasks.register('installConfig', Copy) {
+	group = 'Installation'
+	description = 'Copies the configuration file to configInstallDir'
+	dependsOn ensureConfigInstallDir
+	from 'CommunityWitness.properties'
+	into configInstallDir
 }
 
 tasks.register('installApplication') {
@@ -98,7 +114,7 @@ tasks.register('installApplication') {
 tasks.register('installPackage') {
 	group = 'Installation'
 	description = 'Install the whole software package, by calling on both installApplication and installService'
-	dependsOn installApplication, installService
+	dependsOn installApplication, installService, installConfig
 	doFirst {
 		println("Installing application in ${installDir}, service file in ${serviceInstallDir}, ")
 		println("and linking launcher in ${launcherInstallDir}.")

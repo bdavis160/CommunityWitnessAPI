@@ -18,8 +18,6 @@ public class CorsFilter implements ContainerRequestFilter, ContainerResponseFilt
 	private static final String ALLOWED_HEADERS = "X-API-KEY, X-Requested-With, Accept-Version, Content-MD5, CSRF-Token, Content-Type";
 	// The methods that Cross-Origin clients are allowed to send
 	private static final String ALLOWED_METHODS = "GET, POST, PUT, DELETE, OPTIONS, HEAD";
-	// The URL/Origin of clients that are allowed to make Cross-Origin requests, with * being any origin
-	private static final String ALLOWED_ORIGIN = "*";
 	
     @Override
     public void filter(ContainerRequestContext request) throws IOException {
@@ -65,6 +63,6 @@ public class CorsFilter implements ContainerRequestFilter, ContainerResponseFilt
         // or preflight request. We need to add this header
         // to both type of requests. Only preflight requests
         // need the previously added headers.
-        response.getHeaders().add("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
+        response.getHeaders().add("Access-Control-Allow-Origin", Settings.getInstance().getAllowedCrossOrigin());
     }
 }
