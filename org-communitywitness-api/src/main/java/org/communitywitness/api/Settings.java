@@ -10,8 +10,9 @@ import com.kosprov.jargon2.api.Jargon2;
 import com.kosprov.jargon2.api.Jargon2.Type;
 
 public class Settings {
-	// Singleton instance
+	// Singleton instance data
 	private static Settings instance = null;
+	private static boolean settingsLoaded = false;
 	
 	// The kinds of URI schemes that are allowed for the base URI and cross origin URIs
 	private final String[] ALLOWED_URI_SCHEMES = {"http", "https"}; 
@@ -44,8 +45,20 @@ public class Settings {
 	private final String DEFAULT_DATABASE_USERNAME = "postgres";
 	private final String DEFAULT_DATABASE_PASSWORD = "cwdefpass";
 	
-	
+	/**
+	 * Loads user specified settings from a file and applies the valid ones,
+	 * while falling back to default values for invalid values.
+	 * Note that this can only be called once, 
+	 * so that once settings are loaded the Settings act like constants instead of global state.
+	 * @param settingsFilename the path of the properties-style text file containing user settings
+	 */
 	public static void loadSettings(String settingsFilename) {
+		// Settings should only ever be loaded once to avoid the problems that global state introduces (like concurrency issues)
+		if (settingsLoaded)
+			return;
+		else
+			settingsLoaded = true;
+		
 		if (instance == null)
 			instance = new Settings();
 		

@@ -123,7 +123,7 @@ public class AuthenticatedUser implements SecurityContext {
 	@Override
 	public boolean isSecure() {
 		// Assume the connection is secure if it's going over https
-		return Server.getBaseUri().toLowerCase().startsWith("https");
+		return Settings.getInstance().getBaseUri().toString().toLowerCase().startsWith("https");
 	}
 
 	@Override
