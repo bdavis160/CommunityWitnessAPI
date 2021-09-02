@@ -1,7 +1,9 @@
 package org.communitywitness.api;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.net.URI;
+import java.security.KeyStore;
 import java.util.Properties;
 
 import org.apache.commons.validator.routines.UrlValidator;
@@ -19,6 +21,8 @@ public class Settings {
 	
 	// Runtime setting values
 	private URI baseUri;
+	private String tlsKeyStoreFile;
+	private String tlsKeyStorePassword;
 	private String allowedCrossOrigin;
 	private Type passwordHashType;
 	private int passwordHashMemoryCost;
@@ -33,6 +37,8 @@ public class Settings {
 	
 	// Default setting values
 	private final URI DEFAULT_BASE_URI = URI.create("http://127.0.0.1:8080");
+	private final String DEFAULT_TLS_KEYSTORE_FILE = "none";
+	private final String DEFAULT_TLS_KEYSTORE_PASSWORD = "";
 	private final String DEFAULT_ALLOWED_CROSS_ORIGIN = "*";
 	private final Jargon2.Type DEFAULT_PASSWORD_HASH_TYPE = Type.ARGON2i;
 	private final int DEFAULT_PASSWORD_HASH_MEMORY_COST = 131072;
@@ -76,6 +82,9 @@ public class Settings {
 		
 		// Set the settings read from the file, letting setters handle invalid inputs
 		instance.setBaseUri(userSettings.getProperty("baseUri"));
+		// The password is needed to verify the file
+		instance.setTlsKeyStorePassword(userSettings.getProperty("tlsKeyStorePassword")); 
+		instance.setTlsKeyStoreFile(userSettings.getProperty("tlsKeyStoreFile"));
 		instance.setAllowedCrossOrigin(userSettings.getProperty("allowedCrossOrigin"));
 		instance.setPasswordHashType(userSettings.getProperty("passwordHashType"));
 		instance.setPasswordHashMemoryCost(userSettings.getProperty("passwordHashMemoryCost"));;
@@ -88,13 +97,41 @@ public class Settings {
 		instance.setDatabaseUsername(userSettings.getProperty("databaseUsername"));
 		instance.setDatabasePassword(userSettings.getProperty("databasePassword"));
 	}
+	
+	/**
+	 * Returns whether or not TLS is enabled for this server. 
+	 * TLS is considered enabled if baseUri starts with https 
+	 * and a valid tlsKeyStoreFile is specified.
+	 * @return true if TLS is enabled, false otherwise
+	 */
+	public boolean isTlsEnabled() {
+		return baseUri.toString().toLowerCase().startsWith("https") && 
+				!tlsKeyStoreFile.isBlank() && !tlsKeyStoreFile.equalsIgnoreCase("none"); 
+	}
 
 	/**
 	 * Returns the URI that the server listens for network connections on.
-	 * @return this.baseUri as a string
+	 * @return this.baseUri
 	 */
 	public URI getBaseUri() {
 		return baseUri;
+	}
+	
+	/**
+	 * Returns the name of the KeyStore file containing the TLS certificate and private key
+	 * for this server.
+	 * @return this.tlsKeyStoreFile
+	 */
+	public String getTlsKeyStoreFile() {
+		return tlsKeyStoreFile;
+	}
+	
+	/**
+	 * Returns the password of the KeyStore file containing the TLS certificate and private key.
+	 * @return this.tlsKeyStorePassword
+	 */
+	public String getTlsKeyStorePassword() {
+		return tlsKeyStorePassword;
 	}
 
 	/**
@@ -204,6 +241,8 @@ public class Settings {
 	 */
 	private Settings() {
 		baseUri = DEFAULT_BASE_URI;
+		tlsKeyStoreFile = DEFAULT_TLS_KEYSTORE_FILE;
+		tlsKeyStorePassword = DEFAULT_TLS_KEYSTORE_PASSWORD;
 		allowedCrossOrigin = DEFAULT_ALLOWED_CROSS_ORIGIN;
 		passwordHashType = DEFAULT_PASSWORD_HASH_TYPE;
 		passwordHashMemoryCost = DEFAULT_PASSWORD_HASH_MEMORY_COST;
@@ -236,6 +275,47 @@ public class Settings {
 	}
 	
 	/**
+	 * Tries to set the location of the KeyStore containing the TLS certificate and key for this server.
+	 * @param tlsKeyStoreFile the file path of the TLS KeyStore for this server,
+	 * or "none" or a blank string if TLS is not being used.
+	 */
+	private void setTlsKeyStoreFile(String tlsKeyStoreFile) {
+		if (tlsKeyStoreFile == null) {
+			this.tlsKeyStoreFile = DEFAULT_TLS_KEYSTORE_FILE;
+			return;
+		}
+		
+		// Interpret empty strings or "none" as not using TLS
+		if (tlsKeyStoreFile.equalsIgnoreCase("none") || tlsKeyStoreFile.isBlank()) {
+			this.tlsKeyStoreFile = tlsKeyStoreFile;
+			return;
+		}
+
+		
+		// Try to open the file as a KeyStore to check its validity
+		try {
+			File keyStoreFile = new File(tlsKeyStoreFile);
+			KeyStore.getInstance(keyStoreFile, tlsKeyStorePassword.toCharArray());
+			this.tlsKeyStoreFile = tlsKeyStoreFile;
+		} catch (Exception exception) {
+			logInvalidSetting("TLS KeyStore File", tlsKeyStoreFile);
+			this.tlsKeyStoreFile = DEFAULT_TLS_KEYSTORE_FILE;
+		}
+	}
+	
+	/**
+	 * Tries to set the password of the TLS KeyStore for this server.
+	 * @param tlsKeyStorePassword the password for the TLS KeyStore
+	 */
+	private void setTlsKeyStorePassword(String tlsKeyStorePassword) {
+		if (tlsKeyStorePassword != null)
+			this.tlsKeyStorePassword = tlsKeyStorePassword;
+		else
+			this.tlsKeyStorePassword = DEFAULT_TLS_KEYSTORE_PASSWORD;
+	}
+	
+	
+	/**
 	 * Sets the foreign origin(s) that is allowed to send cross-origin requests to the server,
 	 * where * means any origin.
 	 * @param allowedCrossOrigin the uri of the allowed foreign origin or * for any origin
@@ -243,7 +323,8 @@ public class Settings {
 	private void setAllowedCrossOrigin(String allowedCrossOrigin) {
 		UrlValidator validator = new UrlValidator(ALLOWED_URI_SCHEMES);
 		
-		if (allowedCrossOrigin.equals("*") || validator.isValid(allowedCrossOrigin)) {
+		if ((allowedCrossOrigin != null && allowedCrossOrigin.equals("*")) || 
+				validator.isValid(allowedCrossOrigin)) {
 			this.allowedCrossOrigin = allowedCrossOrigin;
 		} else {
 			logInvalidSetting("Cross-Origin", allowedCrossOrigin);
@@ -257,7 +338,9 @@ public class Settings {
 	 * @param passwordHashType a string containing "argon2i", "argon2d", or "argon2id", the available argon types
 	 */
 	private void setPasswordHashType(String passwordHashType) {
-		if (passwordHashType.equalsIgnoreCase("argon2i")) {
+		if (passwordHashType == null) {
+			this.passwordHashType = DEFAULT_PASSWORD_HASH_TYPE;
+		} else if (passwordHashType.equalsIgnoreCase("argon2i")) {
 			this.passwordHashType = Type.ARGON2i;
 		} else if (passwordHashType.equalsIgnoreCase("argon2d")) {
 			this.passwordHashType = Type.ARGON2d;
