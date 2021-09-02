@@ -1,6 +1,7 @@
 package org.communitywitness.api;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.concurrent.ExecutionException;
 
 import javax.net.ssl.SSLContext;
@@ -77,7 +78,12 @@ public class Server {
 		if (args.length > 0)
 			Settings.loadSettings(args[0]);
 		
-		SQLConnection.connectToDatabase();
+		// Check database connectivity
+		try {
+			SQLConnection.databaseConnection().close();
+		} catch (SQLException e) {
+			System.err.println("Warning: Trouble connecting to database, API functionality may be limited.");
+		}
 		
 		if (!startServer())
 			System.exit(-1);

@@ -8,16 +8,7 @@ import java.sql.SQLException;
 import com.zaxxer.hikari.HikariDataSource;
 
 public class SQLConnection {
-	private static HikariDataSource connectionPool = new HikariDataSource();
-
-	/**
-	 * Sets up the database connection pool.
-	 */
-	public static void connectToDatabase() {
-		connectionPool.setJdbcUrl(Settings.getInstance().getDatabaseUrl());
-		connectionPool.setUsername(Settings.getInstance().getDatabaseUsername());
-		connectionPool.setPassword(Settings.getInstance().getDatabasePassword());
-	}
+	private static HikariDataSource connectionPool = null;
 
 	/**
 	 * Returns a connection to the database.
@@ -25,6 +16,9 @@ public class SQLConnection {
 	 * @throws SQLException on database error
 	 */
 	public static Connection databaseConnection() throws SQLException {
+		if (connectionPool == null)
+			connectToDatabase();
+		
 		return connectionPool.getConnection();
 	}
 
@@ -43,5 +37,19 @@ public class SQLConnection {
 			statement.close();
 		if (dbConnection != null)
 			dbConnection.close();
+	}
+	
+	/**
+	 * Sets up the database connection pool.
+	 */
+	private static void connectToDatabase() {
+		// Non-null pools should be setup
+		if (connectionPool != null)
+			return;
+		
+		connectionPool = new HikariDataSource();
+		connectionPool.setJdbcUrl(Settings.getInstance().getDatabaseUrl());
+		connectionPool.setUsername(Settings.getInstance().getDatabaseUsername());
+		connectionPool.setPassword(Settings.getInstance().getDatabasePassword());
 	}
 }
