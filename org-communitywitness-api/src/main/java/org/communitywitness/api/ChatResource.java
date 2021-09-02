@@ -34,7 +34,7 @@ public class ChatResource {
 
 		// try to retrieve the messages
 		try {
-			Connection conn = new SQLConnection().databaseConnection();
+			Connection conn = SQLConnection.databaseConnection();
 			String query = "SELECT id, reportid, investigatorid, message, time FROM chat WHERE investigatorid=?";
 			PreparedStatement preparedStatement = conn.prepareStatement(query);
 			preparedStatement.setInt(1, id);
@@ -55,8 +55,7 @@ public class ChatResource {
 			}
 
 			// close out sql stuff
-			queryResults.close();
-			conn.close();
+			SQLConnection.closeDbOperation(conn, preparedStatement, queryResults);
 
 			return messages;
 		} catch (SQLException exception) {
@@ -82,7 +81,7 @@ public class ChatResource {
 		try {
 			List<Integer> reportIdString = new Witness(id).getReports();
 
-			Connection conn = new SQLConnection().databaseConnection();
+			Connection conn = SQLConnection.databaseConnection();
 			String query = String.format("SELECT id, reportid, investigatorid, message, time FROM chat WHERE reportid IN (%s)",
 					reportIdString.stream()
 					.map(v -> "?")
@@ -109,8 +108,7 @@ public class ChatResource {
 			}
 
 			// close out sql stuff
-			queryResults.close();
-			conn.close();
+			SQLConnection.closeDbOperation(conn, preparedStatement, queryResults);
 
 			return messages;
 		} catch (SQLException exception) {

@@ -22,6 +22,7 @@ dependencies {
     implementation 'commons-validator:commons-validator:1.7'
     implementation 'com.kosprov.jargon2:jargon2-api:1.1.1'
     runtimeOnly 'com.kosprov.jargon2:jargon2-native-ri-backend:1.1.1'
+    implementation 'com.zaxxer:HikariCP:5.0.0'
     implementation 'jakarta.ws.rs:jakarta.ws.rs-api:3.0.0'
     implementation 'org.glassfish.grizzly:grizzly-http-server:3.0.0'
     implementation 'org.glassfish.jersey.core:jersey-server:3.0.2'

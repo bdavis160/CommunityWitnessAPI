@@ -3,7 +3,9 @@ from locust import HttpUser, task, between
 from random import choice
 from requests import Response, exceptions
 
-
+# Change these values to match the API keys of the users you want to test with
+WITNESS_API_KEY = "9XgUrSeCL9orXybssKknDW8vDJE2JkMS"
+INVESTIGATOR_API_KEY = "dYOsflWZANe6aD2Piil94041GCgi8Qsu"
 # This wait time is a really rough estimate of how long users will wait between pages.
 ESTIMATED_WAIT_TIME = between(5, 30)
 
@@ -21,11 +23,11 @@ class CommunityWitnessUser(HttpUser):
 
     def grab_evidence(self, evidence_id):
         """GETs the evidence with the given id."""
-        self.client.get(f"/evidence/{evidence_id}")
+        self.client.get(f"/evidence/{evidence_id}", headers={"X-API-KEY": self.apiKey})
 
     def grab_report_comment(self, comment_id):
         """GETs the report comment with the given id."""
-        self.client.get(f"/reportComments/{comment_id}")
+        self.client.get(f"/reportComments/{comment_id}", headers={"X-API-KEY": self.apiKey})
 
     def extract_reports(self, user_object):
         """Extracts the ids of this users reports from its object."""
@@ -42,7 +44,7 @@ class CommunityWitnessUser(HttpUser):
         """
         if not self.reports:
             return
-        response = self.client.get(f"/reports/{choice(self.reports)}")
+        response = self.client.get(f"/reports/{choice(self.reports)}", headers={"X-API-KEY": self.apiKey})
         try:
             report_json = response.json()
             evidence_ids = report_json["evidence"]
@@ -64,18 +66,18 @@ class WitnessUser(CommunityWitnessUser):
 
     def __init__(self, *args, **kwargs):
         """Setup class variables, by running supers init."""
-        self.id = 1
+        # This should match the API key of a test witness
+        self.apiKey = WITNESS_API_KEY
         super().__init__(*args, **kwargs)
 
     def on_start(self):
         """Logs in the user and grabs their user data."""
-        # TODO: send login request here
         self.grab_witness()
 
     @task
     def grab_witness(self):
         """GETs the data about this witness from the API, and saves it if needed."""
-        response = self.client.get(f"/witnesses/{self.id}")
+        response = self.client.get("/witnesses/self", headers={"X-API-KEY": self.apiKey})
         if not self.reports:
             self.extract_reports(response)
 
@@ -86,18 +88,17 @@ class InvestigatorUser(CommunityWitnessUser):
 
     def __init__(self, *args, **kwargs):
         """Setup class variables, by running supers init."""
-        self.id = 1
+        self.apiKey = INVESTIGATOR_API_KEY
         super().__init__(*args, **kwargs)
     
     def on_start(self):
         """Logs in the user and grabs their user data."""
-        # TODO: send login request here
         self.grab_investigator()
 
     @task
     def grab_investigator(self):
         """GETs the data about this investigator from the API, and saves it as needed."""
-        response = self.client.get(f"/investigators/{self.id}")
+        response = self.client.get("/investigators/self", headers={"X-API-KEY": self.apiKey})
         if not self.reports:
             self.extract_reports(response)
 

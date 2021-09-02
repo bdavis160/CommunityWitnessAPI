@@ -29,8 +29,7 @@ public class LoginResource {
 	@POST
 	public String login(LoginDetails credentials) throws WebApplicationException {
 		try {
-			SQLConnection myConnection = new SQLConnection();
-			Connection dbConnection = myConnection.databaseConnection();
+			Connection dbConnection = SQLConnection.databaseConnection();
 			
 			// Make sure the given credentials match those in the database
 			String accountQuery = "SELECT PasswordHash, InvestigatorId FROM Accounts WHERE Username=?";
@@ -44,11 +43,14 @@ public class LoginResource {
 				passwordHash = accountResults.getString(1);
 				investigatorId = accountResults.getInt(2);
 			} else {
+				SQLConnection.closeDbOperation(dbConnection, accountStatement, accountResults);
 				throw new SQLException();
 			}
 			
-			if (!AccountManagement.checkPassword(credentials.getPassword(), passwordHash))
+			if (!AccountManagement.checkPassword(credentials.getPassword(), passwordHash)) {
+				SQLConnection.closeDbOperation(dbConnection, accountStatement, accountResults);
 				throw new WebApplicationException("Incorrect password.");
+			}
 			
 			// Password was correct, retrieve API key
 			String apiKeyQuery = "SELECT ApiKey FROM ApiKeys WHERE InvestigatorId=?";
@@ -56,10 +58,17 @@ public class LoginResource {
 			apiKeyStatement.setInt(1, investigatorId);
 			ResultSet apiKeyResults = apiKeyStatement.executeQuery();
 			
-			if (apiKeyResults.next())
+			if (apiKeyResults.next()) {
+				accountResults.close();
+				accountStatement.close();
+				SQLConnection.closeDbOperation(dbConnection, apiKeyStatement, apiKeyResults);
 				return apiKeyResults.getString(1);
-			else
+			} else {
+				accountResults.close();
+				accountStatement.close();
+				SQLConnection.closeDbOperation(dbConnection, apiKeyStatement, apiKeyResults);
 				throw new SQLException();
+			}
 		} catch (SQLException exception) {
 			throw new WebApplicationException("Failed to retrieve data from database.");
 		}

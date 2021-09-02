@@ -18,7 +18,7 @@ public class Witness extends org.communitywitness.common.Witness {
      */
     public Witness(int id) throws SQLException {
         // retrieve witnesses account info
-        Connection conn = new SQLConnection().databaseConnection();
+        Connection conn = SQLConnection.databaseConnection();
         String query = "SELECT Name, Rating, Location " +
                 "FROM Witness " +
                 "WHERE ID=?";
@@ -32,15 +32,13 @@ public class Witness extends org.communitywitness.common.Witness {
             setRating(queryResults.getDouble(2));
             setLocation(queryResults.getString(3));
         } else {
+        	SQLConnection.closeDbOperation(conn, queryStatement, queryResults);
             throw new RuntimeException("Witness with the supplied ID does not exist in database");
         }
         // retrieve ids of the witnesses filed cases
         loadReports(conn);
 
-        queryResults.close();
-        conn.close();
-        
-
+        SQLConnection.closeDbOperation(conn, queryStatement, queryResults);
     }
 
     /**
@@ -101,7 +99,7 @@ public class Witness extends org.communitywitness.common.Witness {
      * @throws SQLException if unable to write
      */
     public int writeToDb() throws SQLException {
-        Connection conn = new SQLConnection().databaseConnection();
+        Connection conn = SQLConnection.databaseConnection();
 
         // if the report is brand new (has not been written to the db yet), it will have an id of UNSET_ID (-1)
         // once the report gets written, it is given an id by the db which will be pulled back into the object
@@ -147,6 +145,7 @@ public class Witness extends org.communitywitness.common.Witness {
             queryStatement.close();
         }
 
+        conn.close();
         return getId();
     }
 }

@@ -32,12 +32,12 @@ public class AuthenticatedUser implements SecurityContext {
 			
 		// Check the api key against the database
 		try {
-			SQLConnection myConnection = new SQLConnection();
-			Connection dbConnection = myConnection.databaseConnection();
+			Connection dbConnection = SQLConnection.databaseConnection();
 			String query = "SELECT WitnessId, InvestigatorId FROM ApiKeys WHERE ApiKey=?";
 			PreparedStatement queryStatement = dbConnection.prepareStatement(query);
 			queryStatement.setString(1, apiKey);
 			ResultSet queryResults = queryStatement.executeQuery();
+			
 			
 			int witnessId;
 			int investigatorId;
@@ -45,8 +45,11 @@ public class AuthenticatedUser implements SecurityContext {
 				witnessId = queryResults.getInt(1);
 				investigatorId = queryResults.getInt(2);
 			} else {
+				SQLConnection.closeDbOperation(dbConnection, queryStatement, queryResults);
 				throw new SQLException();
 			}
+			
+			SQLConnection.closeDbOperation(dbConnection, queryStatement, queryResults);
 			
 			// Determine the users role
 			if (witnessId == SpecialIds.USER_NOT_IN_ROLE && !SpecialIds.isSpecialId(investigatorId)) {
@@ -76,8 +79,7 @@ public class AuthenticatedUser implements SecurityContext {
 
 		// Check the login details against the database
 		try {
-			SQLConnection myConnection = new SQLConnection();
-			Connection dbConnection = myConnection.databaseConnection();
+			Connection dbConnection = SQLConnection.databaseConnection();
 			String query = "SELECT PasswordHash, InvestigatorId" +
 					"FROM Accounts WHERE Username=?";
 			PreparedStatement queryStatement = dbConnection.prepareStatement(query);
@@ -90,8 +92,10 @@ public class AuthenticatedUser implements SecurityContext {
 				passwordHash = queryResults.getString(1);
 				setId(queryResults.getInt(2));
 			} else {
+				SQLConnection.closeDbOperation(dbConnection, queryStatement, queryResults);
 				throw new SQLException();
 			}
+			SQLConnection.closeDbOperation(dbConnection, queryStatement, queryResults);
 			
 			// Check that the given password matches the db entry
 			if (!AccountManagement.checkPassword(passwordHash, password))

@@ -24,7 +24,7 @@ public class ChatMessage extends org.communitywitness.common.ChatMessage {
     }
 
     public int writeToDb() throws SQLException {
-        Connection conn = new SQLConnection().databaseConnection();
+        Connection conn = SQLConnection.databaseConnection();
 
         String query = "INSERT INTO chat (reportid, investigatorid, message, time) " +
                 "VALUES (?,?,?,?)";
@@ -37,6 +37,7 @@ public class ChatMessage extends org.communitywitness.common.ChatMessage {
 
         int rows = queryStatement.executeUpdate();
         if (rows == 0) {
+        	SQLConnection.closeDbOperation(conn, queryStatement, null);
             throw new SQLException("Message insertion failed");
         }
 

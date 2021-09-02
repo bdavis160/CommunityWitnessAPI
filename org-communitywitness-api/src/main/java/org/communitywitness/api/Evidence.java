@@ -16,7 +16,7 @@ public class Evidence extends org.communitywitness.common.Evidence {
 	 * @param id - the id of the evidence to lookup in the database.
 	 */
 	public Evidence(int id) throws SQLException {
-		Connection conn = new SQLConnection().databaseConnection();
+		Connection conn = SQLConnection.databaseConnection();
 		String query = "SELECT Title, Type, Timestamp, Data, reportID " +
 				"FROM Evidence " +
 				"WHERE ID=?";
@@ -32,12 +32,12 @@ public class Evidence extends org.communitywitness.common.Evidence {
 			setData(queryResults.getBytes(4));
 			setReportId(queryResults.getInt(5));
 		} else {
+			SQLConnection.closeDbOperation(conn, queryStatement, queryResults);
 			throw new RuntimeException("Evidence with the supplied ID does not exist in database");
 		}
 
 		// close out sql stuff
-		queryStatement.close();
-		conn.close();
+		SQLConnection.closeDbOperation(conn, queryStatement, queryResults);
 	}
 
 	/**
@@ -61,7 +61,7 @@ public class Evidence extends org.communitywitness.common.Evidence {
 	 */
 
 	public int writeToDb() throws SQLException {
-		Connection conn = new SQLConnection().databaseConnection();
+		Connection conn = SQLConnection.databaseConnection();
 
 		// if the evidence is brand new (has not been written to the db yet), it will have an id of -1
 		// once the evidence gets written, it is given an id by the db which will be pulled back into the object
@@ -112,6 +112,8 @@ public class Evidence extends org.communitywitness.common.Evidence {
 			queryStatement.executeUpdate();
 			queryStatement.close();
 		}
+		
+		conn.close();
 		return getId();
 	}
 }

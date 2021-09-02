@@ -75,7 +75,9 @@ public class Server {
 	public static void main(String[] args) {
 		// Load users settings if they specified a settings file
 		if (args.length > 0)
-			Settings.loadSettings(args[0]);	
+			Settings.loadSettings(args[0]);
+		
+		SQLConnection.connectToDatabase();
 		
 		if (!startServer())
 			System.exit(-1);

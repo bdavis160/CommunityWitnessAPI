@@ -42,17 +42,19 @@ public class AccountManagement {
 	public static boolean isUsernameAvailable(String username) {
 		try {
 			// Retrieve any potential matches from database
-			SQLConnection myConnection = new SQLConnection();
-			Connection dbConnection = myConnection.databaseConnection();
+			Connection dbConnection = SQLConnection.databaseConnection();
 			String query = "SELECT username FROM Accounts WHERE username=?";
 			PreparedStatement queryStatement = dbConnection.prepareStatement(query);
 			queryStatement.setString(1, username);
 			ResultSet queryResults = queryStatement.executeQuery();
 			
+			
 			Set<String> resultingNames = new HashSet<String>();
 			while (queryResults.next()) {
 				resultingNames.add(queryResults.getString(1));
 			}
+			
+			SQLConnection.closeDbOperation(dbConnection, queryStatement, queryResults);
 			
 			if (resultingNames.contains(username))
 				return false;
@@ -79,8 +81,7 @@ public class AccountManagement {
 		String hashedPassword = hashPassword(password);
 		
 		try {
-			SQLConnection myConnection = new SQLConnection();
-			Connection dbConnection = myConnection.databaseConnection();
+			Connection dbConnection = SQLConnection.databaseConnection();
 			
 			// Check if this investigator id already has an account
 			String existingAccountQuery = "SELECT InvestigatorId FROM Accounts WHERE InvestigatorId=?";
@@ -104,6 +105,12 @@ public class AccountManagement {
 			
 			if (insertStatement.executeUpdate() == 0)
 				throw new SQLException();
+			
+			// close up both connections
+			existingAccountResult.close();
+			existingAccountStatement.close();
+			insertStatement.close();
+			dbConnection.close();
 			
 			// Create the investigators API key
 			String apiKey = giveUserApiKey(investigatorId, UserRoles.INVESTIGATOR);
@@ -136,9 +143,8 @@ public class AccountManagement {
 			else if (role.equalsIgnoreCase(UserRoles.WITNESS))
 				new Witness(id);
 			
-
-			SQLConnection myConnection = new SQLConnection();
-			Connection dbConnection = myConnection.databaseConnection();
+			
+			Connection dbConnection = SQLConnection.databaseConnection();
 			
 			// Check if this user already has an api key
 			String existingKeyQuery = "SELECT %s FROM ApiKeys WHERE %s=?";
@@ -170,10 +176,15 @@ public class AccountManagement {
 				insertStatement.setNull(3, Types.INTEGER);
 			}
 			
-			if (insertStatement.executeUpdate() == 0)
+			if (insertStatement.executeUpdate() == 0) {
+				insertStatement.close();
+				SQLConnection.closeDbOperation(dbConnection, existingKeyStatement, existingKeyResults);
 				return null;
-			else
+			} else {
+				insertStatement.close();
+				SQLConnection.closeDbOperation(dbConnection, existingKeyStatement, existingKeyResults);
 				return apiKey;
+			}
 		} catch (SQLException exception) {
 			return null;
 		}

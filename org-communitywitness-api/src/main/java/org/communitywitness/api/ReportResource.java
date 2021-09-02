@@ -25,7 +25,7 @@ public class ReportResource {
 	public List<Report> queryReports() throws WebApplicationException {
 
 		try {
-			Connection conn = new SQLConnection().databaseConnection();
+			Connection conn = SQLConnection.databaseConnection();
 			String query = "SELECT id, resolved, description, time, location, witnessID FROM report";
 			ResultSet queryResults = conn.prepareStatement(query).executeQuery();
 
@@ -45,8 +45,7 @@ public class ReportResource {
 			}
 
 			// close out sql stuff
-			queryResults.close();
-			conn.close();
+			SQLConnection.closeDbOperation(conn, null, queryResults);
 
 			return results;
 		} catch (SQLException exception) {
