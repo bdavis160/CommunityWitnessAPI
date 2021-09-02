@@ -1,7 +1,9 @@
 package org.communitywitness.api;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.net.URI;
+import java.security.KeyStore;
 import java.util.Properties;
 
 import org.apache.commons.validator.routines.UrlValidator;
@@ -19,6 +21,7 @@ public class Settings {
 	
 	// Runtime setting values
 	private URI baseUri;
+	private String tlsKeyStoreFile;
 	private String allowedCrossOrigin;
 	private Type passwordHashType;
 	private int passwordHashMemoryCost;
@@ -33,6 +36,7 @@ public class Settings {
 	
 	// Default setting values
 	private final URI DEFAULT_BASE_URI = URI.create("http://127.0.0.1:8080");
+	private final String DEFAULT_TLS_KEYSTORE_FILE = "none";
 	private final String DEFAULT_ALLOWED_CROSS_ORIGIN = "*";
 	private final Jargon2.Type DEFAULT_PASSWORD_HASH_TYPE = Type.ARGON2i;
 	private final int DEFAULT_PASSWORD_HASH_MEMORY_COST = 131072;
@@ -76,6 +80,7 @@ public class Settings {
 		
 		// Set the settings read from the file, letting setters handle invalid inputs
 		instance.setBaseUri(userSettings.getProperty("baseUri"));
+		instance.setTlsKeyStoreFile("tlsKeyStoreFile");
 		instance.setAllowedCrossOrigin(userSettings.getProperty("allowedCrossOrigin"));
 		instance.setPasswordHashType(userSettings.getProperty("passwordHashType"));
 		instance.setPasswordHashMemoryCost(userSettings.getProperty("passwordHashMemoryCost"));;
@@ -88,13 +93,33 @@ public class Settings {
 		instance.setDatabaseUsername(userSettings.getProperty("databaseUsername"));
 		instance.setDatabasePassword(userSettings.getProperty("databasePassword"));
 	}
+	
+	/**
+	 * Returns whether or not TLS is enabled for this server. 
+	 * TLS is considered enabled if baseUri starts with https 
+	 * and a valid tlsKeyStoreFile is specified.
+	 * @return true if TLS is enabled, false otherwise
+	 */
+	public boolean isTlsEnabled() {
+		return baseUri.toString().toLowerCase().startsWith("https") && 
+				!tlsKeyStoreFile.isBlank() && !tlsKeyStoreFile.equalsIgnoreCase("none"); 
+	}
 
 	/**
 	 * Returns the URI that the server listens for network connections on.
-	 * @return this.baseUri as a string
+	 * @return this.baseUri
 	 */
 	public URI getBaseUri() {
 		return baseUri;
+	}
+	
+	/**
+	 * Returns the name of the keystore file containing the TLS certificate and private key
+	 * for this server.
+	 * @return this.tlsKeystoreFile
+	 */
+	public String getTlsKeyStoreFile() {
+		return tlsKeyStoreFile;
 	}
 
 	/**
@@ -232,6 +257,28 @@ public class Settings {
 		} else {
 			logInvalidSetting("URI", baseUri);
 			this.baseUri = DEFAULT_BASE_URI;
+		}
+	}
+	
+	/**
+	 * Tries to set the location of the KeyStore containing the TLS cert and key for this server.
+	 * @param tlsKeyStoreFile the file path of the TLS KeyStore for this server,
+	 * or "none" or a blank string if TLS is not being used.
+	 */
+	private void setTlsKeyStoreFile(String tlsKeyStoreFile) {
+		// Interpret empty strings or "none" as not using TLS
+		if (tlsKeyStoreFile.equalsIgnoreCase("none") || tlsKeyStoreFile.isBlank())
+			this.tlsKeyStoreFile = tlsKeyStoreFile;
+		
+		// Try to open the file as a keystore to check its validity
+		try {
+			File keyStoreFile = new File(tlsKeyStoreFile);
+			char[] disambiguateCall = null;
+			KeyStore.getInstance(keyStoreFile, disambiguateCall);
+			this.tlsKeyStoreFile = tlsKeyStoreFile;
+		} catch (Exception exception) {
+			logInvalidSetting("TLS KeyStore File", tlsKeyStoreFile);
+			this.tlsKeyStoreFile = DEFAULT_TLS_KEYSTORE_FILE;
 		}
 	}
 	

@@ -3,7 +3,11 @@ package org.communitywitness.api;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
+import javax.net.ssl.SSLContext;
+
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.grizzly.ssl.SSLContextConfigurator;
+import org.glassfish.grizzly.ssl.SSLEngineConfigurator;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
@@ -18,7 +22,27 @@ public class Server {
 	 */
 	public static boolean startServer() {
 		final ResourceConfig resources = new APIResourceConfig();
-		httpServer = GrizzlyHttpServerFactory.createHttpServer(Settings.getInstance().getBaseUri(), resources, false);
+		
+		if (Settings.getInstance().isTlsEnabled()) {
+			SSLContextConfigurator sslSettings = new SSLContextConfigurator();
+			sslSettings.setKeyStoreFile(Settings.getInstance().getTlsKeyStoreFile());
+			SSLContext tlsContext;
+			SSLEngineConfigurator tlsEngineConfig;
+			
+			try {
+				tlsContext = sslSettings.createSSLContext(true);
+				tlsEngineConfig = new SSLEngineConfigurator(tlsContext);
+			} catch (Exception exception) {
+				// Grizzly's TLS/SSL stuff is poorly documented so I don't know all of the exceptions that might be thrown
+				System.err.println("Error setting up TLS, please verify your keystore file.");
+				exception.printStackTrace();
+				return false;
+			}
+			
+			httpServer = GrizzlyHttpServerFactory.createHttpServer(Settings.getInstance().getBaseUri(), resources, true, tlsEngineConfig, false);
+		} else {
+			httpServer = GrizzlyHttpServerFactory.createHttpServer(Settings.getInstance().getBaseUri(), resources, false);
+		}
 		
 		try {
 			httpServer.start();
