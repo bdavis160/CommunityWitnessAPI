@@ -26,6 +26,7 @@ public class Server {
 		if (Settings.getInstance().isTlsEnabled()) {
 			SSLContextConfigurator sslSettings = new SSLContextConfigurator();
 			sslSettings.setKeyStoreFile(Settings.getInstance().getTlsKeyStoreFile());
+			sslSettings.setKeyStorePass(Settings.getInstance().getTlsKeyStorePassword());
 			SSLContext tlsContext;
 			SSLEngineConfigurator tlsEngineConfig;
 			
