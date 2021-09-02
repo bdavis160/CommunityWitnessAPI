@@ -77,8 +77,7 @@ public class Server {
 		if (args.length > 0)
 			Settings.loadSettings(args[0]);
 		
-		if (!SQLConnection.connectToDatabase())
-			System.err.println("Error: failed to connect to database.");
+		SQLConnection.connectToDatabase();
 		
 		if (!startServer())
 			System.exit(-1);

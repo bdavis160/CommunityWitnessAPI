@@ -11,16 +11,12 @@ public class SQLConnection {
 	private static HikariDataSource connectionPool = new HikariDataSource();
 
 	/**
-	 * Setups the database connection pool.
-	 * @return true on success, false on failure
+	 * Sets up the database connection pool.
 	 */
-	public static boolean connectToDatabase() {
+	public static void connectToDatabase() {
 		connectionPool.setJdbcUrl(Settings.getInstance().getDatabaseUrl());
 		connectionPool.setUsername(Settings.getInstance().getDatabaseUsername());
 		connectionPool.setPassword(Settings.getInstance().getDatabasePassword());
-
-		return connectionPool.isRunning();
-
 	}
 
 	/**
