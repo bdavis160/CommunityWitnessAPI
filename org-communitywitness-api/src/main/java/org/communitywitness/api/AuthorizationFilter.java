@@ -22,6 +22,9 @@ public class AuthorizationFilter implements ContainerRequestFilter {
 	@Context
 	private ResourceInfo targetResource;
 	
+	/**
+	 * A filter that handles checking a user authentication data against the roles allowed by a method.
+	 */
 	@Override
 	public void filter(ContainerRequestContext requestContext) throws IOException {
 		Method targetMethod = targetResource.getResourceMethod();

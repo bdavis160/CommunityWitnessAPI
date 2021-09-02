@@ -5,6 +5,10 @@ import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ResourceConfig;
 
 public class APIResourceConfig extends ResourceConfig {
+	
+	/**
+	 * Constructs a ResourceConfig for the API
+	 */
 	public APIResourceConfig() {
 		// Scan for resources in this package
 		packages("org.communitywitness.api");

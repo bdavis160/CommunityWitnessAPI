@@ -20,7 +20,7 @@ public class ReportCommentResource {
 	 */
 	@RolesAllowed({UserRoles.INVESTIGATOR})
 	@POST
-	public int createReportComment(ReportCommentRequest reportCommentRequest, @Context AuthenticatedUser user) throws WebApplicationException, SQLException {
+	public int createReportComment(ReportCommentRequest reportCommentRequest, @Context AuthenticatedUser user) throws WebApplicationException {
 		if (user.getId() != reportCommentRequest.getInvestigatorId())
 			AuthorizationFilter.unauthorizedAccessResponse("Investigators may only file report comments as themselves.");
 		
@@ -31,9 +31,17 @@ public class ReportCommentResource {
 		} catch (SQLException exception) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
 		}
-
-		ReportComment newComment = new ReportComment(reportCommentRequest);
-		return newComment.writeToDb();
+		
+		// try to write comment to database
+		int newCommentId;
+		try {
+			ReportComment newComment = new ReportComment(reportCommentRequest);
+			newCommentId = newComment.writeToDb();
+		} catch (SQLException exception) {
+			throw new WebApplicationException("Failed to write comment to database.");
+		}
+		
+		return newCommentId;
 	}
 	
 	/**
