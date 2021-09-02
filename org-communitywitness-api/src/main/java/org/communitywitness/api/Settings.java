@@ -327,7 +327,9 @@ public class Settings {
 	 * @param passwordHashType a string containing "argon2i", "argon2d", or "argon2id", the available argon types
 	 */
 	private void setPasswordHashType(String passwordHashType) {
-		if (passwordHashType.equalsIgnoreCase("argon2i")) {
+		if (passwordHashType == null) {
+			this.passwordHashType = DEFAULT_PASSWORD_HASH_TYPE;
+		} else if (passwordHashType.equalsIgnoreCase("argon2i")) {
 			this.passwordHashType = Type.ARGON2i;
 		} else if (passwordHashType.equalsIgnoreCase("argon2d")) {
 			this.passwordHashType = Type.ARGON2d;
