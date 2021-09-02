@@ -277,23 +277,29 @@ public class Settings {
 	 * or "none" or a blank string if TLS is not being used.
 	 */
 	private void setTlsKeyStoreFile(String tlsKeyStoreFile) {
-		if (tlsKeyStoreFile == null)
+		if (tlsKeyStoreFile == null) {
 			this.tlsKeyStoreFile = DEFAULT_TLS_KEYSTORE_FILE;
+			return;
+		}
 		
 		// Interpret empty strings or "none" as not using TLS
-		if (tlsKeyStoreFile.equalsIgnoreCase("none") || tlsKeyStoreFile.isBlank())
+		if (tlsKeyStoreFile.equalsIgnoreCase("none") || tlsKeyStoreFile.isBlank()) {
 			this.tlsKeyStoreFile = tlsKeyStoreFile;
+			return;
+		}
+		
+		this.tlsKeyStoreFile = tlsKeyStoreFile;
 		
 		// Try to open the file as a KeyStore to check its validity
-		try {
-			File keyStoreFile = new File(tlsKeyStoreFile);
-			KeyStore.getInstance(keyStoreFile, tlsKeyStorePassword.toCharArray());
-			this.tlsKeyStoreFile = tlsKeyStoreFile;
-		} catch (Exception exception) {
-			logInvalidSetting("TLS KeyStore File", tlsKeyStoreFile);
-			exception.printStackTrace();
-			this.tlsKeyStoreFile = DEFAULT_TLS_KEYSTORE_FILE;
-		}
+//		try {
+//			File keyStoreFile = new File(tlsKeyStoreFile);
+//			KeyStore.getInstance(keyStoreFile, tlsKeyStorePassword.toCharArray());
+//			this.tlsKeyStoreFile = tlsKeyStoreFile;
+//		} catch (Exception exception) {
+//			logInvalidSetting("TLS KeyStore File", tlsKeyStoreFile);
+//			exception.printStackTrace();
+//			this.tlsKeyStoreFile = DEFAULT_TLS_KEYSTORE_FILE;
+//		}
 	}
 	
 	/**
