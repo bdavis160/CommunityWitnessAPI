@@ -82,7 +82,7 @@ public class Settings {
 		
 		// Set the settings read from the file, letting setters handle invalid inputs
 		instance.setBaseUri(userSettings.getProperty("baseUri"));
-		instance.setTlsKeyStorePassword("tlsKeyStorePassword"); // out of order so setTlsKeyStoreFile has it
+		instance.setTlsKeyStorePassword("tlsKeyStorePassword");
 		instance.setTlsKeyStoreFile("tlsKeyStoreFile");
 		instance.setAllowedCrossOrigin(userSettings.getProperty("allowedCrossOrigin"));
 		instance.setPasswordHashType(userSettings.getProperty("passwordHashType"));
@@ -277,6 +277,9 @@ public class Settings {
 	 * or "none" or a blank string if TLS is not being used.
 	 */
 	private void setTlsKeyStoreFile(String tlsKeyStoreFile) {
+		if (tlsKeyStoreFile == null)
+			this.tlsKeyStoreFile = DEFAULT_TLS_KEYSTORE_FILE;
+		
 		// Interpret empty strings or "none" as not using TLS
 		if (tlsKeyStoreFile.equalsIgnoreCase("none") || tlsKeyStoreFile.isBlank())
 			this.tlsKeyStoreFile = tlsKeyStoreFile;
@@ -288,6 +291,7 @@ public class Settings {
 			this.tlsKeyStoreFile = tlsKeyStoreFile;
 		} catch (Exception exception) {
 			logInvalidSetting("TLS KeyStore File", tlsKeyStoreFile);
+			exception.printStackTrace();
 			this.tlsKeyStoreFile = DEFAULT_TLS_KEYSTORE_FILE;
 		}
 	}
