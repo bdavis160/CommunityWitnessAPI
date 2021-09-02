@@ -1,26 +1,34 @@
 package org.communitywitness.api;
 
+import jakarta.ws.rs.WebApplicationException;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class InvestigatorResourceTest {
     InvestigatorResource res = new InvestigatorResource();
+    AuthenticatedUser investigator = new AuthenticatedUser("dYOsflWZANe6aD2Piil94041GCgi8Qsu");
+
+    InvestigatorResourceTest() throws BadLoginException {
+    }
 
     @Test
     void createInvestigator() throws SQLException {
         NewInvestigatorRequest newInvestigatorRequestData = new NewInvestigatorRequest();
+        newInvestigatorRequestData.setUsername("testInvestigator");
+        newInvestigatorRequestData.setPassword("foobar");
         newInvestigatorRequestData.setName("name from unit test");
         newInvestigatorRequestData.setOrganization("organization from unit test");
         newInvestigatorRequestData.setOrganizationType("organization type from unit test");
 
-        int myId = res.createInvestigator(newInvestigatorRequestData);
-        assertNotEquals(-1, myId);
+        // after this test was run once, the test investigator exists, so should now throw exception
+        assertThrows(WebApplicationException.class, () -> {
+            res.createInvestigator(newInvestigatorRequestData);
+        });
     }
 
     @Test
@@ -32,7 +40,7 @@ class InvestigatorResourceTest {
 
     @Test
     void updateInvestigator() {
-        int investigatorId = 2;
+        int investigatorId = 1;
         Investigator oldInvestigator = res.getInvestigator(investigatorId);
         UpdateInvestigatorRequest oldInvestigatorData = new UpdateInvestigatorRequest();
         oldInvestigatorData.setName(oldInvestigator.getName());
@@ -44,19 +52,19 @@ class InvestigatorResourceTest {
         newInvestigator.setOrganization("updateInvestigatorTestOrganization");
         newInvestigator.setOrganizationType("updateInvestigatorTestOrganizationType");
 
-        res.updateInvestigator(2, newInvestigator);
+        res.updateInvestigator(investigatorId, newInvestigator, investigator);
         assertEquals(newInvestigator.getName(), res.getInvestigator(investigatorId).getName());
         assertEquals(newInvestigator.getOrganization(), res.getInvestigator(investigatorId).getOrganization());
         assertEquals(newInvestigator.getOrganizationType(), res.getInvestigator(investigatorId).getOrganizationType());
 
-        res.updateInvestigator(2, oldInvestigatorData);
+        res.updateInvestigator(investigatorId, oldInvestigatorData, investigator);
     }
 
     @Test
     void takeCaseValidIds() throws SQLException {
         int reportId = 0;
-        int investigatorId = 0;
-        assertEquals(200, res.takeCase(investigatorId, reportId).getStatus());
+        int investigatorId = 1;
+        assertEquals(200, res.takeCase(investigatorId, reportId, investigator).getStatus());
 
         // in order to make this test succeed more than once, we need to delete the test row after it completes
         Connection conn = new SQLConnection().databaseConnection();
@@ -73,22 +81,22 @@ class InvestigatorResourceTest {
     @Test
     void takeCaseInvalidReportId() throws SQLException {
         int reportId = 1;
-        int investigatorId = 0;
-        assertEquals(404, res.takeCase(investigatorId, reportId).getStatus());
+        int investigatorId = 1;
+        assertEquals(404, res.takeCase(investigatorId, reportId, investigator).getStatus());
     }
 
     @Test
     void takeCaseInvalidInvestigatorId() throws SQLException {
         int reportId = 0;
         int investigatorId = 1000;
-        assertEquals(404, res.takeCase(investigatorId, reportId).getStatus());
+        assertEquals(401, res.takeCase(investigatorId, reportId, investigator).getStatus());
     }
 
     @Test
     void takeCaseInvalidIds() throws SQLException {
         int reportId = 1;
         int investigatorId = 1000;
-        assertEquals(404, res.takeCase(investigatorId, reportId).getStatus());
+        assertEquals(401, res.takeCase(investigatorId, reportId, investigator).getStatus());
 
     }
 }
