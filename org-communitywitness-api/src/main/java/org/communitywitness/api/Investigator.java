@@ -18,7 +18,7 @@ public class Investigator extends org.communitywitness.common.Investigator {
 	 */
 	public Investigator(int id) throws SQLException {
 		// retrieve investigators account info
-		Connection conn = new SQLConnection().databaseConnection();
+		Connection conn = SQLConnection.databaseConnection();
 		String query = "SELECT Name, Organization, OrganizationType, Rating " +
 				"FROM Investigator " +
 				"WHERE ID=?";
@@ -36,10 +36,9 @@ public class Investigator extends org.communitywitness.common.Investigator {
 			throw new SQLException("Investigator with the supplied ID does not exist in database");
 		}
 		// retrieve ids of the reports the investigator is investigating
-		loadReports(conn);
+		loadReports();
 
-		queryStatement.close();
-		conn.close();
+		SQLConnection.closeDbOperation(conn, queryStatement, queryResults);
 	}
 
 	/**
@@ -59,9 +58,10 @@ public class Investigator extends org.communitywitness.common.Investigator {
 	 * then saves that to this object.
 	 * @throws SQLException if no data is found
 	 */
-	public void loadReports(Connection conn) throws SQLException {
+	public void loadReports() throws SQLException {
 		ArrayList<Integer> reportIds = new ArrayList<>();
 
+		Connection conn = SQLConnection.databaseConnection();
 		String query = "SELECT ReportID FROM ReportInvestigations WHERE InvestigatorID=?";
 		PreparedStatement queryStatement = conn.prepareStatement(query);
 		queryStatement.setInt(1, getId());
@@ -70,7 +70,7 @@ public class Investigator extends org.communitywitness.common.Investigator {
 		while (queryResults.next()) {
 			reportIds.add(queryResults.getInt(1));
 		}
-		queryStatement.close();
+		SQLConnection.closeDbOperation(conn, queryStatement, queryResults);
 		setReports(reportIds);
 	}
 	
@@ -92,7 +92,7 @@ public class Investigator extends org.communitywitness.common.Investigator {
 	 * @throws SQLException if unable to write
 	 */
 	public int writeToDb() throws SQLException {
-		Connection conn = new SQLConnection().databaseConnection();
+		Connection conn = SQLConnection.databaseConnection();
 
 		// if the investigator is brand new (has not been written to the db yet), it will have an id of UNSET_ID (-1)
 		// once the investigator gets written, it is given an id by the db which will be pulled back into the object
@@ -141,6 +141,7 @@ public class Investigator extends org.communitywitness.common.Investigator {
 			queryStatement.close();
 		}
 
+		conn.close();
 		return getId();
 	}
 
@@ -149,7 +150,7 @@ public class Investigator extends org.communitywitness.common.Investigator {
 	 * @throws SQLException if unable to write (most likely due to foreign key constraint
 	 */
 	public void takeCase(int reportId) throws SQLException {
-		Connection conn = new SQLConnection().databaseConnection();
+		Connection conn = SQLConnection.databaseConnection();
 
 		String query = "INSERT INTO reportinvestigations (reportid, investigatorid) " +
 				"VALUES (?,?)";
@@ -159,6 +160,6 @@ public class Investigator extends org.communitywitness.common.Investigator {
 		queryStatement.setInt(2, getId());
 
 		queryStatement.executeUpdate();
-		queryStatement.close();
+		SQLConnection.closeDbOperation(conn, queryStatement, null);
 	}
 }

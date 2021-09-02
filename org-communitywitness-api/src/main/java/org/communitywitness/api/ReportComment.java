@@ -16,7 +16,7 @@ public class ReportComment extends org.communitywitness.common.ReportComment {
 	 * @param id - the id of the witness to lookup in the database.
 	 */
 	public ReportComment(int id) throws SQLException {
-		Connection conn = new SQLConnection().databaseConnection();
+		Connection conn = SQLConnection.databaseConnection();
 		String query = "SELECT ID, ReportID, InvestigatorID, Contents " +
 				"FROM ReportComments " +
 				"WHERE ID=?";
@@ -34,8 +34,7 @@ public class ReportComment extends org.communitywitness.common.ReportComment {
 			throw new RuntimeException("Comment with the supplied ID does not exist in database");
 		}
 
-		queryResults.close();
-		queryStatement.close();
+		SQLConnection.closeDbOperation(conn, queryStatement, queryResults);
 	}
 
 	/**
@@ -56,7 +55,7 @@ public class ReportComment extends org.communitywitness.common.ReportComment {
 	 * @throws SQLException if unable to write
 	 */
 	public int writeToDb() throws SQLException {
-		Connection conn = new SQLConnection().databaseConnection();
+		Connection conn = SQLConnection.databaseConnection();
 
 		// if the evidence is brand new (has not been written to the db yet), it will have an id of -1
 		// once the evidence gets written, it is given an id by the db which will be pulled back into the object
@@ -100,6 +99,8 @@ public class ReportComment extends org.communitywitness.common.ReportComment {
 			queryStatement.executeUpdate();
 			queryStatement.close();
 		}
+		
+		conn.close();
 		return getId();
 	}
 }

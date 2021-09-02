@@ -75,7 +75,10 @@ public class Server {
 	public static void main(String[] args) {
 		// Load users settings if they specified a settings file
 		if (args.length > 0)
-			Settings.loadSettings(args[0]);	
+			Settings.loadSettings(args[0]);
+		
+		if (!SQLConnection.connectToDatabase())
+			System.err.println("Error: failed to connect to database.");
 		
 		if (!startServer())
 			System.exit(-1);
