@@ -1,0 +1,156 @@
+create sequence witness_id_seq;
+
+alter sequence witness_id_seq owner to postgres;
+
+create sequence investigator_id_seq;
+
+alter sequence investigator_id_seq owner to postgres;
+
+create sequence evidence_id_seq;
+
+alter sequence evidence_id_seq owner to postgres;
+
+create sequence reportcomment_id_seq;
+
+alter sequence reportcomment_id_seq owner to postgres;
+
+create sequence chat_id_seq;
+
+alter sequence chat_id_seq owner to postgres;
+
+create table witness
+(
+	id integer default nextval('witness_id_seq'::regclass) not null
+		constraint witness_pkey
+			primary key,
+	name text,
+	rating double precision,
+	location text
+);
+
+alter table witness owner to postgres;
+
+create table investigator
+(
+	id integer default nextval('investigator_id_seq'::regclass) not null
+		constraint investigator_pkey
+			primary key,
+	name text,
+	organization text,
+	organizationtype text,
+	rating double precision
+);
+
+alter table investigator owner to postgres;
+
+create table report
+(
+	id serial not null
+		constraint report_pkey
+			primary key,
+	resolved boolean,
+	description text,
+	time timestamp with time zone,
+	location text,
+	witnessid integer
+		constraint report_witnessid_fkey
+			references witness
+				on delete cascade
+);
+
+alter table report owner to postgres;
+
+create table reportcomments
+(
+	id integer default nextval('reportcomment_id_seq'::regclass) not null
+		constraint reportcomments_pkey
+			primary key,
+	reportid integer
+		constraint reportcomments_reportid_fkey
+			references report
+				on delete cascade,
+	investigatorid integer
+		constraint reportcomments_investigatorid_fkey
+			references investigator,
+	contents text
+);
+
+alter table reportcomments owner to postgres;
+
+create table reportinvestigations
+(
+	reportid integer not null
+		constraint reportinvestigations_reportid_fkey
+			references report
+				on delete cascade,
+	investigatorid integer not null
+		constraint reportinvestigations_investigatorid_fkey
+			references investigator,
+	constraint reportinvestigations_pkey
+		primary key (reportid, investigatorid)
+);
+
+alter table reportinvestigations owner to postgres;
+
+create table evidence
+(
+	id integer default nextval('evidence_id_seq'::regclass) not null
+		constraint evidence_pkey
+			primary key,
+	title text,
+	type text,
+	timestamp timestamp with time zone,
+	reportid integer
+		constraint evidence_reportid_fkey
+			references report
+				on delete cascade,
+	data bytea
+);
+
+alter table evidence owner to postgres;
+
+create table chat
+(
+	id integer default nextval('chat_id_seq'::regclass) not null
+		constraint chat_pkey
+			primary key,
+	reportid integer
+		constraint chat_reportid_fkey
+			references report
+				on delete cascade,
+	investigatorid integer
+		constraint chat_investigatorid_fkey
+			references investigator,
+	message text,
+	time timestamp with time zone
+);
+
+alter table chat owner to postgres;
+
+create table accounts
+(
+	username text not null
+		constraint account_pkey
+			primary key,
+	passwordhash text not null,
+	investigatorid integer not null
+		constraint account_investigatorid_fkey
+			references investigator
+);
+
+alter table accounts owner to postgres;
+
+create table apikeys
+(
+	apikey text not null
+		constraint apikeys_pkey
+			primary key,
+	witnessid integer
+		constraint apikeys_witnessid_fkey
+			references witness,
+	investigatorid integer
+		constraint apikeys_investigatorid_fkey
+			references investigator
+);
+
+alter table apikeys owner to postgres;
