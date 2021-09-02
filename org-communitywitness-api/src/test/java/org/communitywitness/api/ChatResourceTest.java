@@ -8,17 +8,22 @@ import java.util.List;
 
 class ChatResourceTest {
     ChatResource chatResource = new ChatResource();
+    AuthenticatedUser witness = new AuthenticatedUser("9XgUrSeCL9orXybssKknDW8vDJE2JkMS");
+    AuthenticatedUser investigator = new AuthenticatedUser("dYOsflWZANe6aD2Piil94041GCgi8Qsu");
+
+    ChatResourceTest() throws BadLoginException {
+    }
 
     @Test
     void investigatorMessages() throws SQLException {
-        List<ChatMessage> list = chatResource.investigatorMessages(0);
+        List<ChatMessage> list = chatResource.investigatorMessages(1, investigator);
         assert(list.size() > 1);
     }
 
     @Test
     void witnessMessages() throws SQLException {
-        List<ChatMessage> list = chatResource.witnessMessages(48);
-        assert(list.size() > 1);
+        List<ChatMessage> list = chatResource.witnessMessages(1, witness);
+        assert(list.size() > 0);
     }
 
     @Test
@@ -28,6 +33,6 @@ class ChatResourceTest {
         req.setMessage("from addmessage unit test");
         req.setTime(LocalDateTime.now());
 
-        assert(chatResource.addMessage(3, req) != -1);
+        assert(chatResource.addMessage(3, req, investigator) != -1);
     }
 }

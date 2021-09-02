@@ -14,6 +14,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class EvidenceResourceTest {
     EvidenceResource res = new EvidenceResource();
+    AuthenticatedUser witness = new AuthenticatedUser("9XgUrSeCL9orXybssKknDW8vDJE2JkMS");
+    AuthenticatedUser investigator = new AuthenticatedUser("dYOsflWZANe6aD2Piil94041GCgi8Qsu");
+
+    EvidenceResourceTest() throws BadLoginException {
+    }
 
     @Test
     void createEvidence() throws IOException, SQLException {
@@ -25,17 +30,17 @@ class EvidenceResourceTest {
         req.setTitle("From unit test");
         req.setType("image");
         req.setTimestamp(LocalDateTime.now());
-        req.setReportId(2);
+        req.setReportId(183);
         req.setData(data);
 
-        int id = res.createEvidence(req);
+        int id = res.createEvidence(req, witness);
         assertNotEquals(-1, id);
     }
 
     @Test
     void getEvidence() {
         int id = 283;
-        Evidence evidence = res.getEvidence(id);
+        Evidence evidence = res.getEvidence(id, investigator);
         assertNotNull(evidence);
     }
 }

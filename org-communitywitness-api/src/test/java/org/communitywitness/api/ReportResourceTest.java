@@ -10,6 +10,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ReportResourceTest {
     ReportResource res = new ReportResource();
+    AuthenticatedUser witness = new AuthenticatedUser("9XgUrSeCL9orXybssKknDW8vDJE2JkMS");
+
+    ReportResourceTest() throws BadLoginException {
+    }
 
     @Test
     void queryReports() throws SQLException {
@@ -26,23 +30,23 @@ class ReportResourceTest {
         newReportRequestData.setLocation("location from unit test");
         newReportRequestData.setWitnessId(1);
 
-        int myId = res.createReport(newReportRequestData);
+        int myId = res.createReport(newReportRequestData, witness);
         assertNotEquals(-1, myId);
     }
 
     @Test
     void getReport() {
-        int testReportId = 2;
-        Report testReport = res.getReport(testReportId);
+        int testReportId = 183;
+        Report testReport = res.getReport(testReportId, witness);
         assertNotNull(testReport);
     }
 
     @Test
     void updateReportStatus() {
-        int testReportId = 2;
-        Report testReport = res.getReport(testReportId);
+        int testReportId = 183;
+        Report testReport = res.getReport(testReportId, witness);
         boolean newStatus = !testReport.getResolved();
-        res.updateReportStatus(2, newStatus);
-        assertEquals(newStatus, res.getReport(testReportId).getResolved());
+        res.updateReportStatus(183, newStatus, witness);
+        assertEquals(newStatus, res.getReport(testReportId, witness).getResolved());
     }
 }

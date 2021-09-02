@@ -8,6 +8,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class WitnessResourceTest {
     WitnessResource res = new WitnessResource();
+    AuthenticatedUser user = new AuthenticatedUser("asdf");
+
+    WitnessResourceTest() throws BadLoginException {
+    }
 
     @Test
     void createWitness() throws SQLException {
@@ -20,15 +24,15 @@ class WitnessResourceTest {
 
     @Test
     void getWitness() {
-        int id = 0;
-        Witness witness = res.getWitness(id);
+        int id = 1;
+        Witness witness = res.getWitness(id, user);
         assertNotNull(witness);
     }
 
     @Test
     void updateWitness() throws SQLException {
         int id = 1;
-        Witness witness = res.getWitness(id);
+        Witness witness = res.getWitness(id, user);
 
         // Store these so we can write them back
         String realName = witness.getName();
@@ -41,7 +45,7 @@ class WitnessResourceTest {
         WitnessRequest update = new WitnessRequest();
         update.setName(updateName);
         update.setLocation(updateLocation);
-        res.updateWitness(id, update);
+        res.updateWitness(id, update, user);
 
         // Pull it back out of the db to assert values
         Witness changed = new Witness(id);
@@ -51,7 +55,7 @@ class WitnessResourceTest {
         // Change it back
         update.setName(witness.getName());
         update.setLocation(witness.getLocation());
-        res.updateWitness(id, update);
+        res.updateWitness(id, update, user);
         Witness changedBack = new Witness(id);
         assertEquals(realName, changedBack.getName());
         assertEquals(realLocation, changedBack.getLocation());

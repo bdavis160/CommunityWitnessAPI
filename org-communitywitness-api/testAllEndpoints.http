@@ -167,3 +167,10 @@ Content-Type: application/json
 
 ###
 
+POST http://localhost:8080/witnesses
+Content-Type: application/json
+
+{
+  "name": "from http test",
+  "location": "from http test"
+}
