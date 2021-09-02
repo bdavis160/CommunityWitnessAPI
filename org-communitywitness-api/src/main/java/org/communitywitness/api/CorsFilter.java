@@ -19,6 +19,9 @@ public class CorsFilter implements ContainerRequestFilter, ContainerResponseFilt
 	// The methods that Cross-Origin clients are allowed to send
 	private static final String ALLOWED_METHODS = "GET, POST, PUT, DELETE, OPTIONS, HEAD";
 	
+	/**
+	 * A filter that checks for CORS requests and handles them accordingly
+	 */
     @Override
     public void filter(ContainerRequestContext request) throws IOException {
 
@@ -41,6 +44,9 @@ public class CorsFilter implements ContainerRequestFilter, ContainerResponseFilt
                 && request.getMethod().equalsIgnoreCase("OPTIONS");
     }
 
+    /**
+     * A filter that attaches CORS data to responses as needed.
+     */
     @Override
     public void filter(ContainerRequestContext request, ContainerResponseContext response)
             throws IOException {

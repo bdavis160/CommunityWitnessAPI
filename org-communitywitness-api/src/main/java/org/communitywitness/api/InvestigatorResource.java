@@ -21,9 +21,7 @@ import jakarta.ws.rs.core.Response;
 public class InvestigatorResource {
 	/**
 	 * Creates a new investigator with data sent by the client.
-	 * TODO: decide if this should be changed into a request somehow, 
-	 * 		perhaps with a separate requests table in the database to store them in.
-	 * @param newInvestigatorRequestData - object containing the new data to be inserted
+	 * @param newInvestigatorRequestData object containing the new data to be inserted
 	 * @return the id of the newly created investigator
 	 */
 	@PermitAll
@@ -51,7 +49,7 @@ public class InvestigatorResource {
 	
 	/**
 	 * Returns an investigators information from the database to the client
-	 * @param investigatorId - the id of the investigator to send data about
+	 * @param investigatorId the id of the investigator to send data about
 	 * @return the data about the investigator
 	 * @throws WebApplicationException if the investigator isn't found in the database
 	 */
@@ -73,8 +71,9 @@ public class InvestigatorResource {
 	/**
 	 * Updates the changeable parts of an investigators data with data sent by the client.
 	 * This takes a whole Investigator object so that making more forms changeable is simple.
-	 * @param investigatorId - the id of the investigator whose data should be updated
-	 * @param updateInvestigatorRequestData - an object containing the updated data
+	 * @param investigatorId the id of the investigator whose data should be updated
+	 * @param updateInvestigatorRequestData an object containing the updated data
+	 * @param user the authentication data of the requesting user
 	 * @return An OK status on success, otherwise a NOT_FOUND status when no matching investigator is found.
 	 */
 	@RolesAllowed({UserRoles.INVESTIGATOR})
@@ -102,7 +101,7 @@ public class InvestigatorResource {
 	
 	/**
 	 * Returns the information about the currently logged in investigator.
-	 * @param user the authentication details of the current user
+	 * @param user the authentication details of the requesting user
 	 * @return the data about the investigator that's logged in
 	 * @throws WebApplicationException if the data could not be retrieved
 	 */
@@ -124,14 +123,15 @@ public class InvestigatorResource {
 	/**
 	 * Connects this investigator to a report (case)
 	 * Takes an investigator id and a case id
-	 * @param investigatorId - the id of the investigator
-	 * @param reportId - the id of the report they're interested in
+	 * @param investigatorId the id of the investigator
+	 * @param reportId the id of the report they're interested in
+	 * @param user the authentication data of the requesting user
 	 * @return An OK status on success, otherwise a NOT_FOUND status when no matching investigator/report is found.
 	 */
 	@RolesAllowed({UserRoles.INVESTIGATOR})
 	@POST
 	@Path("/{investigatorId}/take/{reportId}")
-	public Response takeCase(@PathParam("investigatorId") int investigatorId, @PathParam("reportId") int reportId, @Context AuthenticatedUser user) throws SQLException {
+	public Response takeCase(@PathParam("investigatorId") int investigatorId, @PathParam("reportId") int reportId, @Context AuthenticatedUser user) {
 		Investigator investigator;
 		
 		if (user.getId() != investigatorId)
@@ -139,11 +139,6 @@ public class InvestigatorResource {
 
 		try {
 			investigator = new Investigator(investigatorId);
-		} catch (RuntimeException exception) {
-			return Response.status(Response.Status.NOT_FOUND).build();
-		}
-
-		try {
 			investigator.takeCase(reportId);
 		} catch (SQLException exception) {
 			return Response.status(Response.Status.NOT_FOUND).build();

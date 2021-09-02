@@ -44,9 +44,10 @@ public class WitnessResource {
 
 	/**
 	 * Returns a witness from the database to the client
-	 * @param witnessId - the id of the witness to send
+	 * @param witnessId the id of the witness to send
+	 * @param user the authentication data of the requesting user
 	 * @return the witness with the given id
-	 * @throws WebApplicationException if the witness isn't in the database
+	 * @throws WebApplicationException if the witness isn't in the database or on authorization failure
 	 */
 	@RolesAllowed({UserRoles.WITNESS})
 	@GET
@@ -69,8 +70,9 @@ public class WitnessResource {
 	/**
 	 * Updates the changeable parts of a witness' data with data sent by the client.
 	 * This takes a whole witness object so that making more forms changeable is possible with minimal modifications.
-	 * @param witnessId - the id of the witness whose data should be updated
-	 * @param witnessRequestData - the updated data for the witness
+	 * @param witnessId the id of the witness whose data should be updated
+	 * @param witnessRequestData the updated data for the witness
+	 * @param user the authentication data of the requesting user
 	 * @return A status of OK if the witness is found and update, otherwise a status of NOT_FOUND
 	 */
 	@RolesAllowed({UserRoles.WITNESS})
@@ -93,7 +95,7 @@ public class WitnessResource {
 	
 	/**
 	 * Returns the information about the currently logged in witness.
-	 * @param user the authentication details of the current user
+	 * @param user the authentication details of the requesting user
 	 * @return the data about the witness that's logged in
 	 * @throws WebApplicationException if the data could not be retrieved
 	 */

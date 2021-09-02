@@ -16,7 +16,7 @@ public class Investigator extends org.communitywitness.common.Investigator {
 	 * Constructor that looks up an investigator in the database then fills that data into the object.
 	 * @param id - the id of the witness to lookup in the database.
 	 */
-	public Investigator(int id) throws SQLException, RuntimeException {
+	public Investigator(int id) throws SQLException {
 		// retrieve investigators account info
 		Connection conn = new SQLConnection().databaseConnection();
 		String query = "SELECT Name, Organization, OrganizationType, Rating " +
@@ -33,7 +33,7 @@ public class Investigator extends org.communitywitness.common.Investigator {
 			setOrganizationType(queryResults.getString(3));
 			setRating(queryResults.getDouble(4));
 		} else {
-			throw new RuntimeException("Investigator with the supplied ID does not exist in database");
+			throw new SQLException("Investigator with the supplied ID does not exist in database");
 		}
 		// retrieve ids of the reports the investigator is investigating
 		loadReports(conn);
