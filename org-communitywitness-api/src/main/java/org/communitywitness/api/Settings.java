@@ -82,8 +82,9 @@ public class Settings {
 		
 		// Set the settings read from the file, letting setters handle invalid inputs
 		instance.setBaseUri(userSettings.getProperty("baseUri"));
-		instance.setTlsKeyStorePassword("tlsKeyStorePassword");
-		instance.setTlsKeyStoreFile("tlsKeyStoreFile");
+		// The password is needed to verify the file
+		instance.setTlsKeyStorePassword(userSettings.getProperty("tlsKeyStorePassword")); 
+		instance.setTlsKeyStoreFile(userSettings.getProperty("tlsKeyStoreFile"));
 		instance.setAllowedCrossOrigin(userSettings.getProperty("allowedCrossOrigin"));
 		instance.setPasswordHashType(userSettings.getProperty("passwordHashType"));
 		instance.setPasswordHashMemoryCost(userSettings.getProperty("passwordHashMemoryCost"));;
@@ -240,6 +241,8 @@ public class Settings {
 	 */
 	private Settings() {
 		baseUri = DEFAULT_BASE_URI;
+		tlsKeyStoreFile = DEFAULT_TLS_KEYSTORE_FILE;
+		tlsKeyStorePassword = DEFAULT_TLS_KEYSTORE_PASSWORD;
 		allowedCrossOrigin = DEFAULT_ALLOWED_CROSS_ORIGIN;
 		passwordHashType = DEFAULT_PASSWORD_HASH_TYPE;
 		passwordHashMemoryCost = DEFAULT_PASSWORD_HASH_MEMORY_COST;
@@ -287,19 +290,17 @@ public class Settings {
 			this.tlsKeyStoreFile = tlsKeyStoreFile;
 			return;
 		}
-		
-		this.tlsKeyStoreFile = tlsKeyStoreFile;
+
 		
 		// Try to open the file as a KeyStore to check its validity
-//		try {
-//			File keyStoreFile = new File(tlsKeyStoreFile);
-//			KeyStore.getInstance(keyStoreFile, tlsKeyStorePassword.toCharArray());
-//			this.tlsKeyStoreFile = tlsKeyStoreFile;
-//		} catch (Exception exception) {
-//			logInvalidSetting("TLS KeyStore File", tlsKeyStoreFile);
-//			exception.printStackTrace();
-//			this.tlsKeyStoreFile = DEFAULT_TLS_KEYSTORE_FILE;
-//		}
+		try {
+			File keyStoreFile = new File(tlsKeyStoreFile);
+			KeyStore.getInstance(keyStoreFile, tlsKeyStorePassword.toCharArray());
+			this.tlsKeyStoreFile = tlsKeyStoreFile;
+		} catch (Exception exception) {
+			logInvalidSetting("TLS KeyStore File", tlsKeyStoreFile);
+			this.tlsKeyStoreFile = DEFAULT_TLS_KEYSTORE_FILE;
+		}
 	}
 	
 	/**
