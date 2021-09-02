@@ -312,7 +312,8 @@ public class Settings {
 	private void setAllowedCrossOrigin(String allowedCrossOrigin) {
 		UrlValidator validator = new UrlValidator(ALLOWED_URI_SCHEMES);
 		
-		if (allowedCrossOrigin.equals("*") || validator.isValid(allowedCrossOrigin)) {
+		if ((allowedCrossOrigin != null && allowedCrossOrigin.equals("*")) || 
+				validator.isValid(allowedCrossOrigin)) {
 			this.allowedCrossOrigin = allowedCrossOrigin;
 		} else {
 			logInvalidSetting("Cross-Origin", allowedCrossOrigin);
