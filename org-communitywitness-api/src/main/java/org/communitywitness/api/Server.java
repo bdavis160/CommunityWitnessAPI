@@ -37,7 +37,6 @@ public class Server {
 				// Grizzly's TLS/SSL stuff is poorly documented so I don't know all of the exceptions that might be thrown
 				System.err.println(String.format("Error setting up TLS, please verify your keystore file '%s'.", 
 						Settings.getInstance().getTlsKeyStoreFile()));
-				exception.printStackTrace();
 				return false;
 			}
 			
