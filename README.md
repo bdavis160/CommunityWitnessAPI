@@ -47,6 +47,11 @@ Property | Default Value | Description
 
 To modify these properties either edit `gradle.properties` or pass them in via the command line flag `-P`, for example by doing `./gradlew -PinstallDir=/my/dir installPackage`.
 
+## Setting up a database
+The API needs a backing database to fully function, preferably a PostgreSQL database as that is what it was tested against.
+To prepare your database run the file `schema.sql` against your destination database as the database user you intend to use for the API.
+For example: `psql -d CommunityWitness -U myDbUser -f schema.sql` will set up the schema in a database called "CommunityWitness" owned by the user "myDbUser".
+
 
 # Importing `org.communitywitness.common` with gradle
 To import the `org.communitywitness.common` as a dependency in another gradle project, you can use this https://github.com/alexvasilkov/GradleGitDependenciesPlugin/tree/master gradle plugin by modifying your gradle setup as follows.
