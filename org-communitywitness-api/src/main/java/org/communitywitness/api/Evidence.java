@@ -3,6 +3,7 @@ package org.communitywitness.api;
 import org.communitywitness.common.SpecialIds;
 
 import java.sql.*;
+import java.util.Base64;
 
 public class Evidence extends org.communitywitness.common.Evidence {
 	/**
@@ -29,7 +30,7 @@ public class Evidence extends org.communitywitness.common.Evidence {
 			setTitle(queryResults.getString(1));
 			setType(queryResults.getString(2));
 			setTimestamp(queryResults.getTimestamp(3).toLocalDateTime());
-			setData(queryResults.getBytes(4));
+			setData(Base64.getEncoder().encodeToString(queryResults.getBytes(4)));
 			setReportId(queryResults.getInt(5));
 		} else {
 			SQLConnection.closeDbOperation(conn, queryStatement, queryResults);
@@ -73,7 +74,7 @@ public class Evidence extends org.communitywitness.common.Evidence {
 			queryStatement.setString(1, getTitle());
 			queryStatement.setString(2, getType());
 			queryStatement.setTimestamp(3, java.sql.Timestamp.valueOf(getTimestamp()));
-			queryStatement.setBytes(4, getData());
+			queryStatement.setBytes(4, Base64.getDecoder().decode(getData()));
 			queryStatement.setInt(5, getReportId());
 
 			int rows = queryStatement.executeUpdate();
@@ -105,7 +106,7 @@ public class Evidence extends org.communitywitness.common.Evidence {
 			queryStatement.setString(1, getTitle());
 			queryStatement.setString(2, getType());
 			queryStatement.setTimestamp(3, java.sql.Timestamp.valueOf(getTimestamp()));
-			queryStatement.setBytes(4, getData());
+			queryStatement.setBytes(4, Base64.getDecoder().decode(getData()));
 			queryStatement.setInt(5, getReportId());
 			queryStatement.setInt(6, getId());
 

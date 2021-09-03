@@ -12,7 +12,7 @@ public class Evidence {
 	private String title;
 	private String type;
 	private LocalDateTime timestamp;
-	private byte[] data;
+	private String data;
 	private int reportId;
 
 	/**
@@ -28,10 +28,10 @@ public class Evidence {
 	 * @param title see {@link #setTitle(String)}
 	 * @param type see {@link #setType(String)}
 	 * @param timestamp see {@link #setTimestamp(LocalDateTime)}
-	 * @param data see {@link #setData(byte[])}
+	 * @param data see {@link #setData(String)}
 	 * @param reportId see {@link #setReportId(int)}
 	 */
-	public Evidence(int id, String title, String type, LocalDateTime timestamp, byte[] data, int reportId) {
+	public Evidence(int id, String title, String type, LocalDateTime timestamp, String data, int reportId) {
 		setId(id);
 		setTitle(title);
 		setType(type);
@@ -108,7 +108,7 @@ public class Evidence {
 	 * Returns the location of the file containing this evidence.
 	 * @return this.link
 	 */
-	public byte[] getData() {
+	public String getData() {
 		return data;
 	}
 
@@ -116,7 +116,7 @@ public class Evidence {
 	 * Sets the link for this evidence.
 	 * @param data the location of the file containing this evidence
 	 */
-	public void setData(byte[] data) {
+	public void setData(String data) {
 		this.data = data;
 	}
 
