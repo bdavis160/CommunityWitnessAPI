@@ -118,7 +118,7 @@ tasks.register('installPackage') {
 	dependsOn installApplication, installService, installConfig
 	doFirst {
 		println("Installing application in ${installDir}, service file in ${serviceInstallDir}, ")
-		println("and linking launcher in ${launcherInstallDir}.")
+		println("config file in ${configInstallDir}, and linking launcher in ${launcherInstallDir}.")
 		println("Please ensure you have permission to modify those directories, for example by running this with sudo")
 	}
 }
