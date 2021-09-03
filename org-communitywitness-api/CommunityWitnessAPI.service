@@ -6,7 +6,7 @@ After=postgresql.service network.target
 [Service]
 Type=simple
 Environment=JAVA_OPTS='-server -Xmx1G'
-Environment=CONFIG_FILE=/etc/CommunityWitness.properties
+Environment=CONFIG_FILE=${configInstallDir}/CommunityWitness.properties
 ExecStart=${launcherInstallDir}/${file} "$CONFIG_FILE"
 Restart=on-failure
 

@@ -92,14 +92,14 @@ tasks.register('installService', Copy) {
 	dependsOn ensureServiceInstallDir
 	from 'CommunityWitnessAPI.service'
 	into serviceInstallDir
-	expand('launcherInstallDir': launcherInstallDir, 'file': project.name, 'CONFIG_FILE': '$CONFIG_FILE')
+	expand('configInstallDir': configInstallDir, 'launcherInstallDir': launcherInstallDir, 'file': project.name, 'CONFIG_FILE': '$CONFIG_FILE')
 }
 
 tasks.register('installConfig', Copy) {
 	group = 'Installation'
 	description = 'Copies the configuration file to configInstallDir'
 	dependsOn ensureConfigInstallDir
-	from 'CommunityWitness.properties'
+	from 'CommunityWitness-default.properties'
 	into configInstallDir
 }
 
