@@ -47,9 +47,9 @@ public class Settings {
 	private final int DEFAULT_PASSWORD_HASH_SALT_LENGTH = 32;
 	private final int DEFAULT_PASSWORD_HASH_LENGTH = 32;
 	private final int DEFAULT_API_KEY_LENGTH = 24;
-	private final String DEFAULT_DATABASE_URL = "jdbc:postgresql://commdbserver.ddns.net/cw_primary";
+	private final String DEFAULT_DATABASE_URL = "jdbc:postgresql://localhost/CommunityWitness";
 	private final String DEFAULT_DATABASE_USERNAME = "postgres";
-	private final String DEFAULT_DATABASE_PASSWORD = "cwdefpass";
+	private final String DEFAULT_DATABASE_PASSWORD = "myPassword";
 	
 	/**
 	 * Loads user specified settings from a file and applies the valid ones,

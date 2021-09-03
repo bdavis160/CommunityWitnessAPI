@@ -13,6 +13,13 @@ To run with a configuration file, specify that file as the first argument to the
 There are a variety of user changeable settings, which are all listed and thoroughly described in the default configuration file `CommunityWitness-default.properties`.
 You should start with this configuration then modify it for your use case.
 
+## Performance Tuning
+According to the stress tests the API can handle 1000 simultaneous users while maintaining an average response
+time of <100ms while running with 1GiB of RAM on a 2 core Google Cloud VM.
+On a higher performance server you can raise the amount of RAM available by editing the `JAVA_OPTS`
+environment variable in the systemd service file and changing the flag `-Xmx1G` to `-XmxYG` where `Y`
+is the number of GiB of RAM to dedicate to the API.
+
 
 # Documentation
 A document going over authentication/authorization and all the API end points can be found in the `docs` folder

@@ -67,7 +67,7 @@ class InvestigatorResourceTest {
         assertEquals(200, res.takeCase(investigatorId, reportId, investigator).getStatus());
 
         // in order to make this test succeed more than once, we need to delete the test row after it completes
-        Connection conn = new SQLConnection().databaseConnection();
+        Connection conn = SQLConnection.databaseConnection();
 
         String query = "DELETE FROM reportinvestigations WHERE reportid=? AND investigatorid=? ";
         PreparedStatement queryStatement = conn.prepareStatement(query);
