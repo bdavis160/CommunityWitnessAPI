@@ -10,7 +10,7 @@ To run with a configuration file, specify that file as the first argument to the
 
 
 # Configuration
-There are a variety of user changeable settings, which are all listed and thoroughly described in the default configuration file `CommunityWitness.properties`.
+There are a variety of user changeable settings, which are all listed and thoroughly described in the default configuration file `CommunityWitness-default.properties`.
 You should start with this configuration then modify it for your use case.
 
 
