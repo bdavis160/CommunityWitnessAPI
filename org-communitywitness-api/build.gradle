@@ -99,7 +99,7 @@ tasks.register('installConfig', Copy) {
 	group = 'Installation'
 	description = 'Copies the configuration file to configInstallDir'
 	dependsOn ensureConfigInstallDir
-	from 'CommunityWitness.properties'
+	from 'CommunityWitness-default.properties'
 	into configInstallDir
 }
 
