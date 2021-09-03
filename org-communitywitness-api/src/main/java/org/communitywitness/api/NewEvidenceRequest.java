@@ -7,7 +7,7 @@ public class NewEvidenceRequest {
     private String type;
     private LocalDateTime timestamp;
     private int reportId;
-    private byte[] data;
+    private String data;
 
     public String getTitle() {
         return title;
@@ -41,11 +41,11 @@ public class NewEvidenceRequest {
         this.reportId = reportId;
     }
 
-    public byte[] getData() {
+    public String getData() {
         return data;
     }
 
-    public void setData(byte[] data) {
+    public void setData(String data) {
         this.data = data;
     }
 }
